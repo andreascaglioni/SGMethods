@@ -1,12 +1,13 @@
 from __future__ import division
-# import sys
-# sys.path.append('/home/ascaglio/workspace/SLLG')
+import sys
+sys.path.append('/home/ascaglio/workspace/SGMethods')
 import numpy as np
-from pwSG.MidSets import anisoSmolyakMidSet, SmolyakMidSet
-from pwSG.SGInterpolant import SGInterpolant
-from pwSG.ScalarNodes import unboundedKnotsNested
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import axes3d
+from SGMethods.MidSets import anisoSmolyakMidSet, SmolyakMidSet
+from SGMethods.SGInterpolant import SGInterpolant
+from SGMethods.ScalarNodes import unboundedKnotsNested
+
 
 
 # choose function

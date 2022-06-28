@@ -1,7 +1,7 @@
 import numpy as np
-from pwSG.MidSets import TPMidSet
-from pwSG.TPKnots import TPKnots
-from pwSG.TPInterpolant import TPInterpolant
+from SGMethods.MidSets import TPMidSet
+from SGMethods.TPKnots import TPKnots
+from SGMethods.TPInterpolant import TPInterpolant
 
 
 class SGInterpolant:
@@ -64,6 +64,9 @@ class SGInterpolant:
         self.numNodes = SG.shape[0]
 
     def sampleOnSG(self, Fun, dimF, oldXx = None , oldSamples = None):
+        """NBB assume F 
+        takes as input an np array of parameters 
+        and the 1st output are the relevant values"""
         # sanity checks
         assert(dimF >= 1)
         if(oldSamples is None):
@@ -84,7 +87,8 @@ class SGInterpolant:
                 fOnSG[n,:] = oldSamples[check[0], :]
                 nRecycle += 1
             else:
-                fOnSG[n] = Fun(*list(currNode))
+                A = Fun(currNode)[0]  
+                fOnSG[n] = A
         print("Recycled", nRecycle, "; Discarted", oldXx.shape[0]-nRecycle, "; Sampled", self.SG.shape[0]-nRecycle)
         return fOnSG
 
