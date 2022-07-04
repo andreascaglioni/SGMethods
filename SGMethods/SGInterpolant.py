@@ -82,13 +82,13 @@ class SGInterpolant:
             currNode = self.SG[n,:]
             check = np.where(np.linalg.norm(oldXx-currNode, 1, axis=1) < 1.e-10)[0]
             assert(check.size<=1)
-            found = sum(check)
+            found = len(check)
             if found:
                 fOnSG[n,:] = oldSamples[check[0], :]
                 nRecycle += 1
             else:
-                A = Fun(currNode)[0]  
-                fOnSG[n] = A
+                A = Fun(currNode)
+                fOnSG[n,:] = A
         print("Recycled", nRecycle, "; Discarted", oldXx.shape[0]-nRecycle, "; Sampled", self.SG.shape[0]-nRecycle)
         return fOnSG
 
