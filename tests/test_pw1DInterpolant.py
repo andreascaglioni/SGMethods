@@ -1,10 +1,12 @@
 import numpy as np
 from scipy.interpolate import interp1d
-from pwSG.ScalarNodes import unboundedKnotsNested
+import sys
+sys.path.append('/home/ascaglio/workspace/SGMethods')
+from SGMethods.ScalarNodes import unboundedKnotsNested
 
 
 F = lambda x: np.sin(x)
-nNodesV = np.power(2, (np.linspace(2, 7, 7))) - 1
+nNodesV = (np.power(2, (np.linspace(2, 7, 7))) - 1).astype(int)
 NRNDSamples = 1000
 xxRND = np.sort(np.random.normal(0, 1, [NRNDSamples]))
 FOnxx = F(xxRND)

@@ -1,6 +1,8 @@
+import sys
+sys.path.append('/home/ascaglio/workspace/SGMethods')
 import numpy as np
 import matplotlib.pyplot as plt
-from pwSG.ScalarNodes import unboundedKnotsNested
+from SGMethods.ScalarNodes import unboundedKnotsNested
 
 
 # free example
@@ -22,12 +24,8 @@ assert(np.linalg.norm(unboundedKnotsNested(1) - np.array([0.])) < 1.e-10)
 # check that output has size n
 for n in range(1, 10):
     assert(np.size(unboundedKnotsNested(n)) == n)
-# check nestedness
-# n = 1
-# kkPrev = unboundedKnotsNested(n)
-# for n in range([3, 7, 15, 31, 63]):
-#     kkCurr = unboundedKnotsNested(n)
-    # assert( np.isin )
+# TODO check nestedness
+
 
 
 

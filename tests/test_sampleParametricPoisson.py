@@ -1,3 +1,6 @@
+from __future__ import division
+import sys
+sys.path.append('/home/ascaglio/workspace/SGMethods')
 from tests.ParametricPoisson import sampleParametricPoisson
 import matplotlib.pyplot as plt
 from fenics import *

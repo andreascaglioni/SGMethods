@@ -1,16 +1,18 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from pwSG.TPInterpolant import TPInterpolant
-from pwSG.TPKnots import TPKnots
-from pwSG.ScalarNodes import unboundedKnotsNested
 from mpl_toolkits.mplot3d import Axes3D
+import sys
+sys.path.append('/home/ascaglio/workspace/SGMethods')
+from SGMethods.TPInterpolant import TPInterpolant
+from SGMethods.TPKnots import TPKnots
+from SGMethods.ScalarNodes import unboundedKnotsNested
 
 
 N = 2
 F = lambda x, y: np.sin(x+y)
 nLevels = 6
 NRNDSamples = 1000
-nNodesV = np.power(2, np.linspace(1, nLevels, nLevels)) - 1
+nNodesV = (np.power(2, np.linspace(1, nLevels, nLevels)) - 1).astype(int)
 nNodesVND = np.power(nNodesV, N)
 xxRND = np.random.normal(0, 1, [N, NRNDSamples])
 FOnxx = np.zeros(NRNDSamples)
@@ -21,7 +23,7 @@ err = np.zeros([len(nNodesV)])
 for n in range(len(nNodesV)):
     print("Computing n =", n)
     # nodes, TPNodes = TPKnots(unboundedKnotsNested, np.array([nNodesV[n], 1]))
-    nodes, TPNodes = TPKnots(unboundedKnotsNested, np.ones(N)*nNodesV[n])
+    nodes, TPNodes = TPKnots(unboundedKnotsNested, np.ones(N, dtype=int)*nNodesV[n])
     # samples of F
     nodesGrid = np.meshgrid(*nodes)
     fOnNodes = F(*nodesGrid)

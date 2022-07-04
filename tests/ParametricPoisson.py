@@ -6,6 +6,7 @@ from math import exp
 def sampleParametricPoisson(yy, nH):
     """The parametric poisson problem with log a(y) = a0 + \sum_n an yn is solved with FE.
     the unfirm norm of the an decays quadratically"""
+    set_log_level(31)  # reduce fenics logging
     def boundary(x):
         return x[0] < DOLFIN_EPS or x[0] > 1.0 - DOLFIN_EPS or x[1] < DOLFIN_EPS or x[1] > 1.0 - DOLFIN_EPS 
     u0 = Constant(0.0)
