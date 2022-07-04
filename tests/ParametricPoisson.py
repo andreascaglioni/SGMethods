@@ -34,9 +34,9 @@ def computeErrorPoisson(yy, u, uExa, V):
     errSamples = np.zeros(len(u))
     errFun = Function(V)
     for n in range(len(u)):
-        errFun.vector()[:] = u.vector()[:] - uExa.vector()[:]
+        errFun.vector()[:] = u[n] - uExa[n]
         errSamples[n] = norm(errFun, 'H1')
     ww = np.exp(- np.square(np.linalg.norm(yy, 2, axis=1)))
-    return np.max( errSamples * ww), errSamples
+    return np.max( errSamples * ww)
 
 
