@@ -33,9 +33,9 @@ def anisoSmolyakMidSet(w, N, a):
         v = np.reshape(v, (1,)+v.shape)
         return v.T
     else: # w>0 & N >1
-        I = np.array([], dtype=int).reshape((0, N))
+        I = np.zeros((0, N), dtype=int)
         for comp1 in range(floor(w/a[0]) + 1): # 0...floor(w/a[0])
-            rest = anisoSmolyakMidSet(w-comp1, N-1, a[1::])
+            rest = anisoSmolyakMidSet(w-comp1*a[0], N-1, a[1::])
             newFirstCol = comp1*np.ones((rest.shape[0], 1), dtype=int)
             newRows = np.concatenate((newFirstCol, rest), 1)
             I = np.concatenate((I, newRows), 0)
