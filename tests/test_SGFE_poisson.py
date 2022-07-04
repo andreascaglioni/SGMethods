@@ -11,10 +11,11 @@ from ParametricPoisson import sampleParametricPoisson, computeErrorPoisson
 
 # choose function
 N = 2
-
-F = lambda y: sampleParametricPoisson(y, 16)
-u, V, mesh = F([0])
+nH = 16
+u, V, mesh = sampleParametricPoisson([0], nH)
 dimF = V.dim()
+F = lambda y: sampleParametricPoisson(y, nH)[0].vector()[:]
+
 # define aniso vector
 normAn = 1/(1.65*np.linspace(1, N, N)**2)
 tau = 0.5/normAn
@@ -26,7 +27,7 @@ knots = unboundedKnotsNested
 
 # error computations
 nLevels = 5
-NRNDSamples = 1
+NRNDSamples = 2
 yyRnd = np.random.normal(0, 1, [NRNDSamples, N])
 uExa = []
 for n in range(NRNDSamples):
@@ -46,7 +47,7 @@ for w in range(0, len(err)):
         FOnSG = None
     uOnSG = interpolant.sampleOnSG(F, dimF)
     uInterp = interpolant.interpolate(yyRnd, uOnSG)
-    err[w] = computeErrorPoisson(yyRnd, uInterp, uExa)
+    err[w] = computeErrorPoisson(yyRnd, uInterp, uExa, V)
     oldSG = interpolant.SG
 
 print(err)
