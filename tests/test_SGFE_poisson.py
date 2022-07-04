@@ -4,15 +4,16 @@ sys.path.append('/home/ascaglio/workspace/SGMethods')
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import axes3d
-from SGMethods.MidSets import anisoSmolyakMidSet, SmolyakMidSet
+from SGMethods.MidSets import SmolyakMidSet
 from SGMethods.SGInterpolant import SGInterpolant
 from SGMethods.ScalarNodes import unboundedKnotsNested
 from ParametricPoisson import sampleParametricPoisson, computeErrorPoisson
+from scipy.interpolate import RegularGridInterpolator
 
 # choose function
-N = 2
+N = 5
 nH = 16
-u, V, mesh = sampleParametricPoisson([0], nH)
+u, V, mesh = sampleParametricPoisson([0.], nH)
 dimF = V.dim()
 F = lambda y: sampleParametricPoisson(y, nH)[0].vector()[:]
 
@@ -27,27 +28,32 @@ knots = unboundedKnotsNested
 
 # error computations
 nLevels = 5
-NRNDSamples = 2
+NRNDSamples = 20
 yyRnd = np.random.normal(0, 1, [NRNDSamples, N])
 uExa = []
 for n in range(NRNDSamples):
     uExa.append(F(yyRnd[n,:]))
 
 # convergence test
+nLevels = 3
 err = np.zeros(nLevels)
 nNodes = np.zeros(nLevels)
 for w in range(0, len(err)):
-    print("Computing n = ", w)
-    I = anisoSmolyakMidSet(w, N, anisoVector)
+    print("Computing w  = ", w)
+    # I = anisoSmolyakMidSet(w*min(anisoVector), N, anisoVector)
+    I = SmolyakMidSet(w, N)
     interpolant = SGInterpolant(I, knots, lev2knots)
     SG = interpolant.SG
     nNodes[w] = interpolant.numNodes
+    print(int(nNodes[w]), "nodes")
     if w ==0 :
-        oldSg = None
-        FOnSG = None
-    uOnSG = interpolant.sampleOnSG(F, dimF)
+        oldSG = None
+        uOnSG = None
+    uOnSG = interpolant.sampleOnSG(F, dimF, oldSG, uOnSG)
     uInterp = interpolant.interpolate(yyRnd, uOnSG)
+    # print(uInterp)
     err[w] = computeErrorPoisson(yyRnd, uInterp, uExa, V)
+    print("Error:", err[w])
     oldSG = interpolant.SG
 
 print(err)

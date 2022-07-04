@@ -9,11 +9,10 @@ from SGMethods.SGInterpolant import SGInterpolant
 from SGMethods.ScalarNodes import unboundedKnotsNested
 
 
-
 # choose function
 N = 2
 dimF = 3
-F = lambda x, y: np.sin(x+y)+1 * np.array([1., 2., 3.])
+F = lambda x: np.sin(x[0]+x[1])+1 * np.array([1., 2., 3.])
 anisoVector = np.array([1., 2.])
 # choose interpolant
 lev2knots = lambda n: 2**(n+1)-1
@@ -26,7 +25,7 @@ NRNDSamples = 1000
 xxRND = np.random.normal(0, 1, [NRNDSamples, N])
 fOnxx = np.zeros((NRNDSamples, dimF))
 for w in range(NRNDSamples):
-    fOnxx[w] = F(*(list(xxRND[w, :])))
+    fOnxx[w] = F(xxRND[w, :])
 weight = np.exp(- np.square(np.linalg.norm(xxRND, 2, axis=1)))
 
 # convergence test
