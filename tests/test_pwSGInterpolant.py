@@ -20,7 +20,6 @@ knots = unboundedKnotsNested
 
 # error computations
 spaceNorm = lambda x: np.linalg.norm(x, ord=2, axis=1)
-nLevels = 8
 NRNDSamples = 1000
 xxRND = np.random.normal(0, 1, [NRNDSamples, N])
 fOnxx = np.zeros((NRNDSamples, dimF))
@@ -29,9 +28,9 @@ for w in range(NRNDSamples):
 weight = np.exp(- np.square(np.linalg.norm(xxRND, 2, axis=1)))
 
 # convergence test
+nLevels = 8
 err = np.zeros(nLevels)
 nNodes = np.zeros(nLevels)
-
 for w in range(0, len(err)):
     print("Computing n = ", w)
     I = SmolyakMidSet(w, N)
