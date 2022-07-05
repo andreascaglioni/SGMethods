@@ -22,8 +22,6 @@ class SGInterpolant:
         self.SG = []  # np array of shape (#colloc. pts, N)
         self.numNodes = 0
         self.setupSG()
-        
-        # self.fOnSG = [] # list of length # colloc. pts.
 
     def setupInterpolant(self):
         jVec = TPMidSet(1, self.N)  # just a shortcut to list all increments in {0,1}^N as rows of a matrix
@@ -99,5 +97,5 @@ class SGInterpolant:
             mapCurrTPtoSG = self.mapTPtoSG[n]
             fOnCurrentTPGrid = fOnSG[mapCurrTPtoSG, :]
             L = TPInterpolant(currentNodesTuple, fOnCurrentTPGrid)
-            out += self.combinationCoeffs[n] * L(xNew)
+            out = out + self.combinationCoeffs[n] * L(xNew)
         return out
