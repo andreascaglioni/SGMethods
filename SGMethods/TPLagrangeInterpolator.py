@@ -2,9 +2,6 @@ import numpy as np
 
 
 class TPLagrangeInterpolator:
-    
-
-
     def __init__(self, nodesTuple, F):
 
         # formatting input
@@ -65,4 +62,4 @@ class TPLagrangeInterpolator:
         p = np.multiply( self.F, lagrangeBasis )
         # reduce first N dimensions and reshape
         s = np.sum(p, axis=tuple(n for n in range(self.nDims)))
-        return np.squeeze( s )
+        return np.reshape( s,(numX, self.dimF))
