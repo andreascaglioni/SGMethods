@@ -8,11 +8,13 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import axes3d
 import scipy.io
 
+"""The point of this test is to keep 1 collocation node in one of the two directions and observe 
+that the wrapper correctly extrapolates as a constant in this direction"""
 
 # choose function
 N = 2
 dimF = 1
-F = lambda x,y: np.sin(x+0.01*y)
+F = lambda x,y: np.sin(x+0.1*y)
 
 # error computations
 spaceNorm = lambda x: np.linalg.norm(x, ord=2, axis=1)
