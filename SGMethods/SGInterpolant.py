@@ -26,6 +26,8 @@ class SGInterpolant:
 
     def setupInterpolant(self):
         jVec = TPMidSet(1, self.N)  # just a shortcut to list all increments in {0,1}^N as rows of a matrix
+        if(self.N==1):
+            jVec = np.reshape(jVec, (-1,1))
         for n in range(self.cardMidSet):
             currentMid = self.midSet[n, :]
             combinCoeff = 0
