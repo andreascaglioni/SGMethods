@@ -41,6 +41,7 @@ def anisoSmolyakMidSet(w, N, a):
             I = np.concatenate((I, newRows), 0)
         return I
 
+
 def SmolyakMidSet(w, N):
     """ Each row is a multi-index define with base knot 0, condition: \sum_i=0^{d-1} x_i \leq w
     NBB leq so w=0 onyl mid 0 included """

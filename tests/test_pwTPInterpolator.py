@@ -1,10 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
-import sys
-
-from scipy.fftpack import itilbert
-sys.path.append('/home/ascaglio/workspace/SGMethods')
+import sys, os
+sys.path.insert(1, os.path.join(os.path.expanduser("~"), 'workspace/SGMethods'))
 from SGMethods.TPInterpolatorWrapper import TPInterpolatorWrapper
 from SGMethods.TPKnots import TPKnots
 from SGMethods.ScalarNodes import unboundedKnotsNested
