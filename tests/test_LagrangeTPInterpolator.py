@@ -11,9 +11,9 @@ import scipy.io
 
 
 # choose function
-N = 1
-dimF = 1
-F = lambda x: np.sin(x)
+N = 3
+dimF = 3
+F = lambda x,y,z: np.sin(x+y+z)*np.array([1.,2.,3.])
 
 # error computations
 spaceNorm = lambda x: np.linalg.norm(x, ord=2, axis=1)
