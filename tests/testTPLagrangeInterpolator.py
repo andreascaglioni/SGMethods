@@ -6,6 +6,8 @@ from SGMethods.TPKnots import TPKnots
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import axes3d
+import scipy.io
+
 
 
 # choose function
@@ -24,10 +26,14 @@ weight = np.exp(- np.square(np.linalg.norm(xxRND, 2, axis=1)))
 nLevels = 6
 nNodesV = (np.power(2, np.linspace(1, nLevels, nLevels)) - 1).astype(int)
 
+mat = scipy.io.loadmat('SGMethods/knots_weighted_leja_2.mat')
+wLejaArray = np.ndarray.flatten(mat['X'])
+WLejaNodes1D = lambda n : wLejaArray[0:n:]
+
 err = np.zeros([len(nNodesV)])
 for n in range(len(nNodesV)):
     print("Computing n =", n)
-    nodes, TPNodes = TPKnots(unboundedKnotsNested, np.ones(N, dtype=int)*nNodesV[n])
+    nodes, TPNodes = TPKnots(WLejaNodes1D, np.ones(N, dtype=int)*nNodesV[n])
     nodesGrid = np.meshgrid(*nodes, indexing='ij')
     fOnNodes = np.zeros(nodesGrid[0].shape + (dimF,))
     it = np.nditer(nodesGrid[0], flags=['multi_index'])
@@ -40,9 +46,10 @@ for n in range(len(nNodesV)):
     err[n] = np.amax(np.multiply(spaceNorm(yy - fOnxx), weight))
 
     # plt.plot(xxRND, np.multiply(spaceNorm(yy - fOnxx), weight), '.')
-    # plt.plot(xxRND, yy, '.')
+    # plt.semilogy(xxRND, yy, '.')
+    # plt.plot(xxRND, fOnxx, '.')
     # plt.plot(xxRND, 1/weight, '.')
-    plt.show()
+    plt.show() 
 
 print(err)
 nNodesVND = np.power(nNodesV, N)
