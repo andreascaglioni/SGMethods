@@ -9,23 +9,27 @@ from SGMethods.ScalarNodes import unboundedKnotsNested
 from ParametricPoisson import sampleParametricPoisson, computeErrorPoisson
 import scipy.io
 
+"""We test the sparse grid interpolant on a Poisson problem with lognormal diffusion decaying with order 4. 
+The convergence of 2 SG interpolants are compared:
+1. anisotrpoic midset as usual
+2. isotropic midset"""
 # choose function
 N = 5
 nH = 16
-u, V, mesh = sampleParametricPoisson([0.], nH)
+orderDecayCoefficients = 2
+u, V, mesh = sampleParametricPoisson([0.], nH, orderDecayCoefficients)
 dimF = V.dim()
-F = lambda y: sampleParametricPoisson(y, nH)[0].vector()[:]
-
-# define aniso vector
-normAn = 1/(1.65*np.linspace(1, N, N)**2)
-tau = 0.5/normAn
-anisoVector = 0.5*np.log(tau + np.sqrt(1+tau*tau))
+F = lambda y: sampleParametricPoisson(y, nH, orderDecayCoefficients)[0].vector()[:]
 
 # choose interpolant
 lev2knots = lambda n: n+1
 mat = scipy.io.loadmat('SGMethods/knots_weighted_leja_2.mat')
 wLejaArray = np.ndarray.flatten(mat['X'])
 knots = lambda n : wLejaArray[0:n:]
+normAn = 1/(np.linspace(1, N, N)**orderDecayCoefficients)
+tau = 0.5/normAn
+anisoVector = 0.5*np.log(tau + np.sqrt(1+tau*tau))
+
 
 # error computations
 NRNDSamples = 100
@@ -34,9 +38,9 @@ uExa = []
 for n in range(NRNDSamples):
     uExa.append(F(yyRnd[n,:]))
 
-# convergence test ANISOTROPIC
-# nLevels = 10
 maxNumNodes = 100
+
+##################### convergence test ANISOTROPIC
 err = np.array([])
 nNodes = np.array([])
 w=0
@@ -61,20 +65,22 @@ while(True):
     oldSG = interpolant.SG
     w+=1
 
-print(err)
+print("Error:", err)
 rates = -np.log(err[1::]/err[0:-1:])/np.log(nNodes[1::]/nNodes[0:-1:])
 print("Rate:",  rates)
 plt.loglog(nNodes, err, '.-', nNodes, 1.e-5/nNodes, '-k')
 
 
-# convergence test ISOTROPIC
+
+
+anisoVector = np.repeat(1., (N))
+##################### convergence test ISOTROPIC
 err = np.array([])
 nNodes = np.array([])
 w=0
 while(True):
     print("Computing w  = ", w)
-    # I = anisoSmolyakMidSet(w*min(anisoVector), N, anisoVector)
-    I = SmolyakMidSet(w, N)
+    I = anisoSmolyakMidSet(w*min(anisoVector), N, anisoVector)
     interpolant = SGInterpolant(I, knots, lev2knots)
     SG = interpolant.SG
     if(interpolant.numNodes > maxNumNodes):
@@ -88,11 +94,13 @@ while(True):
     
     err = np.append(err, computeErrorPoisson(yyRnd, uInterp, uExa, V))
     nNodes = np.append(nNodes, interpolant.numNodes)
+
+    print("Error:", err[w])
     oldSG = interpolant.SG
     w+=1
 
-print(err)
+print("Error:", err)
 rates = -np.log(err[1::]/err[0:-1:])/np.log(nNodes[1::]/nNodes[0:-1:])
 print("Rate:",  rates)
-plt.loglog(nNodes, err, '.-')  # , nNodes, 1/nNodes, '-k')
+plt.loglog(nNodes, err, '.-', nNodes, 1.e-5/nNodes, '-k')
 plt.show()

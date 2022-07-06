@@ -3,7 +3,7 @@ import numpy as np
 from math import exp
 
 
-def sampleParametricPoisson(yy, nH):
+def sampleParametricPoisson(yy, nH, orderDecayCoefficients):
     """The parametric poisson problem with log a(y) = a0 + \sum_n an yn is solved with FE.
     the unfirm norm of the an decays quadratically"""
     set_log_level(31)  # reduce fenics logging
@@ -11,9 +11,17 @@ def sampleParametricPoisson(yy, nH):
         return x[0] < DOLFIN_EPS or x[0] > 1.0 - DOLFIN_EPS or x[1] < DOLFIN_EPS or x[1] > 1.0 - DOLFIN_EPS 
     u0 = Constant(0.0)
     f = Constant(1.)
+
+    # Diffusion coefficient a(y,x) = 1 + 1/C * \sum_{n=1}^N y_n \frac{sin(x[0]*2*pi*n)}{n^2}, where C = 1.65 makes the functions uniformly positive
+    # strA = "1."
+    # for n in range(len(yy)):
+    #     strA = strA + "+" + "sin(x[0]*2.*pi*" + str(n+1) + ")/(" + str(n+1) + "*" + str(n+1) + ")" + "*" + str(yy[n])
+    
+    # Diffusion coefficient a(y,x) = 1 + 1/C * \sum_{n=1}^N y_n \frac{sin(x[0]*2*pi*n)}{n^4}, where C = 1.65 makes the functions uniformly positive
     strA = "1."
     for n in range(len(yy)):
-        strA = strA + "+" + "1/(1.65)*sin(x[0]*2.*pi*" + str(n+1) + ")/(" + str(n+1) + "*" + str(n+1) + ")" + "*" + str(yy[n])
+        strA = strA + "+" + "sin(x[0]*2.*pi*" + str(n+1) + ")/pow(" + str(n+1) + ","+ str(orderDecayCoefficients) +")" + "*" + str(yy[n])
+    
     strA = "exp(" + strA + ")"
     a = Expression(strA, degree=2)
     mesh = UnitSquareMesh(nH, nH)
