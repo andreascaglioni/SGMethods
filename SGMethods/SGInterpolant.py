@@ -5,13 +5,14 @@ from SGMethods.TPInterpolatorWrapper import TPInterpolatorWrapper
 
 
 class SGInterpolant:
-    def __init__(self, midSet, knots, lev2knots):
+    def __init__(self, midSet, knots, lev2knots, pieceWise=False):
         self.midSet = midSet  # np array of shape (#mids, N)
         self.cardMidSet = midSet.shape[0]
         self.N = midSet.shape[1]
         self.knots = knots
         self.lev2knots = lev2knots
-
+        self.pieceWise=pieceWise
+        
         self.combinationCoeffs = []  # list of int
         self.activeMIds = []  # list of np arrays
         self.TPNodesList = []  # list of tuples
@@ -96,6 +97,6 @@ class SGInterpolant:
             currentNodesTuple = self.TPNodesList[n]
             mapCurrTPtoSG = self.mapTPtoSG[n]
             fOnCurrentTPGrid = fOnSG[mapCurrTPtoSG, :]  # this will produce a matrix of shape = mapCurrTPtoSG + (dimF,)
-            L = TPInterpolatorWrapper(currentNodesTuple, fOnCurrentTPGrid)
+            L = TPInterpolatorWrapper(currentNodesTuple, fOnCurrentTPGrid, pieceWise = self.pieceWise)
             out = out + self.combinationCoeffs[n] * L(xNew)
         return out

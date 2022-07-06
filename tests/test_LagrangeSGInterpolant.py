@@ -7,6 +7,7 @@ from mpl_toolkits.mplot3d import axes3d
 from SGMethods.MidSets import anisoSmolyakMidSet, SmolyakMidSet
 from SGMethods.SGInterpolant import SGInterpolant
 from SGMethods.ScalarNodes import unboundedKnotsNested
+import scipy.io
 
 
 # choose function
@@ -15,8 +16,10 @@ dimF = 3
 F = lambda x: np.sin(x[0]+x[1])+1 * np.array([1., 2., 3.])
 anisoVector = np.array([1., 2.])
 # choose interpolant
-lev2knots = lambda n: 2**(n+1)-1
-knots = unboundedKnotsNested
+lev2knots = lambda n: n+1
+mat = scipy.io.loadmat('SGMethods/knots_weighted_leja_2.mat')
+wLejaArray = np.ndarray.flatten(mat['X'])
+knots = lambda n : wLejaArray[0:n:]
 
 # error computations
 spaceNorm = lambda x: np.linalg.norm(x, ord=2, axis=1)
@@ -36,7 +39,7 @@ for w in range(0, len(err)):
     I = SmolyakMidSet(w, N)
     # plt.scatter(*zip(*I))
     # plt.show()
-    interpolant = SGInterpolant(I, knots, lev2knots, pieceWise=True)
+    interpolant = SGInterpolant(I, knots, lev2knots)
     SG = interpolant.SG
     # plt.scatter(*zip(*SG))
     # plt.show()
@@ -61,11 +64,5 @@ for w in range(0, len(err)):
 print(err)
 rates = -np.log(err[1::]/err[0:-1:])/np.log(nNodes[1::]/nNodes[0:-1:])
 print("Rate:",  rates)
-## result
-#[9.06765844e-01 2.38283819e-01 7.05886377e-02 1.46946275e-02
-# 4.32681306e-03 1.14810192e-03 3.10653690e-04 8.51160727e-05]
-#Rate: [0.83036553 0.99413116 1.4825023  1.2630792  1.45533061 1.49623628
-# 1.52933197]
-
 plt.loglog(nNodes, err, '.-', nNodes, 1/nNodes, '-k')
 plt.show()
