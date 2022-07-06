@@ -1,7 +1,7 @@
 import numpy as np
 from SGMethods.MidSets import TPMidSet
 from SGMethods.TPKnots import TPKnots
-from SGMethods.TPInterpolant import TPInterpolant
+from SGMethods.TPInterpolatorWrapper import TPInterpolatorWrapper
 
 
 class SGInterpolant:
@@ -95,7 +95,7 @@ class SGInterpolant:
         for n, MId in enumerate(self.activeMIds):
             currentNodesTuple = self.TPNodesList[n]
             mapCurrTPtoSG = self.mapTPtoSG[n]
-            fOnCurrentTPGrid = fOnSG[mapCurrTPtoSG, :]
-            L = TPInterpolant(currentNodesTuple, fOnCurrentTPGrid)
+            fOnCurrentTPGrid = fOnSG[mapCurrTPtoSG, :]  # this will produce a matrix of shape = mapCurrTPtoSG + (dimF,)
+            L = TPInterpolatorWrapper(currentNodesTuple, fOnCurrentTPGrid)
             out = out + self.combinationCoeffs[n] * L(xNew)
         return out

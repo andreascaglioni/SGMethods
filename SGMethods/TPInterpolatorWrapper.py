@@ -6,7 +6,7 @@ from scipy.interpolate import RegularGridInterpolator
 the ROM is a constant extrapolation'''
 
 
-class TPInterpolant:
+class TPInterpolatorWrapper:
     def __init__(self, nodesTuple, fOnNodes):
         self.nodesTuple = nodesTuple
         self.fOnNodes = fOnNodes

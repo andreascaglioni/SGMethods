@@ -5,7 +5,7 @@ import sys
 
 from scipy.fftpack import itilbert
 sys.path.append('/home/ascaglio/workspace/SGMethods')
-from SGMethods.TPInterpolant import TPInterpolant
+from SGMethods.TPInterpolatorWrapper import TPInterpolatorWrapper
 from SGMethods.TPKnots import TPKnots
 from SGMethods.ScalarNodes import unboundedKnotsNested
 
@@ -38,7 +38,7 @@ for n in range(len(nNodesV)):
         fOnNodes[it.multi_index] = F(*tuple(currNode))  # the lhs is the remaining section of the tensor
 
     # interpolate
-    interp = TPInterpolant(nodes, fOnNodes)
+    interp = TPInterpolatorWrapper(nodes, fOnNodes)
     fInterp = interp(xxRND)
     # error
     err[n] = np.amax(spaceNorm(FOnxx - fInterp) * ww)
