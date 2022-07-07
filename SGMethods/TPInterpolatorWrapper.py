@@ -22,6 +22,9 @@ class TPInterpolatorWrapper:
             self.L = TPLagrangeInterpolator(self.activeNodesTuple, np.squeeze(self.fOnNodes))
 
     def __call__(self, xNew):
+        # if xNew has len(shape)=1, reahpe it
+        if(len(xNew.shape)==1):
+            xNew = np.reshape(xNew, (-1,1))
         # purge components of x in inactive dimensions, because the interpolating function will be constant in those dimensions
         xNew = xNew[:, self.activeDims]
         # handle case with no active dimensions (1 cp)
