@@ -1,3 +1,5 @@
 tests/__pycache__
 SGMethods/__pycache__
 .idea
+results
+test_py.py
