@@ -22,9 +22,10 @@ BDFOrder = 1
 T = 1
 Nh = 32
 NTau = Nh * 2
-NPrallelPool = 32
+NParallel = 32
 NRNDSamples = 1024
-maxNumNodes = 200
+maxNumNodes = 1000
+
 def F(x):
     return sample_LLG_function_noise(x, Nh, NTau, T, FEMOrder, BDFOrder)
 def physicalError(u, uExa):
@@ -44,7 +45,7 @@ yyRnd = np.random.normal(0, 1, [NRNDSamples, N])
 uExa = np.zeros((NRNDSamples, dimF))
 
 print("Parallel random sampling")
-pool = Pool(NPrallelPool)
+pool = Pool(NParallel)
 uExa = pool.map(F, yyRnd)
 # for n in range(NRNDSamples):
 #     uExa.append(F(yyRnd[n,:]))
@@ -59,8 +60,7 @@ w=0
 while(True):
     print("Computing w  = ", w)
     I = anisoSmolyakMidSet(w*min(anisoVector), N, anisoVector)
-    interpolant = SGInterpolant(I, knots, lev2knots)
-    SG = interpolant.SG
+    interpolant = SGInterpolant(I, knots, lev2knots, NParallel=NParallel)
     if(interpolant.numNodes > maxNumNodes):
         break
     print(interpolant.numNodes, "nodes")
