@@ -1,7 +1,4 @@
 import numpy as np
-
-
-import numpy as np
 import matplotlib.pyplot as plt
 
 def fitToExponential(x, y):
@@ -12,7 +9,7 @@ def fitToExponential(x, y):
     multC = np.exp(c)
     return multC, expC
     
-A = np.loadtxt("probe_SLLG_regularity_parameters.csv")
+A = np.loadtxt("results/probe_SLLG_regularity_parameters.csv")
 print(A)
 xx = np.linspace(1,15,15)
 mC = np.zeros(A.shape[0])
@@ -28,7 +25,7 @@ for n in range(A.shape[0]):
     mC[n], eC[n] = fitToExponential(xc, yc)
     xl=np.linspace(xc[0], xc[-1])
     ss = "e="+ ('%.2f' % eC[n] ) +" C=" + ('%.2f' % mC[n])
-    plt.semilogy(xl, mC[n]*np.exp(-eC[n]*xl), '-k', label=ss)
+    # plt.semilogy(xl, mC[n]*np.exp(-eC[n]*xl), '-k', label=ss)
 plt.legend()
 plt.show()
 
