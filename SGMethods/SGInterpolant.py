@@ -2,10 +2,11 @@ import numpy as np
 from SGMethods.MidSets import TPMidSet
 from SGMethods.TPKnots import TPKnots
 from SGMethods.TPInterpolatorWrapper import TPInterpolatorWrapper
+from multiprocessing import Pool
 
 
 class SGInterpolant:
-    def __init__(self, midSet, knots, lev2knots, pieceWise=False):
+    def __init__(self, midSet, knots, lev2knots, pieceWise=False, parallel=False, NParallel = 1):
         self.midSet = midSet  # np array of shape (#mids, N)
         self.cardMidSet = midSet.shape[0]
         self.N = midSet.shape[1]
@@ -23,6 +24,8 @@ class SGInterpolant:
         self.SG = []  # np array of shape (#colloc. pts, N)
         self.numNodes = 0
         self.setupSG()
+
+        self.NParallel = NParallel
 
     def setupInterpolant(self):
         jVec = TPMidSet(1, self.N)  # just a shortcut to list all increments in {0,1}^N as rows of a matrix
@@ -79,6 +82,8 @@ class SGInterpolant:
 
         nRecycle = 0
         fOnSG = np.zeros((self.numNodes, dimF))
+        toCompute = []
+        yyToCompute = []
         for n in range(self.numNodes):
             currNode = self.SG[n,:]
             check = np.where(np.linalg.norm(oldXx-currNode, 1, axis=1) < 1.e-10)[0]
@@ -88,8 +93,13 @@ class SGInterpolant:
                 fOnSG[n,:] = oldSamples[check[0], :]
                 nRecycle += 1
             else:
-                A = Fun(currNode)
-                fOnSG[n,:] = A
+                toCompute.append(n)
+                yyToCompute.append(currNode)
+        
+        # compute (possibily in parallel) remaining nodes
+        pool = Pool(self.NParallel)
+        fOnSG[toCompute, :] = pool.map(Fun, yyToCompute)
+
         print("Recycled", nRecycle, "; Discarted", oldXx.shape[0]-nRecycle, "; Sampled", self.SG.shape[0]-nRecycle)
         return fOnSG
 
