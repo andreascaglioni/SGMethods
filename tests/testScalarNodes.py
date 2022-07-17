@@ -6,11 +6,11 @@ from SGMethods.ScalarNodes import unboundedKnotsNested
 
 
 # free example
-mm = ['.', 'x', '+']
-for i, n in enumerate([3, 7, 15]):
+mm = ['.', 'x', '+', 'o']
+for i, n in enumerate([3, 7, 15, 31]):
     kk = unboundedKnotsNested(n)
     plt.plot(kk, i*np.ones(kk.size), mm[i])
-plt.legend(["3", "5", "7"])
+plt.legend(["3", "7", "15", "31"])
 plt.grid()
 plt.show()
 
