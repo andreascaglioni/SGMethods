@@ -19,8 +19,9 @@ dimF = 3
 F = lambda x: np.sin(x[0]+0.1*x[1]+0.01*x[2]) * np.array([1., 2., 3.])
 maxNumNodes = 20
 
-def physicalError(u, uExa):
-    return np.linalg.norm(u - uExa, ord=2, axis=1)
+
+def physicalError(u, uExa):  # u and uExa are values of the function at 1 fixed parameter
+    return np.linalg.norm(u - uExa, ord=2)
 
 ################## the rest should not be edited ##################
 
@@ -54,7 +55,10 @@ def ConvergenceTest1D(maxNumNodes, F, dimF):
             FOnSG = None
         FOnSG = interpolant.sampleOnSG(F, dimF, oldSG, FOnSG)
         uInterp = interpolant.interpolate(xxRND, FOnSG)
-        err = np.append(err, np.amax(physicalError(uInterp, uExa) * ww))
+                
+        errSamples = np.array([ physicalError(uInterp[n], uExa[n]) for n in range(NRNDSamples) ])
+        err = np.append(err, np.amax(np.multiply(errSamples,  ww)))
+
         if(err[-1]<1.e-14):
             break
         oldSG = interpolant.SG
