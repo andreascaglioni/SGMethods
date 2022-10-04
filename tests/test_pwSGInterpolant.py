@@ -12,7 +12,9 @@ from SGMethods.ScalarNodes import unboundedKnotsNested
 # choose function
 N = 2
 dimF = 3
-F = lambda x: np.sin(x[0]+x[1])+1 * np.array([1., 2., 3.])
+def F(x):
+    return np.sin(np.sum(x))+1 * np.array([1., 2., 3.])
+
 anisoVector = np.array([1., 2.])
 # choose interpolant
 lev2knots = lambda n: 2**(n+1)-1
@@ -48,7 +50,7 @@ for w in range(0, len(err)):
     FOnSG = interpolant.sampleOnSG(F, dimF)
     
     fInterp = interpolant.interpolate(xxRND, FOnSG)
-    err[w] = np.amax(spaceNorm(fOnxx - fInterp) * weight)
+    err[w] = np.amax(spaceNorm(fOnxx - fInterp) * weight)  # np.mean(spaceNorm(fOnxx-fInterp))  # 
 
     oldSG = interpolant.SG
     

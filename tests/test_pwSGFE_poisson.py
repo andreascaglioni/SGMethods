@@ -28,7 +28,7 @@ tau = 0.5/normAn
 anisoVector = 0.5*np.log(tau + np.sqrt(1+tau*tau))
 
 # error computations
-NRNDSamples = 128
+NRNDSamples = 8
 NParallel = 8
 yyRnd = np.random.normal(0, 1, [NRNDSamples, N])
 print("Parallel random sampling")
