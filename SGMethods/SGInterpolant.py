@@ -6,7 +6,7 @@ from multiprocessing import Pool
 
 
 class SGInterpolant:
-    def __init__(self, midSet, knots, lev2knots, pieceWise=False, parallel=False, NParallel = 1):
+    def __init__(self, midSet, knots, lev2knots, pieceWise=False, NParallel = 1):
         self.midSet = midSet  # np array of shape (#mids, N)
         self.cardMidSet = midSet.shape[0]
         self.N = midSet.shape[1]
@@ -17,39 +17,46 @@ class SGInterpolant:
         self.combinationCoeffs = []  # list of int
         self.activeMIds = []  # list of np arrays
         self.TPNodesList = []  # list of tuples
-        self.TPGrids = []  # list of np arrays of shape (# TP nodes x N)
+        # self.TPGrids = []  # list of np arrays of shape (# TP nodes x N)
         self.mapTPtoSG = []  # list of np arrays of shape ()
+        print("set-up interpolant...")
         self.setupInterpolant()
 
         self.SG = []  # np array of shape (#colloc. pts, N)
         self.numNodes = 0
+        print("find SG...")
         self.setupSG()
 
         self.NParallel = NParallel
 
     def setupInterpolant(self):
-        jVec = TPMidSet(1, self.N)  # just a shortcut to list all increments in {0,1}^N as rows of a matrix
-        if(self.N==1):
-            jVec = np.reshape(jVec, (-1,1))
+        """assign combinCoeff, activeMIds, TPNodesList, TPGrids, mapTPtoSG 
+        based on midSet, knots, lev2knots"""
+        # jVec = TPMidSet(1, self.N)  # just a shortcut to list all increments in {0,1}^N as rows of a matrix
+        # if(self.N==1):
+        #     jVec = np.reshape(jVec, (-1,1))
+        bookmarks = np.unique(self.midSet[:,0], return_index=True)[1]
+        bk = np.hstack((bookmarks[2:], np.array([self.cardMidSet, self.cardMidSet])))
         for n in range(self.cardMidSet):
             currentMid = self.midSet[n, :]
-            combinCoeff = 0
-            for nj in range(jVec.shape[0]):
-                j = jVec[nj, :]
-                v = currentMid + j
-                if v.tolist() in self.midSet.tolist():
-                    combinCoeff += int(pow(-1, np.linalg.norm(j, 1)))
+            combinCoeff = 1
+            rangeIds = bk[currentMid[0]]
+            for j in range(n+1, rangeIds):
+                d = self.midSet[j, :] - currentMid
+                if(np.max(d)<=1 and np.min(d)>=0):
+                    combinCoeff += int(pow(-1, np.linalg.norm(d, 1)))
             if combinCoeff != 0:
                 self.combinationCoeffs.append(combinCoeff)
                 self.activeMIds.append(currentMid)
                 numNodesDir = self.lev2knots(currentMid).astype(int)
-                CurrentNodesList, currentTPGrid = TPKnots(self.knots, numNodesDir)
+                CurrentNodesList = TPKnots(self.knots, numNodesDir)
                 self.TPNodesList.append(CurrentNodesList)
-                self.TPGrids.append(currentTPGrid)
+                # self.TPGrids.append(currentTPGrid)
                 shp = np.ndarray(tuple(numNodesDir), dtype=int)
                 self.mapTPtoSG.append(shp)
 
     def setupSG(self):
+        """assign SG (sparse grid), numNodes, mapTPtoSG based on self.TPNodesList"""
         SG = np.array([]).reshape((0, self.N))
         for n, currTPNodesList in enumerate(self.TPNodesList):
             meshGrid = np.meshgrid(*currTPNodesList, indexing='ij')  # NBB in python * is "unpacking" operator (gives back comma separated list)
@@ -68,18 +75,22 @@ class SGInterpolant:
         self.numNodes = SG.shape[0]
 
     def sampleOnSG(self, Fun, dimF, oldXx = None , oldSamples = None):
-        """NBB assume F 
-        takes as input an np array of parameters 
-        and the 1st output are the relevant values"""
+        """ First check if there is anything to recycle, then sample new values
+        NBB assume F takes as input an np array of parameters and the 1st output are the relevant values"""
         # sanity checks
         assert(dimF >= 1)
         if(oldSamples is None):
             oldXx = np.zeros((0, self.N))
             oldSamples = np.zeros((0, dimF))
-        assert(oldXx.shape[1] == self.N)
+        assert(oldXx.shape[1] <= self.N)  # the parameter space may have gotten larger (smaller: not yet implemented)
         assert(oldSamples.shape[1] == dimF)
         assert(oldXx.shape[0] == oldSamples.shape[0])
 
+        # embed oldXx in space of self.SG by extending by 0
+        if(oldXx.shape[1] < self.SG.shape[1]):
+            filler = np.zeros((oldXx.shape[0], self.SG.shape[1]-oldXx.shape[1]))
+            oldXx = np.hstack((oldXx, filler))
+        
         nRecycle = 0
         fOnSG = np.zeros((self.numNodes, dimF))
         toCompute = []
@@ -97,8 +108,9 @@ class SGInterpolant:
                 yyToCompute.append(currNode)
         
         # compute (possibily in parallel) remaining nodes
-        pool = Pool(self.NParallel)
-        fOnSG[toCompute, :] = pool.map(Fun, yyToCompute)
+        if(not(len(toCompute)==0)):
+            pool = Pool(self.NParallel)
+            fOnSG[toCompute, :] = pool.map(Fun, yyToCompute)
 
         print("Recycled", nRecycle, "; Discarted", oldXx.shape[0]-nRecycle, "; Sampled", self.SG.shape[0]-nRecycle)
         return fOnSG
