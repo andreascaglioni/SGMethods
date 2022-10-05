@@ -10,19 +10,19 @@ class SGInterpolant:
         self.midSet = midSet  # np array of shape (#mids, N)
         self.cardMidSet = midSet.shape[0]
         self.N = midSet.shape[1]
-        self.knots = knots
-        self.lev2knots = lev2knots
+        self.knots = knots #  NBB knots[1] = 0.
+        self.lev2knots = lev2knots #  NBB lev2knots(0)=1
         self.pieceWise=pieceWise
         
-        self.combinationCoeffs = []  # list of int
-        self.activeMIds = []  # list of np arrays
-        self.TPNodesList = []  # list of tuples
-        # self.TPGrids = []  # list of np arrays of shape (# TP nodes x N)
-        self.mapTPtoSG = []  # list of np arrays of shape ()
+        self.combinationCoeffs = [] #  list of int
+        self.activeMIds = [] #  list of np arrays
+        self.activeTPNodesList = [] #  list of tuples
+        self.activeTPDims = [] #  which dimensions of currcent TP interpolant (in inclusion-exclusion formula) are active (more than 1 node)
+        self.mapTPtoSG = []  #  list of np arrays of shape ()
         print("set-up interpolant...")
         self.setupInterpolant()
 
-        self.SG = []  # np array of shape (#colloc. pts, N)
+        self.SG = [] #  np array of shape (#colloc. pts, N)
         self.numNodes = 0
         print("find SG...")
         self.setupSG()
@@ -40,8 +40,8 @@ class SGInterpolant:
         for n in range(self.cardMidSet):
             currentMid = self.midSet[n, :]
             combinCoeff = 1
-            rangeIds = bk[currentMid[0]]
-            for j in range(n+1, rangeIds):
+            rangeIds = bk[currentMid[0]] # index of the 1st mid with 1st components = currentMid[0]+2 (dont need to itertate over it or any following one)
+            for j in range(n+1, rangeIds): #  in range the second argument is NOT included!
                 d = self.midSet[j, :] - currentMid
                 if(np.max(d)<=1 and np.min(d)>=0):
                     combinCoeff += int(pow(-1, np.linalg.norm(d, 1)))
@@ -49,23 +49,30 @@ class SGInterpolant:
                 self.combinationCoeffs.append(combinCoeff)
                 self.activeMIds.append(currentMid)
                 numNodesDir = self.lev2knots(currentMid).astype(int)
-                CurrentNodesList = TPKnots(self.knots, numNodesDir)
-                self.TPNodesList.append(CurrentNodesList)
-                # self.TPGrids.append(currentTPGrid)
-                shp = np.ndarray(tuple(numNodesDir), dtype=int)
+                activeTPDims = np.where(numNodesDir>1)
+                self.activeTPDims.append(activeTPDims[0])
+                numNodesActiveDirs = numNodesDir[activeTPDims]
+                if(numNodesActiveDirs.shape[0] == 0):  # in case no dimension is active, i.e. 1 cp, 1 need a length 1 array!
+                    numNodesActiveDirs = np.array([1])
+                self.activeTPNodesList.append(TPKnots(self.knots, numNodesActiveDirs))
+                shp = np.ndarray(tuple(numNodesActiveDirs), dtype=int)
                 self.mapTPtoSG.append(shp)
-
+                
     def setupSG(self):
         """assign SG (sparse grid), numNodes, mapTPtoSG based on self.TPNodesList"""
         SG = np.array([]).reshape((0, self.N))
-        for n, currTPNodesList in enumerate(self.TPNodesList):
-            meshGrid = np.meshgrid(*currTPNodesList, indexing='ij')  # NBB in python * is "unpacking" operator (gives back comma separated list)
+        for n, currActiveTPNodes in enumerate(self.activeTPNodesList):
+            currActiveDims = self.activeTPDims[n]
+            meshGrid = np.meshgrid(*currActiveTPNodes, indexing='ij')  # NBB in python * is "unpacking" operator (gives back comma-separated list)
             it = np.nditer(meshGrid[0], flags=['multi_index'])
             for x in it:
-                currNode = [meshGrid[j][it.multi_index] for j in range(self.N)]
-                check = np.where(np.linalg.norm(SG-currNode, 1, axis=1) < 1.e-10)[0]  # check if current node is already in SG
+                currNodeActiveDims = [meshGrid[j][it.multi_index] for j in range(len(meshGrid))]
+                # complete it with 0s in inactive dimensions
+                currNode = np.zeros(self.N)
+                currNode[currActiveDims] = currNodeActiveDims
+                check = np.where(np.linalg.norm(SG-currNode, 1, axis=1) < 1.e-10)[0] #  check if current node is already in SG (NBB SG is always fully dimensional, also if some components are 0.)
                 found = check.shape[0]
-                assert(found <= 1)
+                assert(found <= 1)  # if currNode was in the SG more than once, somewthing woulod be very wrong
                 if found:  # if found, add the index to mapTPtoSG[n]
                     self.mapTPtoSG[n][it.multi_index] = check[0]
                 else:  # if not found, add it to sparse grid and add new index to mapTPtoSG
@@ -110,7 +117,10 @@ class SGInterpolant:
         # compute (possibily in parallel) remaining nodes
         if(not(len(toCompute)==0)):
             pool = Pool(self.NParallel)
-            fOnSG[toCompute, :] = pool.map(Fun, yyToCompute)
+            tmp = np.array(pool.map(Fun, yyToCompute))
+            if(len(tmp.shape) == 1):
+                tmp = tmp.reshape((-1,1))
+            fOnSG[toCompute, :] = tmp
 
         print("Recycled", nRecycle, "; Discarted", oldXx.shape[0]-nRecycle, "; Sampled", self.SG.shape[0]-nRecycle)
         return fOnSG
@@ -118,9 +128,10 @@ class SGInterpolant:
     def interpolate(self, xNew, fOnSG):
         out = np.zeros((xNew.shape[0], fOnSG.shape[1]))
         for n, MId in enumerate(self.activeMIds):
-            currentNodesTuple = self.TPNodesList[n]
+            currentActiveNodesTuple = self.activeTPNodesList[n]
+            currentActiveDims = self.activeTPDims[n]
             mapCurrTPtoSG = self.mapTPtoSG[n]
-            fOnCurrentTPGrid = fOnSG[mapCurrTPtoSG, :]  # this will produce a matrix of shape = mapCurrTPtoSG + (dimF,)
-            L = TPInterpolatorWrapper(currentNodesTuple, fOnCurrentTPGrid, pieceWise = self.pieceWise)
+            fOnCurrentTPGrid = fOnSG[mapCurrTPtoSG, :]  # this will produce a matrix of shape = shape(mapCurrTPtoSG) + (dimF,)
+            L = TPInterpolatorWrapper(currentActiveNodesTuple, currentActiveDims, fOnCurrentTPGrid, pieceWise = self.pieceWise)
             out = out + self.combinationCoeffs[n] * L(xNew)
         return out

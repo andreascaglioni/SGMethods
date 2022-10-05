@@ -5,24 +5,17 @@ from SGMethods.TPLagrangeInterpolator import TPLagrangeInterpolator
 '''wrap RegularGridInterpolator to handle case of 1 collocation point in some direction. In this directions, 
 the ROM is a constant extrapolation'''
 
-
 class TPInterpolatorWrapper:
-    def __init__(self, nodesTuple, fOnNodes, pieceWise=False):
-        self.nodesTuple = nodesTuple
+    def __init__(self, activeNodesTuple, activeDims, fOnNodes, pieceWise=False):
         self.fOnNodes = fOnNodes
-        self.activeDims = []  # dimensions with more than one node
-        self.activeNodesTuple = tuple()
-        for n in range(len(self.nodesTuple)):
-            if self.nodesTuple[n].size > 1:
-                self.activeDims.append(n)
-                self.activeNodesTuple += (self.nodesTuple[n], )
+        self.activeDims = activeDims  # dimensions with more than one node
         if pieceWise:
-            self.L = RegularGridInterpolator(self.activeNodesTuple, np.squeeze(self.fOnNodes), method='linear', bounds_error=False, fill_value=None)
+            self.L = RegularGridInterpolator(activeNodesTuple, self.fOnNodes, method='linear', bounds_error=False, fill_value=None)
         else:
-            self.L = TPLagrangeInterpolator(self.activeNodesTuple, np.squeeze(self.fOnNodes))
+            self.L = TPLagrangeInterpolator(activeNodesTuple, self.fOnNodes)
 
     def __call__(self, xNew):
-        # if xNew has len(shape)=1, reahpe it
+        # if xNew has len(shape)=1, reshape it
         if(len(xNew.shape)==1):
             xNew = np.reshape(xNew, (-1,1))
         # purge components of x in inactive dimensions, because the interpolating function will be constant in those dimensions
