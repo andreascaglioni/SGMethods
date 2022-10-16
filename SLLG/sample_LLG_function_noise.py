@@ -15,7 +15,7 @@ def sample_LLG_function_noise(param, Nh, Ntau, T, r, p):
     PETScOptions.set('ksp_type', 'gmres')
     PETScOptions.set("ksp_rtol", 1e-10)
     PETScOptions.set("pc_type", "ilu")
-    W = param_LC_Brownian_motion(tt, param, T)
+    
     H = (0, 0, 10)
     # coefficient g
     sqnx = '((x[0]-0.5)*(x[0]-0.5) + (x[1]-0.5)*(x[1]-0.5))'
@@ -32,9 +32,9 @@ def sample_LLG_function_noise(param, Nh, Ntau, T, r, p):
     c2 = 'sqrt(1./6.)'
     c3 = '-sqrt(1./6.)'
     minit = Expression((c1, c2, c3), degree=r+1)
-
     tau = T / Ntau
     tt = np.linspace(0, T, Ntau+1)
+    W = param_LC_Brownian_motion(tt, param, T)
     Pr = FiniteElement('P', tetrahedron, r)
     mesh = BoxMesh(Point(0, 0, 0), Point(1, 1, 0.1), Nh, Nh, ceil(Nh/10.))
     Pr3 = VectorElement('Lagrange', mesh.ufl_cell(), r, dim=3)
@@ -43,7 +43,7 @@ def sample_LLG_function_noise(param, Nh, Ntau, T, r, p):
     V3 = FunctionSpace(mesh, Pr3)
     V = FunctionSpace(mesh, Pr)
     g = interpolate(gex, V3)
-    mapr = bdfllg_func(r, p, alpha, T, tau, minit, VV, V3, V, W, g, m1=[], quadrature_degree=quadrature_degree, Hinput=H, VERBOSE=False)
+    mapr = bdfllg_func(r, p, alpha, T, tau, minit, VV, V3, V, W, g, m1=[], quadrature_degree=quadrature_degree, Hinput=H)
     dofs = np.array([])
     for niter in range(len(mapr)):
         dofs = np.concatenate((dofs, mapr[niter].vector()[:]))
