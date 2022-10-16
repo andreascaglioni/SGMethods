@@ -49,7 +49,8 @@ def convergenceTest(maxNumNodes, N, anisoVector, knots, lev2knots, F, dimF, xxRN
 # choose function
 N = 2
 dimF = 3
-F = lambda x: np.sin(x[0]+0.01*x[1]) * np.array([1., 2., 3.])
+def F(x): 
+    return np.sin(x[0]+0.01*x[1]) * np.array([1., 2., 3.])
 # choose interpolant
 lev2knots = lambda n: n+1
 mat = scipy.io.loadmat('SGMethods/knots_weighted_leja_2.mat')
