@@ -1,5 +1,7 @@
 tests/__pycache__
 SGMethods/__pycache__
+SLLG/__pycache__
 .idea
 results
 test_py.py
+*.csv
