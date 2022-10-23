@@ -23,10 +23,13 @@ def unboundedKnotsNestedDEPRECATED(n):
 
 
 def unboundedNodesOptimal(n, p=1):
+    """ n number of nodes
+        p degree of interpolant
+        return np.array length n of optimal nodes for order p interpolant"""    
     assert(n%2==1)
     m = int((n-1)/2)
     xx = np.linspace(-m,m,n)/(m+1)
-    return 2*sqrt(2*p) * erfinv(xx)
+    return 2*sqrt(2*(p+1)) * erfinv(xx)
 
 def unboundedKnotsNested(n, p=1):
     """n must be of form 2^(i+1) - 1"""
