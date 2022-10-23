@@ -134,38 +134,43 @@ Start from {0}
 New dimensions are also added as follows: I keep an empty dimenision as buffer, when a fully fimensional mid is added, increase the buffer by 1"""
 class midSet():
     def __init__(self, maxN=inf):
-        self.N = 0  ## NBB self.midset.shape[1] is always N+1 (not N) because of buffer
+        self.N = 0  # start only with 0 in midset  
         self.maxN = maxN  # maximum number of allowed dimensions
-        self.midSet = np.zeros((1, 1)).astype(int)
+        self.dimMargin = min(self.N+1, maxN) #  NBB always have midset.shape[1] = self.margin.shape[1] = min(N+1, maxN)
+        self.midSet = np.zeros((1, self.dimMargin)).astype(int)  
+        self.margin = np.identity(self.dimMargin).astype(int)
         self.numMids = self.midSet.shape[0]
-        self.margin = np.identity(1).astype(int)
+        
     def update(self, idx_margin):
         mid = self.margin[idx_margin,:]
-        # assert(mid[-1] >= 0 and mid[-1] <= 1) # sanity check for dimensinality (buffer dim margin should always be empty)
         # check if mid is in reduced margin
-        for n in range(self.N+1):
-            en = np.zeros(self.N+1).astype(int)
+        for n in range(self.dimMargin):
+            en = np.zeros(self.dimMargin).astype(int)
             en[n] = 1
-            assert(mid[n] == 0 or ((mid-en).tolist() in self.midSet.tolist()))
+            if(not(mid[n] == 0 or ((mid-en).tolist() in self.midSet.tolist()))):
+                assert(mid[n] == 0 or ((mid-en).tolist() in self.midSet.tolist()))
         #update midset
         self.midSet = np.row_stack((self.midSet, self.margin[idx_margin, :]))
         self.midSet =self.midSet[np.lexsort(np.rot90(self.midSet))]
         self.numMids += 1
-        #update margin 
+        #update margin within first dimMargin dimensions. If mid was added in buffer dimension, we add more mids later 
         self.margin = np.delete(self.margin, idx_margin,  0)  # remove added mid 
-        for n in range(self.N+1): # add those in forward margin (if they are in not already in margin!)
-            en = np.zeros(self.N+1).astype(int)
+        for n in range(self.dimMargin): # add those in forward margin (if they are not already in margin!)
+            en = np.zeros(self.dimMargin).astype(int)
             en[n] = 1
-            en.astype(int)
             newMid = mid + en
             if(not(newMid.tolist() in self.margin.tolist())):
                 self.margin = np.row_stack((self.margin, newMid))
-        # update number of dimensions N of midset and margin if added mid had nonzero last dimension. Also add (I,1) to margin
-        if(mid[-1] == 1 and self.N < self.maxN):
-            self.N = self.N + 1
-            marginNewDim = np.hstack((self.midSet, np.ones((self.midSet.shape[0], 1))))
-            self.midSet = np.hstack((self.midSet, np.zeros((self.midSet.shape[0], 1)))).astype(int)
-            self.margin = np.hstack((self.margin, np.zeros((self.margin.shape[0], 1))))
-            self.margin = np.vstack((self.margin, marginNewDim)).astype(int)
+        # increase N by 1 if mid is last coordinate unit vector 
+        increaseN = (mid[-1] == 1 and np.all(mid[0:-1:] == np.zeros(self.dimMargin-1)))
+        if increaseN:
+            self.N+=1
+            # if ADDITIONALLY N < nMax, add (I,1) to margin
+            if(self.N < self.maxN): # NBB remeber that self.midMargin was just updated
+                marginNewDim = np.hstack((self.midSet, np.ones((self.midSet.shape[0], 1))))
+                self.midSet = np.hstack((self.midSet, np.zeros((self.midSet.shape[0], 1)))).astype(int)
+                self.margin = np.hstack((self.margin, np.zeros((self.margin.shape[0], 1))))
+                self.margin = np.vstack((self.margin, marginNewDim)).astype(int)
+                self.dimMargin+=1
         # finally sort the margin in lexicographic order
         self.margin = self.margin[np.lexsort(np.rot90(self.margin))]
