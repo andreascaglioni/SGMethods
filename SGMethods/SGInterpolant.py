@@ -6,25 +6,23 @@ from multiprocessing import Pool
 
 
 class SGInterpolant:
-    def __init__(self, midSet, knots, lev2knots, pieceWise=False, NParallel = 1):
+    def __init__(self, midSet, knots, lev2knots, interpolationType="linear", NParallel = 1):
         self.midSet = midSet  # np array of shape (#mids, N)
         self.cardMidSet = midSet.shape[0]
         self.N = midSet.shape[1]
         self.knots = knots #  NBB knots[1] = 0.
         self.lev2knots = lev2knots #  NBB lev2knots(0)=1
-        self.pieceWise=pieceWise
+        self.interpolationType=interpolationType
         
         self.combinationCoeffs = [] #  list of int
         self.activeMIds = [] #  list of np arrays
         self.activeTPNodesList = [] #  list of tuples
         self.activeTPDims = [] #  which dimensions of currcent TP interpolant (in inclusion-exclusion formula) are active (more than 1 node)
         self.mapTPtoSG = []  #  list of np arrays of shape ()
-        print("set-up interpolant...")
         self.setupInterpolant()
 
         self.SG = [] #  np array of shape (#colloc. pts, N)
         self.numNodes = 0
-        print("find SG...")
         self.setupSG()
 
         self.NParallel = NParallel
@@ -132,6 +130,6 @@ class SGInterpolant:
             currentActiveDims = self.activeTPDims[n]
             mapCurrTPtoSG = self.mapTPtoSG[n]
             fOnCurrentTPGrid = fOnSG[mapCurrTPtoSG, :]  # this will produce a matrix of shape = shape(mapCurrTPtoSG) + (dimF,)
-            L = TPInterpolatorWrapper(currentActiveNodesTuple, currentActiveDims, fOnCurrentTPGrid, pieceWise = self.pieceWise)
+            L = TPInterpolatorWrapper(currentActiveNodesTuple, currentActiveDims, fOnCurrentTPGrid, self.interpolationType)
             out = out + self.combinationCoeffs[n] * L(xNew)
         return out

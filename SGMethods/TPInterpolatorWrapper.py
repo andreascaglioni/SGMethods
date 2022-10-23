@@ -1,18 +1,25 @@
+from distutils.log import error
+from matplotlib.image import interpolations_names
 import numpy as np
 from scipy.interpolate import RegularGridInterpolator
 from SGMethods.TPLagrangeInterpolator import TPLagrangeInterpolator
+from SGMethods.TPPwQuadraticInterpolator import TPPwQuadraticInterpolator
 
 '''wrap RegularGridInterpolator to handle case of 1 collocation point in some direction. In this directions, 
 the ROM is a constant extrapolation'''
 
 class TPInterpolatorWrapper:
-    def __init__(self, activeNodesTuple, activeDims, fOnNodes, pieceWise=False):
+    def __init__(self, activeNodesTuple, activeDims, fOnNodes, interpolationType="polynomial"):
         self.fOnNodes = fOnNodes
         self.activeDims = activeDims  # dimensions with more than one node
-        if pieceWise:
+        if(interpolationType == "linear"):
             self.L = RegularGridInterpolator(activeNodesTuple, self.fOnNodes, method='linear', bounds_error=False, fill_value=None)
-        else:
+        elif(interpolationType == "quadratic"):
+            self.L = TPPwQuadraticInterpolator(activeNodesTuple, self.fOnNodes)
+        elif(interpolationType == "polynomial"):
             self.L = TPLagrangeInterpolator(activeNodesTuple, self.fOnNodes)
+        else:
+            error("interpolation type: " , interpolationType, "not recognized")
 
     def __call__(self, xNew):
         # if xNew has len(shape)=1, reshape it

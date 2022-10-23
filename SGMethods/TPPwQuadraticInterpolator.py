@@ -20,18 +20,23 @@ class TPPwQuadraticInterpolator:
         
         numX = xNew.shape[0]
         assert(xNew.shape[1] == self.nDims)
-        
 
-        # 1 compute tensor basis functions and format interpolation data
-        # 2 format collocation samples so they are ready for prodcut and reduction
-        LL = np.ones(3*np.ones(self.nDims)+(numX, 1))
-        JJ = np.ones(tuple(3*np.ones(self.nDims))+(numX,))
+        # 1 compute stencil SS corresonding to every node 
+        # 2 compute tensor basis functions and format into LL
+        LL = np.ones(tuple(3*np.ones(self.nDims, dtype=int))+(numX,1))
+        SS = np.ones((self.nDims, numX), dtype=int)
         for n in range(self.nDims):
-            zn = xNew[:,n]
+            # stencil is computed 1 dimneison at a time. 
+            # assume x to be scalar. to identify its stencil, think of the the first even collocation node to the left .
+            # for many x, it is faster to determine the stencil to which each x belongs of the array of xs is sorted. 
+            # so 1. sort x: 2. find corresponding stencil of sorted sx; 3. sort list of stencil indices by reverse sorting of x
+
+            znOriginal = xNew[:,n]
+            sorting = np.argsort(znOriginal)
+            revSorting = np.argsort(sorting)  #  znOriginal = zn[revSorting]
+            zn = znOriginal[sorting]
             xn = self.nodesTuple[n]
             halfxn = xn[0::2]
-            assert(np.all(zn[1:]<=zn[0:-1]))
-            # find stencil of each element in nth component xNew. Stencil jj is np.array length numX
             jj = np.zeros(zn.size, dtype=int)
             pPrev = -1
             for i in range(1, halfxn.size):
@@ -39,38 +44,31 @@ class TPPwQuadraticInterpolator:
                 jj[pPrev:p] = i-1
                 pPrev = p
             jj[p:] = i-1
+            jj = jj[revSorting]
+            SS[n, :] = jj
             # compute 3 corresponding basis functions in dim n
             x0 = xn[jj*2]
             x1 = xn[jj*2+1]
             x2 = xn[jj*2+2]
-            L0 = ((zn-x1)*(zn-x2))/((x0-x1)*(x0-x2))
-            L1 = ((zn-x0)*(zn-x2))/((x1-x0)*(x1-x2))
-            L2 = ((zn-x0)*(zn-x1))/((x2-x0)*(x2-x1))
+            L0 = ((znOriginal-x1)*(znOriginal-x2))/((x0-x1)*(x0-x2))  # 1D w length numX
+            L1 = ((znOriginal-x0)*(znOriginal-x2))/((x1-x0)*(x1-x2))
+            L2 = ((znOriginal-x0)*(znOriginal-x1))/((x2-x0)*(x2-x1))
 
-            # compute 1D basis functions: for each get 2D array shaped cardYn x numX
-            xCurr = np.reshape(xNew[:, n], (1,-1))
-            nodesCurr = np.reshape(self.nodesTuple[n], (-1,1))
-            LCurr = np. prod(xCurr - nodesCurr, axis=0)
-            currLambda = np.reshape(self.lambdaCoeffs[n], (-1,1))
-            lagBasisCurr = LCurr * currLambda / (xCurr - nodesCurr)
+            Ln = np.vstack((L0, L1, L2))
+            shapen = np.ones(self.nDims+2, dtype=int)
+            shapen[n] = 3
+            shapen[-2] = numX
+            Ln = np.reshape(Ln, tuple(shapen))
+            LL *= Ln
 
-            # reshape it to 1 x ... x 1 x 3 x 1 x ... x 1 x numX
-            shapeCurr = list(1 for _ in range(self.nDims))
-            shapeCurr[n] = self.nNodesDims[n]
-            shapeCurr.append(numX)
-            lagBasisCurr = np.reshape(lagBasisCurr, tuple(shapeCurr))
-
-            # exterior product ot get tensor of basis functions shaped 3 x ... x 3 x numX
-            lagrangeBasis = np.multiply(lagrangeBasis, lagBasisCurr)
-
-        lagrangeBasis = np.reshape(lagrangeBasis, lagrangeBasis.shape+(1,))
-
-        # 3 format inteprolation data
-        self.F = np.reshape(self.F, (self.nNodesDims) + (1,) + (self.dimF,))
-        FF = np.zeros()
-        F = np.zeros(tuple(3*np.ones(self.nDims))+(numX, self.dimF))
-        FF = self.F[JJ,:]
-        
+        # 3 format interpolation data
+        FF = np.zeros(tuple(3*np.ones(self.nDims, dtype=int))+(numX, self.dimF))
+        it = np.nditer(FF[...,0,0],flags=['multi_index'])
+        for i in it:
+            vecIt = np.asarray(it.multi_index, dtype=int)
+            vecIt = vecIt.reshape(-1,1)
+            position = 2*SS+vecIt
+            FF[it.multi_index] = self.F[tuple(position)] # numX x dimF
         
         # 4 compute product tensor data and Lagrange basis functions
         p = np.multiply(FF, LL)
