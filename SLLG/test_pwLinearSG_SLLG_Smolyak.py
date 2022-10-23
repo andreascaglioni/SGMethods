@@ -23,7 +23,7 @@ Nh = 32
 NTau = Nh * 2
 NRNDSamples = 32
 NParallel = 32
-maxNumNodes = 500
+maxNumNodes = 200
 
 def F(x):
     return sample_LLG_function_noise(x, Nh, NTau, T, FEMOrder, BDFOrder)
@@ -38,42 +38,32 @@ print("Parallel random sampling")
 pool = Pool(NParallel)
 uExa = pool.map(F, yyRnd)
 dimF = uExa[0].size
-
-################################################ dimension-adapted SG
-print("########################### Dimension-adapted SG")
-# choose interpolant
 lev2knots = lambda nu: 2**(nu+1)-1
 knots = unboundedKnotsNested
-beta=0.5
-rhoFun = lambda N : 2**(beta*np.ceil(np.log2(np.linspace(1,N,N))))
-ProfitFun = lambda x : 2*np.sum(x) + np.sum(np.log2(rhoFun(x.size)) , where=(x>0))
 
-err = np.array([])
-nNodes = np.array([])
-w=0
-I = midSet()
-oldSG = None
-uOnSG = None
-while(True):
-    print("Computing w  = ", w)
-    interpolant = SGInterpolant(I.midSet, knots, lev2knots, pieceWise=True, NParallel=NParallel)
-    if(interpolant.numNodes > maxNumNodes):
-        break
-    print("# nodes:", interpolant.numNodes, "\nNumber effective dimensions:", I.N)
-    uOnSG = interpolant.sampleOnSG(F, dimF, oldSG, uOnSG)
-    uInterp = interpolant.interpolate(yyRnd, uOnSG)
-    # compute error
-    errSamples = np.array([ physicalError(uInterp[n], uExa[n]) for n in range(NRNDSamples) ])
-    errCurr = sqrt(np.mean(np.square(errSamples))) # np.amax(np.multiply(errSamples,  ww))
-    err = np.append(err, errCurr)
-    nNodes = np.append(nNodes, interpolant.numNodes)
-    print("Error:", err[w])
-    np.savetxt('convergenge_pwLin_aniso_SLLG.csv',np.array([nNodes, err]))
-    oldSG = interpolant.SG
-    # update midset for next iteration
-    P = np.apply_along_axis(ProfitFun, 1, I.margin)
-    idMax = np.argmin(P)
-    I.update(idMax)
-    print(I.midSet)
-    w+=1
-
+NN = [1,2,4,8,16]
+for N in NN:
+    print("########################### Smolyak with fixed-dimension N =", N)
+    err = []
+    nNodes = []
+    w=0
+    oldSG = None
+    uOnSG = None
+    while(True):
+        print("Computing n = ", w)
+        I = SmolyakMidSet(w, N)
+        interpolant = SGInterpolant(I, knots, lev2knots, pieceWise=True)
+        print(interpolant.numNodes, "nodes")
+        if(interpolant.numNodes > maxNumNodes):
+            break
+        uOnSG = interpolant.sampleOnSG(F, dimF, oldSG, uOnSG)
+        uInterp = interpolant.interpolate(yyRnd, uOnSG)
+        errSamples = np.array([ physicalError(uInterp[n], uExa[n]) for n in range(NRNDSamples) ])
+        errCurr = sqrt(np.mean(np.square(errSamples))) # np.amax(np.multiply(errSamples,  ww))
+        err = np.append(err, errCurr)
+        nNodes = np.append(nNodes, interpolant.numNodes)
+        print("Error:", err[w])
+        np.savetxt('convergenge_pwLin_smolyak_N_'+str(N)+'_SLLG.csv',np.array([nNodes, err]))
+        oldSG = interpolant.SG
+        w+=1
+        
