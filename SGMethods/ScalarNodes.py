@@ -13,15 +13,6 @@ def unboundKnotsNonNest(n):
     knotsBounded = knotsExtrema[0] + (knotsExtrema[1] - knotsExtrema[0]) * np.linspace(0, 1, int(n))
     return norm.ppf(knotsBounded)
 
-# wrong distribution of nodes, throw away soon
-def unboundedKnotsNestedDEPRECATED(n):
-    """n must be of form 2^(i+1) - 1"""
-    assert (log2(n + 1) - 1 >= 0 & (abs(log2(n + 1) - int(log2(n + 1)) < 1.e-10)))
-    knotsBounded = np.linspace(0, 1, n+2)
-    knotsBounded = knotsBounded[1:-1:]
-    return norm.ppf(knotsBounded)
-
-
 def unboundedNodesOptimal(n, p=1):
     """ n number of nodes
         p degree of interpolant

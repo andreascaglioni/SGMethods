@@ -5,3 +5,4 @@ SLLG/__pycache__
 results
 test_py.py
 *.csv
+.vscode

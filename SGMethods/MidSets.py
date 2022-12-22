@@ -1,22 +1,6 @@
 import numpy as np
 from math import floor, log, inf
 
-# DEPRECATED using np.meshgrid for N>32 not allowed
-# def TPMidSet(w, N):
-    # """ each row is a multi-index
-    # define with base knot 0
-    # codnition: max_i=0^{d-1} x_i leq w
-    # NBB leq so w=0 onyl mid 0 included """
-#     ITP = ()
-#     for i in range(N):
-#         ITP += (np.linspace(0, w, w+1),)
-#     IMat = np.meshgrid(*ITP, indexing='ij')
-#     I = IMat[0].flatten()
-#     for n in range(1, len(ITP)):
-#         tmp = IMat[n].flatten()
-#         I = np.vstack((I, tmp))
-#     I = I.T
-#     return I
 
 def TPMidSet(w, N):
     """ each row is a multi-index
@@ -55,7 +39,6 @@ def anisoSmolyakMidSet(w, N, a):
     assert N >= 1
     assert(np.all(a>0))
     assert(a.shape[0] == N)
-
     if w == 0:
         return np.zeros([1, N], dtype=int)
     elif N == 1:
@@ -71,7 +54,6 @@ def anisoSmolyakMidSet(w, N, a):
             I = np.concatenate((I, newRows), 0)
         return I
 
-
 def SmolyakMidSet(w, N):
     """ Each row is a multi-index define with base knot 0, condition: \sum_i=0^{d-1} x_i \leq w
     NBB leq so w=0 onyl mid 0 included """
@@ -79,14 +61,14 @@ def SmolyakMidSet(w, N):
     a = np.repeat(1., N)
     return anisoSmolyakMidSet(w, N, a)
 
-def LLG_optimal_midset_freeN(T, rhoFun):
-    """Determine effective dimension, fix rho to vector rather than function"""
-    maxLev = max(0, 2*(T-2))
-    N = int(2**maxLev)
-    rho = rhoFun(N)
-    assert(np.all(rho>0))
-    assert(rho.size == N)
-    return LLG_optimal_midset_recursive(N, T, rho)
+# def LLG_optimal_midset_freeN(T, rhoFun):
+#     """Determine effective dimension, fix rho to vector rather than function"""
+#     maxLev = max(0, 2*(T-2))
+#     N = int(2**maxLev)
+#     rho = rhoFun(N)
+#     assert(np.all(rho>0))
+#     assert(rho.size == N)
+#     return LLG_optimal_midset_recursive(N, T, rho)
 
 # def LLG_optimal_midset_recursive(N, T, rho):
 #     """INPUT N int number parametric dimensions
@@ -129,7 +111,7 @@ def count_cps(I, r):
     return ncps
 
 
-"""Multi-index set class; can be grwon by adding mids from reduced margin
+"""Multi-index set class; can be grown by adding mids from reduced margin
 Start from {0}
 New dimensions are also added as follows: I keep an empty dimenision as buffer, when a fully fimensional mid is added, increase the buffer by 1"""
 class midSet():
@@ -140,8 +122,11 @@ class midSet():
         self.midSet = np.zeros((1, self.dimMargin)).astype(int)  
         self.margin = np.identity(self.dimMargin).astype(int)
         self.numMids = self.midSet.shape[0]
-        
+    
     def update(self, idx_margin):
+        """ add to current midset multi-index in position idx_margin in margin
+        INPUT   idx_margin int 
+        RETURN  None"""
         mid = self.margin[idx_margin,:]
         # check if mid is in reduced margin
         for n in range(self.dimMargin):
