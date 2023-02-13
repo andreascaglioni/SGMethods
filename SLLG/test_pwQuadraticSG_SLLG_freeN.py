@@ -12,7 +12,7 @@ from SGMethods.MidSets import midSet, SmolyakMidSet
 from SGMethods.SGInterpolant import SGInterpolant
 
 """we approximate the SLLG problem with piecewise QUADRATIC sparse grids using
-the knapsack-optimal midset (effectivedimension grows with number of mids)
+the knapsack-optimal midset (effective dimension grows with number of mids)
 """
 
 T = 1

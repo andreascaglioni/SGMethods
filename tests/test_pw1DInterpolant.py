@@ -5,29 +5,32 @@ sys.path.insert(1, os.path.join(os.path.expanduser("~"), 'workspace/SGMethods'))
 from SGMethods.ScalarNodes import unboundedKnotsNested
 from SGMethods.SGInterpolant import SGInterpolant
 import matplotlib.pyplot as plt
-from math import pi, sqrt
+from math import pi, sqrt, exp
 from scipy.stats import norm
 
-ff=10
-F = lambda x: np.sin(ff*x)
-lev2knot = lambda nu : 2**(nu+1+1)-1
+
+ff=1
+F = lambda x: np.sin(10*x)
+lev2knot = lambda nu : 2**(nu+1+2)-1
 levMax = 20
 levs = np.linspace(0,levMax,levMax+1).astype(int)
 nNodesV = lev2knot(levs)
-nRNDSamples = 10000
+nRNDSamples = 100000
 xxRND = np.sort(np.random.normal(0, 1, nRNDSamples))
+ww = 1/sqrt(2*pi)*np.exp(-np.square(xxRND)/2)
 FOnxx = F(xxRND)
-# ww = (2*pi)**(-0.5)*np.exp(-np.square(xxRND))
-
 err = np.zeros(levs.size)
 for levCurr in levs:
-    nodes = unboundedKnotsNested(lev2knot(levCurr))
+    nodes = unboundedKnotsNested(lev2knot(levCurr), p=4)
     fOnNodes = F(nodes)
-    interp = interp1d(nodes, fOnNodes, kind="linear", fill_value="extrapolate")
+    interp = interp1d(nodes, fOnNodes, kind="cubic", fill_value="extrapolate")
     fInterp = interp(xxRND)
     errSamples = FOnxx - fInterp
     err[levCurr] =  sqrt(1/nRNDSamples * np.sum(np.square(errSamples))) # np.amax(np.abs(errSamples * ww))
     # print(xxRND[np.argmax(np.abs(errSamples * ww))])
+    # plt.plot(xxRND, fInterp)
+    # plt.plot(nodes, fOnNodes, '*')
+    # plt.show()
     # plt.plot(xxRND, np.abs(errSamples * ww))
     # idxMax = np.argmax(np.abs(errSamples * ww))
     # plt.plot(xxRND[idxMax], np.abs(errSamples[idxMax] * ww[idxMax]), '*')

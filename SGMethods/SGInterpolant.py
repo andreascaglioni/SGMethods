@@ -10,8 +10,8 @@ class SGInterpolant:
         self.midSet = midSet  # np array of shape (#mids, N)
         self.cardMidSet = midSet.shape[0]
         self.N = midSet.shape[1]
-        self.knots = knots #  NBB knots[1] = 0.
-        self.lev2knots = lev2knots #  NBB lev2knots(0)=1
+        self.knots = knots #  NBB need knots[1] = 0 to increase number of dimensions
+        self.lev2knots = lev2knots #  NBB need lev2knots(0)=1 to increase number of dimensions
         self.interpolationType=interpolationType
         
         self.combinationCoeffs = [] #  list of int
@@ -28,11 +28,8 @@ class SGInterpolant:
         self.NParallel = NParallel
 
     def setupInterpolant(self):
-        """assign combinCoeff, activeMIds, TPNodesList, TPGrids, mapTPtoSG 
+        """assign combinCoeff, activeMIds, activeTPDims, activeTPNodesList, mapTPtoSG 
         based on midSet, knots, lev2knots"""
-        # jVec = TPMidSet(1, self.N)  # just a shortcut to list all increments in {0,1}^N as rows of a matrix
-        # if(self.N==1):
-        #     jVec = np.reshape(jVec, (-1,1))
         bookmarks = np.unique(self.midSet[:,0], return_index=True)[1]
         bk = np.hstack((bookmarks[2:], np.array([self.cardMidSet, self.cardMidSet])))
         for n in range(self.cardMidSet):
@@ -54,10 +51,10 @@ class SGInterpolant:
                     numNodesActiveDirs = np.array([1])
                 self.activeTPNodesList.append(TPKnots(self.knots, numNodesActiveDirs))
                 shp = np.ndarray(tuple(numNodesActiveDirs), dtype=int)
-                self.mapTPtoSG.append(shp)
+                self.mapTPtoSG.append(shp)  # to be filled
                 
     def setupSG(self):
-        """assign SG (sparse grid), numNodes, mapTPtoSG based on self.TPNodesList"""
+        """assign SG (sparse grid), numNodes, mapTPtoSG based on self.activeTPNodesList"""
         SG = np.array([]).reshape((0, self.N))
         for n, currActiveTPNodes in enumerate(self.activeTPNodesList):
             currActiveDims = self.activeTPDims[n]
@@ -129,7 +126,7 @@ class SGInterpolant:
             currentActiveNodesTuple = self.activeTPNodesList[n]
             currentActiveDims = self.activeTPDims[n]
             mapCurrTPtoSG = self.mapTPtoSG[n]
-            fOnCurrentTPGrid = fOnSG[mapCurrTPtoSG, :]  # this will produce a matrix of shape = shape(mapCurrTPtoSG) + (dimF,)
+            fOnCurrentTPGrid = fOnSG[mapCurrTPtoSG, :]  # output is a matrix of shape = shape(mapCurrTPtoSG) + (dimF,)
             L = TPInterpolatorWrapper(currentActiveNodesTuple, currentActiveDims, fOnCurrentTPGrid, self.interpolationType)
             out = out + self.combinationCoeffs[n] * L(xNew)
         return out

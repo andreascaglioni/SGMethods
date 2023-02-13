@@ -63,6 +63,9 @@ nNodes = np.array(nNodes)
 rates = -np.log(err[1::]/err[:-1:])/np.log(nNodes[1::]/nNodes[:-1:])
 print("Rate:",  rates)
 plt.loglog(nNodes, err, '.-', nNodes, 1/nNodes, '-k')
+
+
+
 #############################################################################################
 # choose interpolant
 lev2knots = lambda n: 2**(n+1)-1
