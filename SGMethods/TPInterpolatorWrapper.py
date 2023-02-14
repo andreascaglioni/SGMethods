@@ -4,6 +4,7 @@ import numpy as np
 from scipy.interpolate import RegularGridInterpolator
 from SGMethods.TPLagrangeInterpolator import TPLagrangeInterpolator
 from SGMethods.TPPwQuadraticInterpolator import TPPwQuadraticInterpolator
+from SGMethods.TPPwCubicInterpolator import TPPwCubicInterpolator
 
 '''wrap RegularGridInterpolator to handle case of 1 collocation point in some direction. In this directions, 
 the ROM is a constant extrapolation'''
@@ -16,6 +17,8 @@ class TPInterpolatorWrapper:
             self.L = RegularGridInterpolator(activeNodesTuple, self.fOnNodes, method='linear', bounds_error=False, fill_value=None)
         elif(interpolationType == "quadratic"):
             self.L = TPPwQuadraticInterpolator(activeNodesTuple, self.fOnNodes)
+        elif(interpolationType == "cubic"):
+            self.L = TPPwCubicInterpolator(activeNodesTuple, self.fOnNodes)
         elif(interpolationType == "polynomial"):
             self.L = TPLagrangeInterpolator(activeNodesTuple, self.fOnNodes)
         else:
