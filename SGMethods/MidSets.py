@@ -116,13 +116,14 @@ Start from {0}
 New dimensions are also added as follows: I keep an empty dimenision as buffer, when a fully fimensional mid is added, increase the buffer by 1"""
 class midSet():
     def __init__(self, maxN=inf):
-        self.N = 0  # start only with 0 in midset  
         self.maxN = maxN  # maximum number of allowed dimensions
+        self.N = 0  # start only with 0 in midset  
         self.dimMargin = min(self.N+1, maxN) #  NBB always have midset.shape[1] = self.margin.shape[1] = min(N+1, maxN)
         self.midSet = np.zeros((1, self.dimMargin)).astype(int)  
-        self.margin = np.identity(self.dimMargin).astype(int)
         self.numMids = self.midSet.shape[0]
-    
+        self.margin = np.identity(self.dimMargin).astype(int)
+        self.idsReducedMargin = np.zeros(1).astype(int)
+
     def update(self, idx_margin):
         """ add to current midset multi-index in position idx_margin in margin
         INPUT   idx_margin int 
@@ -159,3 +160,6 @@ class midSet():
                 self.dimMargin+=1
         # finally sort the margin in lexicographic order
         self.margin = self.margin[np.lexsort(np.rot90(self.margin))]
+        
+        # finally update reduced margin 
+        # TODO
