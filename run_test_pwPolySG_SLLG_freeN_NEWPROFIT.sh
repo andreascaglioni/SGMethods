@@ -1,0 +1,1 @@
+nohup python3 < SLLG/test_pwPolySG_SLLG_freeN_NEWPROFIT.py > out_pwQuadraticSG_SLLG_freeN_NEWPROFIT.txt &
