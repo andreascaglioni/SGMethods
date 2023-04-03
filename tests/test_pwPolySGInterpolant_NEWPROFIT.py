@@ -15,7 +15,8 @@ from SLLG.expansions_Brownian_motion import param_LC_Brownian_motion
 NParallel = 16
 NRNDSamples = 512
 maxNumNodes = 250
-p = 2 # NBB degree+1
+interpolationType = 'quadratic'
+p = 3 # NBB degree+1
 
 # choose function
 Nt = 1.e3
@@ -55,17 +56,14 @@ lev2knots = lambda n: 2**(n+1)-1
 
 knots = lambda m : unboundedKnotsNested(m, p=p)
 beta=0.5
-rhoFun = lambda N : 2**(beta*np.ceil(np.log2(np.linspace(1,N,N))))
-# CBar = sqrt(2**(3*p-1) * p**p * sqrt(pi))
-# NBB here define profit as - log of what is in paper. Here need to MINIMIZE
-# ProfitFun = lambda x : (p+1)*np.sum(x) + p*np.sum(np.log2(rhoFun(x.size)), where=(x>0)) #  - np.count_nonzero(x)*log2(CBar)
-
 Cbar = 2
 def ProfitFun(x):
-    C1 = (p+1)*np.sum(x)
-    C2 = p*np.sum( beta*np.ceil(np.log2(np.linspace(1,x.size,x.size))), where=(x>0))
-    C3 =  np.count_nonzero(x)*(log2(Cbar) - log2(factorial(p)) + p)
-    return C1 +  C2 - C3
+    logRho = beta*np.ceil(np.log2(np.linspace(1,x.size,x.size)))
+    C1 = np.sum(x)
+    C2 = np.sum(logRho, where=(x==1))
+    C3 = np.sum(-log2(Cbar) + p*x + p*logRho, where=(x>1))
+    C4 = np.count_nonzero(x)* (-log2(factorial(p)) + p)
+    return C1 + C2 + C3
 
 # convergence test
 err = np.array([])
@@ -76,7 +74,7 @@ oldSG = None
 uOnSG = None
 while True:
     print("Computing w  = ", w)
-    interpolant = SGInterpolant(I.midSet, knots, lev2knots, interpolationType="linear", NParallel=NParallel)
+    interpolant = SGInterpolant(I.midSet, knots, lev2knots, interpolationType=interpolationType, NParallel=NParallel)
     if(interpolant.numNodes > maxNumNodes):
         break
     print("# nodes:", interpolant.numNodes, "\nNumber effective dimensions:", I.N)
@@ -91,10 +89,18 @@ while True:
     # update midset for next iteration
     P = np.apply_along_axis(ProfitFun, 1, I.margin)
     idMax = np.argmin(P)
-    print("new Mid", I.margin[idMax, :])
+    # print("new Mid", I.margin[idMax, :])
     I.update(idMax)
-    w+=1
 
+
+    # ncps = interpolant.numNodes
+    # while interpolant.numNodes < sqrt(2)*ncps:
+    #     P = np.apply_along_axis(ProfitFun, 1, I.margin)
+    #     idMax = np.argmin(P)
+    #     # print("new Mid", I.margin[idMax, :])
+    #     I.update(idMax)
+    #     interpolant = SGInterpolant(I.midSet, knots, lev2knots, interpolationType=interpolationType, NParallel=NParallel)
+    w+=1
 
 print(I.midSet)
 print(np.amax(I.midSet, axis=0))
@@ -110,4 +116,3 @@ plt.loglog(nNodes, err, '.-')
 plt.loglog(nNodes, np.power(nNodes, -0.5))
 plt.loglog(nNodes, np.power(nNodes, -0.25))
 plt.show()
-

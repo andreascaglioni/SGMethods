@@ -18,11 +18,13 @@ the knapsack-optimal midset (effective dimension grows with number of mids)
 T = 1
 FEMOrder = 1
 BDFOrder = 1
-Nh = 32
+Nh = 32  # 8  # 
 NTau = Nh * 2
-NRNDSamples = 128
+NRNDSamples = 128  #4  # 
 NParallel = 32
-maxNumNodes = 250
+maxNumNodes = 550  # 64  # 
+p = 2  # degrere + 1
+interpolationType = "linear"
 
 def F(x):
     return sample_LLG_function_noise(x, Nh, NTau, T, FEMOrder, BDFOrder)
@@ -39,22 +41,23 @@ dimF = uExa[0].size
 
 # choose interpolant
 lev2knots = lambda nu: 2**(nu+1)-1
-knots = lambda m : unboundedKnotsNested(m,p=2)
+knots = lambda m : unboundedKnotsNested(m,p=p)
 beta=0.5
 rhoFun = lambda N : 2**(beta*np.ceil(np.log2(np.linspace(1,N,N))))
-ProfitFun = lambda x : 4 * np.sum(x) + 3 * np.sum(np.log2(rhoFun(x.size)) , where=(x>0))
+ProfitFun = lambda x : (p+1) * np.sum(x) + p * np.sum(np.log2(rhoFun(x.size)) , where=(x>0))
 
 err = np.array([])
 nNodes = np.array([])
+effectiveDim = np.array([])
 w=0
 I = midSet()
 oldSG = None
 uOnSG = None
 while(True):
     print("Computing w  = ", w)
-    interpolant = SGInterpolant(I.midSet, knots, lev2knots, interpolationType="quadratic", NParallel=NParallel)
+    interpolant = SGInterpolant(I.midSet, knots, lev2knots, interpolationType=interpolationType, NParallel=NParallel)
     if(interpolant.numNodes > maxNumNodes):
-        break
+        break 
     print("# nodes:", interpolant.numNodes, "\nNumber effective dimensions:", I.N)
     uOnSG = interpolant.sampleOnSG(F, dimF, oldSG, uOnSG)
     uInterp = interpolant.interpolate(yyRnd, uOnSG)
@@ -63,13 +66,16 @@ while(True):
     errCurr = sqrt(np.mean(np.square(errSamples))) # np.amax(np.multiply(errSamples,  ww))
     err = np.append(err, errCurr)
     nNodes = np.append(nNodes, interpolant.numNodes)
+    effectiveDim = np.append(effectiveDim, I.N)
     print("Error:", err[w])
-    np.savetxt('convergenge_pwQuadr_aniso_SLLG.csv',np.array([nNodes, err]))
+    np.savetxt('convergenge_pwLinear_SLLG.csv',np.array([nNodes, err, effectiveDim]))
     oldSG = interpolant.SG
     # update midset for next iteration
-    P = np.apply_along_axis(ProfitFun, 1, I.margin)
-    idMax = np.argmin(P)
-    I.update(idMax)
-    print(I.midSet)
+    current_num_cps = nNodes[-1]
+    while(current_num_cps <= sqrt(2)* nNodes[-1]):
+        P = np.apply_along_axis(ProfitFun, 1, I.margin)
+        idMax = np.argmin(P)
+        I.update(idMax)
+        interpolant = SGInterpolant(I.midSet, knots, lev2knots, interpolationType=interpolationType, NParallel=NParallel)
+        current_num_cps = interpolant.numNodes
     w+=1
-
