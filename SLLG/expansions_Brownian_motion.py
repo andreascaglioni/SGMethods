@@ -8,16 +8,18 @@ def param_LC_Brownian_motion(tt, yy, T):
     if np.any(np.amax(tt) > T) | np.any(np.amin(tt) < 0):
         warnings.warn("Warning...........tt not within [0,T]")
     tt = tt/T  # rescale on [0,1]
-    N = int(log(len(yy), 2))
+    L = ceil(log(len(yy), 2))  # number of levels (even if last does not have all basis functions)
+    yy = np.append(yy, np.zeros(2**L-len(yy)))
     W = yy[0] * tt
-    for n in range(1, N + 1):
-        for i in range(1, 2 ** (n - 1) + 1):
+    for l in range(1, L + 1):
+        for j in range(1, 2 ** (l - 1) + 1):
             eta_n_i = 0 * tt
-            ran1 = np.where((tt >= (2 * i - 2) / (2 ** n)) & (tt <= (2 * i - 1) / (2 ** n)))
-            ran2 = np.where((tt >= (2 * i - 1) / (2 ** n)) & (tt <= (2 * i) / (2 ** n)))
-            eta_n_i[ran1] = tt[ran1] - (2 * i - 2) / 2 ** n
-            eta_n_i[ran2] = - tt[ran2] + (2 * i) / 2 ** n
-            W = W + yy[2 ** (n - 1) + i - 1] * 2 ** ((n - 1) / 2) * eta_n_i
+            ran1 = np.where((tt >= (2 * j - 2) / (2 ** l)) & (tt <= (2 * j - 1) / (2 ** l)))
+            ran2 = np.where((tt >= (2 * j - 1) / (2 ** l)) & (tt <= (2 * j) / (2 ** l)))
+            eta_n_i[ran1] = tt[ran1] - (2 * j - 2) / 2 ** l
+            eta_n_i[ran2] = - tt[ran2] + (2 * j) / 2 ** l
+            W = W + yy[2 ** (l - 1) + j - 1] * 2 ** ((l - 1) / 2) * eta_n_i
+    
     W = W*np.sqrt(T)  # rescale y direction to actually approximate standard Browninan motion on [0,T]
     return W
 
