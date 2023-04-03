@@ -8,3 +8,8 @@ def coordUnitVector(dim, entry):
 
 def lexicSort(I):
     return I[np.lexsort(np.rot90(I))]
+
+def rate(err, nDofs):
+    err = np.array(err)
+    nDofs = np.array(nDofs)
+    return -np.log(err[1::]/err[:-1:])/np.log(nDofs[1::]/nDofs[:-1:])
