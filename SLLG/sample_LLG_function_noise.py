@@ -16,7 +16,7 @@ def sample_LLG_function_noise(param, Nh, Ntau, T, r, p):
     PETScOptions.set("ksp_rtol", 1e-10)
     PETScOptions.set("pc_type", "ilu")
     
-    H = (0, 0, 10)
+    H = (0, 0, 0)
     # coefficient g
     sqnx = '((x[0]-0.5)*(x[0]-0.5) + (x[1]-0.5)*(x[1]-0.5))'
     C = '400'
