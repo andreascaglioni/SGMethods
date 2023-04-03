@@ -114,6 +114,37 @@ def count_cps(I, r):
 """Multi-index set class; can be grown by adding mids from reduced margin
 Start from {0}
 New dimensions are also added as follows: I keep an empty dimenision as buffer, when a fully fimensional mid is added, increase the buffer by 1"""
+
+def find_idx_in_margin(margin, mid):
+    idx = np.all(margin == mid, axis=1)
+    idx = np.where(idx == True)
+    idx = idx[0][0]
+    return idx
+
+def check_in_reduced_margin(mid, margin):
+    dimMargin = margin.shape[1]
+    assert(dimMargin==mid.size)
+    condition  = np.zeros(dimMargin, dtype=bool)
+    for n in range(dimMargin):
+        en = np.zeros(dimMargin).astype(int)
+        en[n] = 1
+        condition[n] = mid[n] == 0 or ((mid-en).tolist() in midSet.tolist())
+    return np.logical_and(condition)
+
+
+# def find_reduced_margin(midset, margin):
+#     N = midset.shape[1]
+#     idxRM = np.zeros((0, margin.shape[1]))
+#     for i in range(margin.shape[0]):
+#         mid = margin[i,:]
+#         back_margin_mid = mid - np.identity(N)
+#         c1 = np.equal(back_margin_mid, midset).all(1)
+#         c2 = mid > 0
+#         conditions_RM = np.logical_or(c1, c2)
+#     if(np.all(conditions_RM)):
+#         idxRM = np.append(idxRM, i)
+#     return idxRM
+
 class midSet():
     def __init__(self, maxN=inf):
         self.maxN = maxN  # maximum number of allowed dimensions
@@ -129,14 +160,19 @@ class midSet():
         INPUT   idx_margin int 
         RETURN  None"""
         mid = self.margin[idx_margin,:]
-        # check if mid is in reduced margin
+        # check if mid is in reduced margin, if not add first the margin element that comes before it
         for n in range(self.dimMargin):
             en = np.zeros(self.dimMargin).astype(int)
             en[n] = 1
             if(not(mid[n] == 0 or ((mid-en).tolist() in self.midSet.tolist()))):
-                assert(mid[n] == 0 or ((mid-en).tolist() in self.midSet.tolist()))
+                mid_tmp = mid - en
+                idx_mid_tmp = find_idx_in_margin(self.margin, mid_tmp)
+                self.update(idx_mid_tmp)
+                if(mid.size < self.dimMargin):
+                    mid = np.append(mid, 0) # NB dimensino can have grown at most by 1
+                idx_margin = find_idx_in_margin(self.margin, mid)
         #update midset
-        self.midSet = np.row_stack((self.midSet, self.margin[idx_margin, :]))
+        self.midSet = np.row_stack((self.midSet, mid))
         self.midSet =self.midSet[np.lexsort(np.rot90(self.midSet))]
         self.numMids += 1
         #update margin within first dimMargin dimensions. If mid was added in buffer dimension, we add more mids later 
@@ -158,8 +194,13 @@ class midSet():
                 self.margin = np.hstack((self.margin, np.zeros((self.margin.shape[0], 1))))
                 self.margin = np.vstack((self.margin, marginNewDim)).astype(int)
                 self.dimMargin+=1
-        # finally sort the margin in lexicographic order
         self.margin = self.margin[np.lexsort(np.rot90(self.margin))]
         
-        # finally update reduced margin 
-        # TODO
+        # update reduced margin 
+        self.idsReducedMargin[np.where(self.idsReducedMargin == idx_margin)] = []  # remove added mid from reduced margin
+        idx_neighs_mid = np.where(np.linalg.norm(self.margin - mid,ord=1, axis = 1) == 1)  # find neighbours of added mid in margin (at most N)
+        for curr_idx in idx_neighs_mid:
+            midCurr  = self.margin[curr_idx]
+            if(check_in_reduced_margin(midCurr, self.margin)):
+                self.idsReducedMargin = np.append(self.idsReducedMargin, curr_idx)
+        self.idsReducedMargin = np.sort(self.idsReducedMargin)
