@@ -121,15 +121,15 @@ def find_idx_in_margin(margin, mid):
     idx = idx[0][0]
     return idx
 
-def check_in_reduced_margin(mid, margin):
-    dimMargin = margin.shape[1]
-    assert(dimMargin==mid.size)
-    condition  = np.zeros(dimMargin, dtype=bool)
-    for n in range(dimMargin):
-        en = np.zeros(dimMargin).astype(int)
+def check_in_reduced_margin(mid, mid_set):
+    dimMids = mid_set.shape[1]
+    assert(dimMids==mid.size)
+    condition  = np.zeros(dimMids, dtype=bool)
+    for n in range(dimMids):
+        en = np.zeros(dimMids).astype(int)
         en[n] = 1
-        condition[n] = mid[n] == 0 or ((mid-en).tolist() in midSet.tolist())
-    return np.logical_and(condition)
+        condition[n] = (mid[n] == 0 or ((mid-en).tolist() in mid_set.tolist()))
+    return np.all(condition)
 
 
 # def find_reduced_margin(midset, margin):
@@ -186,6 +186,7 @@ class midSet():
         # increase N by 1 if mid is last coordinate unit vector 
         increaseN = (mid[-1] == 1 and np.all(mid[0:-1:] == np.zeros(self.dimMargin-1)))
         if increaseN:
+            mid = np.append(mid, 0.)  
             self.N+=1
             # if ADDITIONALLY N < nMax, add (I,1) to margin
             if(self.N < self.maxN): # NBB remeber that self.midMargin was just updated
@@ -196,11 +197,15 @@ class midSet():
                 self.dimMargin+=1
         self.margin = self.margin[np.lexsort(np.rot90(self.margin))]
         
-        # update reduced margin 
-        self.idsReducedMargin[np.where(self.idsReducedMargin == idx_margin)] = []  # remove added mid from reduced margin
-        idx_neighs_mid = np.where(np.linalg.norm(self.margin - mid,ord=1, axis = 1) == 1)  # find neighbours of added mid in margin (at most N)
+        # update list of reduced margin indices
+        # 1 delete element just added to margin
+        mask = np.where(self.idsReducedMargin == idx_margin)
+        self.idsReducedMargin = np.delete(self.idsReducedMargin, mask, axis=0)
+        # 2 add new reduced margin elements, if any
+        idx_neighs_mid = np.where(np.linalg.norm(self.margin - mid, ord=1, axis = 1) == 1)  # find neighbours of added mid in margin (at most N)
+        idx_neighs_mid = idx_neighs_mid[0]  # np.where returns list with output I want as unique element
         for curr_idx in idx_neighs_mid:
             midCurr  = self.margin[curr_idx]
-            if(check_in_reduced_margin(midCurr, self.margin)):
+            if(check_in_reduced_margin(midCurr, self.midSet)):
                 self.idsReducedMargin = np.append(self.idsReducedMargin, curr_idx)
         self.idsReducedMargin = np.sort(self.idsReducedMargin)
