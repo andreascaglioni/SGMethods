@@ -1,0 +1,1 @@
+python3 -m cProfile -s 'cumtime' compare_profits_sinW.py > profile_myscript.txt
