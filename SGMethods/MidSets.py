@@ -128,7 +128,7 @@ def check_in_reduced_margin(mid, mid_set):
     for n in range(dimMids):
         en = np.zeros(dimMids).astype(int)
         en[n] = 1
-        condition[n] = (mid[n] == 0 or ((mid-en).tolist() in mid_set.tolist()))
+        condition[n] = (mid[n] == 0 or ((mid-en) in mid_set))
     return np.all(condition)
 
 
@@ -181,7 +181,8 @@ class midSet():
             en = np.zeros(self.dimMargin).astype(int)
             en[n] = 1
             newMid = mid + en
-            if(not(newMid.tolist() in self.margin.tolist())):
+            # if(not(newMid.tolist() in self.margin.tolist())):
+            if(not(newMid in self.margin)):
                 self.margin = np.row_stack((self.margin, newMid))
         # increase N by 1 if mid is last coordinate unit vector 
         increaseN = (mid[-1] == 1 and np.all(mid[0:-1:] == np.zeros(self.dimMargin-1)))
