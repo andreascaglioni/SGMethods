@@ -10,54 +10,51 @@ from SGMethods.ScalarNodes import unboundedKnotsNested
 from SLLG.expansions_Brownian_motion import param_LC_Brownian_motion
 
 
-
-
-
-NRNDSamples = 128
-maxNumNodes = 500
+NRNDSamples = 100
+maxNumNodes = 300
 p=2
 interpolationType =  "linear"
 
-Nt = 1.e1
+Nt = 10
 tt = np.linspace(0, 1, Nt)
 dt = 1/Nt
 
 def F(x):
-    W = param_LC_Brownian_motion(tt, x, 1)
-    return np.sin(W)
+    return np.sin(param_LC_Brownian_motion(tt, x, 1))
 
 lev2knots = lambda n: 2**(n+1)-1
 knots = lambda n : unboundedKnotsNested(n, p=p)
 
 def computeL2Error(uExa, Iu):
     assert(uExa.shape == Iu.shape)
-    spaceNorm = lambda x : sqrt(dt)*np.linalg.norm(x, ord=2, axis=1)
+    spaceNorm = lambda x : sqrt(dt)*np.linalg.norm(x, ord=2, axis=1)  # L2 norm in time
     errSample = spaceNorm(uExa-Iu)
     return sqrt(np.mean(np.square(errSample)))
-NLCExpansion = 2**10
-yyRnd = np.random.normal(0, 1, [NRNDSamples, NLCExpansion])
+
+yyRnd = np.random.normal(0, 1, [NRNDSamples, 2**10])  # infitnite paramter vector
 print("Parallel random sampling")
-NParallel = 16
-pool = Pool(NParallel)
-uExa = np.array(pool.map(F, yyRnd))
-dimF = uExa[0].size
+NParallel = 1
+# pool = Pool(NParallel)
+# uExa = np.array(pool.map(F, yyRnd))
 
-beta=0.5
-Cbar = 2
-# log(P) compared to theory
+# version wo parallel for profiling
+dimF = F(yyRnd[0,:]).size
+uExa = np.zeros((NRNDSamples, dimF))
+for i in range(NRNDSamples):
+    uExa[i,:] = F(yyRnd[i,:])
 
-def ProfitFun(x):
-    logRho = beta*np.ceil(np.log2(np.linspace(1,x.size,x.size)))
-    C1 = - np.sum(x)  # work^-1
-    C2 = np.sum(-logRho, where=(x==1))  # value for components =1
-    C3 = np.sum(log2(Cbar) - log2(factorial(p)) - p*x - p*logRho, where=(x>1))  # value for other components
-    return C1 + C2 + C3
 
-def ProfitFunOld(x):
-    logRho = beta*np.ceil(np.log2(np.linspace(1,x.size,x.size)))
-    C1 = - np.sum(x)  # work^-1
-    C2 = np.sum(log2(Cbar) -log2(factorial(p)) - p*x - p*logRho, where=(x>=1))
-    return C1 + C2
+# Profits
+def Profit(nu):
+    if(len(nu.shape) == 1):
+        nu= np.reshape(nu, (1,-1))
+    nMids = nu.shape[0]
+    nDims = nu.shape[1]
+    rho = 2**(0.5*np.ceil(np.log2(np.linspace(1,nDims,nDims))))
+    rhoReshape = np.reshape(rho, (1, -1))
+    repRho = np.repeat(rhoReshape, nMids, axis=0)
+    M = 2**nu*repRho
+    return np.power(np.prod(p*M, axis=1, where=(nu==1)), -1) * np.power(np.prod(M, axis=1, where=(nu>1)), -p)
 
 def convergenceTest(ProfitFun):
     # convergence test
@@ -76,14 +73,15 @@ def convergenceTest(ProfitFun):
         uOnSG = interpolant.sampleOnSG(F, dimF, oldSG, uOnSG)
         uInterp = interpolant.interpolate(yyRnd, uOnSG)
         # ERROR
-        errCurr = computeL2Error(uExa, uInterp)
-        print("Error:", errCurr)
-        err = np.append(err, errCurr)
+        err = np.append(err, computeL2Error(uExa, uInterp))
+        print("Error:", err[-1])
         nNodes = np.append(nNodes, interpolant.numNodes)
         oldSG = interpolant.SG
         # update midset for next iteration
-        P = np.apply_along_axis(ProfitFun, 1, I.margin)
+        # P = np.apply_along_axis(ProfitFun, 1, I.margin)
+        P = ProfitFun(I.margin)
         idMax = np.argmax(P)
+
         # print("new Mid", I.margin[idMax, :])
         I.update(idMax)
         # ncps = interpolant.numNodes
@@ -94,8 +92,8 @@ def convergenceTest(ProfitFun):
         #     I.update(idMax)
         #     interpolant = SGInterpolant(I.midSet, knots, lev2knots, interpolationType=interpolationType, NParallel=NParallel)
         w+=1
-    print(I.midSet)
-    print(np.amax(I.midSet, axis=0))
+    # print(I.midSet)
+    # print(np.amax(I.midSet, axis=0))
 
     # tt = np.linspace(0, 1, Nt)
     # plt.plot(tt, uExa[0,:], '.-', tt, uInterp[0,:], '.-')
@@ -108,6 +106,6 @@ def convergenceTest(ProfitFun):
     plt.loglog(nNodes, np.power(nNodes, -0.5), '-k')
     plt.loglog(nNodes, np.power(nNodes, -0.25), '-k')
 
-convergenceTest(ProfitFun)
-convergenceTest(ProfitFunOld)
+convergenceTest(Profit)
+# convergenceTest(ProfitFunOld)
 plt.show()
