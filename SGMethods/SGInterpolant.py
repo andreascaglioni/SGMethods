@@ -35,8 +35,8 @@ class SGInterpolant:
         for n in range(self.cardMidSet):
             currentMid = self.midSet[n, :]
             combinCoeff = 1
-            rangeIds = bk[currentMid[0]] # index of the 1st mid with 1st components = currentMid[0]+2 (dont need to itertate over it or any following one)
-            for j in range(n+1, rangeIds): #  in range the second argument is NOT included!
+            rangeIds = bk[currentMid[0]]  # index of the 1st mid with 1st components = currentMid[0]+2 (dont need to itertate over it or any following one)
+            for j in range(n+1, rangeIds):  #  in range the second argument is NOT included!
                 d = self.midSet[j, :] - currentMid
                 if(np.max(d)<=1 and np.min(d)>=0):
                     combinCoeff += int(pow(-1, np.linalg.norm(d, 1)))
@@ -110,12 +110,17 @@ class SGInterpolant:
                 yyToCompute.append(currNode)
         
         # compute (possibily in parallel) remaining nodes
+        # if(not(len(toCompute)==0)):
+        #     pool = Pool(self.NParallel)
+        #     tmp = np.array(pool.map(Fun, yyToCompute))
+        #     if(len(tmp.shape) == 1):
+        #         tmp = tmp.reshape((-1,1))
+        #     fOnSG[toCompute, :] = tmp
+
+        # alternative to previous section WO parallel
         if(not(len(toCompute)==0)):
-            pool = Pool(self.NParallel)
-            tmp = np.array(pool.map(Fun, yyToCompute))
-            if(len(tmp.shape) == 1):
-                tmp = tmp.reshape((-1,1))
-            fOnSG[toCompute, :] = tmp
+            for i in range(len(toCompute)):
+                fOnSG[toCompute[i], :] = Fun(yyToCompute[i])
 
         print("Recycled", nRecycle, "; Discarted", oldXx.shape[0]-nRecycle, "; Sampled", self.SG.shape[0]-nRecycle)
         return fOnSG
