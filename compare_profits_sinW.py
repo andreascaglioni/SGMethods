@@ -1,5 +1,5 @@
 import numpy as np
-from math import sqrt, factorial, log2
+from math import sqrt, factorial, log2, pi
 from multiprocessing import Pool
 import matplotlib.pyplot as plt
 import sys, os
@@ -11,9 +11,9 @@ from SLLG.expansions_Brownian_motion import param_LC_Brownian_motion
 
 
 NRNDSamples = 100
-maxNumNodes = 300
-p=2
-interpolationType =  "linear"
+maxNumNodes = 800
+p=3
+interpolationType =  "quadratic"
 
 Nt = 10
 tt = np.linspace(0, 1, Nt)
@@ -27,11 +27,11 @@ knots = lambda n : unboundedKnotsNested(n, p=p)
 
 def computeL2Error(uExa, Iu):
     assert(uExa.shape == Iu.shape)
-    spaceNorm = lambda x : sqrt(dt)*np.linalg.norm(x, ord=2, axis=1)  # L2 norm in time
+    spaceNorm = lambda x : sqrt(dt)*np.linalg.norm(x, ord=2, axis=1)  # L2 norm in time 
     errSample = spaceNorm(uExa-Iu)
     return sqrt(np.mean(np.square(errSample)))
 
-yyRnd = np.random.normal(0, 1, [NRNDSamples, 2**10])  # infitnite paramter vector
+yyRnd = np.random.normal(0, 1, [NRNDSamples, 2**10])  # infinite paramter vector
 print("Parallel random sampling")
 NParallel = 1
 # pool = Pool(NParallel)
@@ -43,7 +43,6 @@ uExa = np.zeros((NRNDSamples, dimF))
 for i in range(NRNDSamples):
     uExa[i,:] = F(yyRnd[i,:])
 
-
 # Profits
 def Profit(nu):
     if(len(nu.shape) == 1):
@@ -53,13 +52,24 @@ def Profit(nu):
     rho = 2**(0.5*np.ceil(np.log2(np.linspace(1,nDims,nDims))))
     rhoReshape = np.reshape(rho, (1, -1))
     repRho = np.repeat(rhoReshape, nMids, axis=0)
-    M = 2**nu*repRho
-    return np.power(np.prod(p*M, axis=1, where=(nu==1)), -1) * np.power(np.prod(M, axis=1, where=(nu>1)), -p)
+
+    # M = 2**nu*repRho
+    # return np.power(np.prod(p*M, axis=1, where=(nu==1)), -1) * np.power(np.prod(M, axis=1, where=(nu>1)), -p)
+    c = sqrt(pi**p * 0.5**(-(p+1)) * (2*p+1)**(0.5*(2*p-1)) ) * np.sqrt(1 + (2**(2*p+2)-4)/(2**(nu+1)))
+    
+    C1 = 1+ c * 3**(-p)/factorial(p)
+    C2 = c * (1+2**(-p))/factorial(p)
+
+    v1 = np.prod(C1/repRho, axis=1, where=(nu==1))
+    v2 = np.prod(C2*np.power(2**nu*repRho, -p) ,axis=1, where=(nu>1))
+    w = np.prod((2**(nu+1)-2)*(p-1)+1 ,axis=1)
+    return v1 * v2 / w
 
 def convergenceTest(ProfitFun):
     # convergence test
     err = np.array([])
     nNodes = np.array([])
+    nDims = np.array([])
     w=0
     I = midSet()
     oldSG = None
@@ -76,6 +86,7 @@ def convergenceTest(ProfitFun):
         err = np.append(err, computeL2Error(uExa, uInterp))
         print("Error:", err[-1])
         nNodes = np.append(nNodes, interpolant.numNodes)
+        nDims = np.append(nDims, interpolant.N)
         oldSG = interpolant.SG
         # update midset for next iteration
         # P = np.apply_along_axis(ProfitFun, 1, I.margin)
@@ -105,6 +116,8 @@ def convergenceTest(ProfitFun):
     plt.loglog(nNodes, err, '.-')
     plt.loglog(nNodes, np.power(nNodes, -0.5), '-k')
     plt.loglog(nNodes, np.power(nNodes, -0.25), '-k')
+    for tau in np.linspace(2/3, 1, 10):
+        plt.loglog(nNodes, np.power(nNodes, 1-1/tau)*np.exp(np.power(nDims, 1-0.5*tau)), '-k')
 
 convergenceTest(Profit)
 # convergenceTest(ProfitFunOld)
