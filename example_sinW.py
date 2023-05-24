@@ -11,11 +11,11 @@ from SLLG.expansions_Brownian_motion import param_LC_Brownian_motion
 
 
 NRNDSamples = 100
-maxNumNodes = 800
-p=3
-interpolationType =  "quadratic"
+maxNumNodes = 300
+p=2
+interpolationType =  "linear"
 
-Nt = 10
+Nt = 100
 tt = np.linspace(0, 1, Nt)
 dt = 1/Nt
 
@@ -50,18 +50,12 @@ def Profit(nu):
     nMids = nu.shape[0]
     nDims = nu.shape[1]
     rho = 2**(0.5*np.ceil(np.log2(np.linspace(1,nDims,nDims))))
-    rhoReshape = np.reshape(rho, (1, -1))
-    repRho = np.repeat(rhoReshape, nMids, axis=0)
-
-    # M = 2**nu*repRho
-    # return np.power(np.prod(p*M, axis=1, where=(nu==1)), -1) * np.power(np.prod(M, axis=1, where=(nu>1)), -p)
+    repRho = np.repeat(np.reshape(rho, (1, -1)), nMids, axis=0)
     c = sqrt(pi**p * 0.5**(-(p+1)) * (2*p+1)**(0.5*(2*p-1)) ) * np.sqrt(1 + (2**(2*p+2)-4)/(2**(nu+1)))
-    
     C1 = 1+ c * 3**(-p)/factorial(p)
     C2 = c * (1+2**(-p))/factorial(p)
-
     v1 = np.prod(C1/repRho, axis=1, where=(nu==1))
-    v2 = np.prod(C2*np.power(2**nu*repRho, -p) ,axis=1, where=(nu>1))
+    v2 = np.prod(C2*np.power(2**nu * repRho, -p) ,axis=1, where=(nu>1))
     w = np.prod((2**(nu+1)-2)*(p-1)+1 ,axis=1)
     return v1 * v2 / w
 
@@ -116,8 +110,6 @@ def convergenceTest(ProfitFun):
     plt.loglog(nNodes, err, '.-')
     plt.loglog(nNodes, np.power(nNodes, -0.5), '-k')
     plt.loglog(nNodes, np.power(nNodes, -0.25), '-k')
-    for tau in np.linspace(2/3, 1, 10):
-        plt.loglog(nNodes, np.power(nNodes, 1-1/tau)*np.exp(np.power(nDims, 1-0.5*tau)), '-k')
 
 convergenceTest(Profit)
 # convergenceTest(ProfitFunOld)
