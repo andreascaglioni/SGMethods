@@ -51,9 +51,9 @@ def sample_LLG_function_noise_2(param, Nh, Ntau, T, r, p):
     mapr = bdfllg_func(r, p, alpha, T, tau, minit, VV, V3, V, W, g, m1=[], quadrature_degree=quadrature_degree, Hinput=H)
     
     # SAVE CURRENT SOLUTION TO FILE
-    with HDF5File(mesh.mpi_comm(), "m_Ntau_" + str(Ntau) + "_Nh_" + str(Nh) + ".h5", "w") as file:
-        for niter in range(len(mapr)):
-            file.write(mapr[niter], "/function", niter)
+    # with HDF5File(mesh.mpi_comm(), "m_Ntau_" + str(Ntau) + "_Nh_" + str(Nh) + ".h5", "w") as file:
+    #     for niter in range(len(mapr)):
+    #         file.write(mapr[niter], "/function", niter)
 
     # return only the DOFS
     dofs = np.array([])
