@@ -60,7 +60,7 @@ def bdfllg_func(r, k, alpha, T, tau, minit, VV, V3, V, W, g, m1=[], quadrature_d
         if Hinput:
             H = Constant(Hinput)
         else:
-            H = Constant((0., 0., 1.))
+            H = Constant((0., 0., 0.))
         HH = -Cs * cross(H, g) + Cc * cross(cross(H, g), g)  # original: float(np.sin(-W[j])) * cross(H, g) + float(1 - np.cos(-W[j])) * cross(cross(H, g), g)
 
         # define LLG form
