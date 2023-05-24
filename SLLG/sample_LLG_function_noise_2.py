@@ -33,7 +33,7 @@ def sample_LLG_function_noise_2(param, Nh, Ntau, T, r, p):
     tau = T / Ntau
     tt = np.linspace(0, T, Ntau+1)
     W = param_LC_Brownian_motion(tt, param, T)
-    Pr = FiniteElement('P', tetrahedron, r)
+    Pr = FiniteElement('P', triangle, r)
     # mesh = BoxMesh(Point(0, 0, 0), Point(1, 1, 0.1), Nh, Nh, ceil(Nh/10.))
     mesh = UnitSquareMesh(Nh, Nh)
    
@@ -49,6 +49,13 @@ def sample_LLG_function_noise_2(param, Nh, Ntau, T, r, p):
     # file_write.close()
 
     mapr = bdfllg_func(r, p, alpha, T, tau, minit, VV, V3, V, W, g, m1=[], quadrature_degree=quadrature_degree, Hinput=H)
+    
+    # SAVE CURRENT SOLUTION TO FILE
+    with HDF5File(mesh.mpi_comm(), "m_Ntau_" + str(Ntau) + "_Nh_" + str(Nh) + ".h5", "w") as file:
+        for niter in range(len(mapr)):
+            file.write(mapr[niter], "/function", niter)
+
+    # return only the DOFS
     dofs = np.array([])
     for niter in range(len(mapr)):
         dofs = np.concatenate((dofs, mapr[niter].vector()[:]))

@@ -11,5 +11,8 @@ BDFOrder = 1
 Nh = 16
 Ntau = Nh * 4
 
-param = np.array([1.])
-sample_LLG_function_noise_2(param, Nh, Ntau, T, FEMOrder, BDFOrder)
+# param = np.random.normal(0, 1, 1000)
+param = np.array([0,0,0,1])
+x = sample_LLG_function_noise_2(param, Nh, Ntau, T, FEMOrder, BDFOrder)
+
+
