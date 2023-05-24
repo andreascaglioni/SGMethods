@@ -20,7 +20,7 @@ def unboundedNodesOptimal(n, p=2):
     assert(n%2==1)
     m = int((n-1)/2)
     xx = np.linspace(-m,m,n)/(m+1)
-    c = 2 *sqrt(2*p)
+    c = sqrt(2*(2*p+1))
     return c * erfinv(xx)
     
 
