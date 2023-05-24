@@ -110,17 +110,17 @@ class SGInterpolant:
                 yyToCompute.append(currNode)
         
         # compute (possibily in parallel) remaining nodes
-        # if(not(len(toCompute)==0)):
-        #     pool = Pool(self.NParallel)
-        #     tmp = np.array(pool.map(Fun, yyToCompute))
-        #     if(len(tmp.shape) == 1):
-        #         tmp = tmp.reshape((-1,1))
-        #     fOnSG[toCompute, :] = tmp
+        if(not(len(toCompute)==0)):
+            pool = Pool(self.NParallel)
+            tmp = np.array(pool.map(Fun, yyToCompute))
+            if(len(tmp.shape) == 1):
+                tmp = tmp.reshape((-1,1))
+            fOnSG[toCompute, :] = tmp
 
         # alternative to previous section WO parallel
-        if(not(len(toCompute)==0)):
-            for i in range(len(toCompute)):
-                fOnSG[toCompute[i], :] = Fun(yyToCompute[i])
+        # if(not(len(toCompute)==0)):
+        #     for i in range(len(toCompute)):
+        #         fOnSG[toCompute[i], :] = Fun(yyToCompute[i])
 
         print("Recycled", nRecycle, "; Discarted", oldXx.shape[0]-nRecycle, "; Sampled", self.SG.shape[0]-nRecycle)
         return fOnSG
