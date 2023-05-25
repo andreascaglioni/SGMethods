@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 
 import sys, os
 sys.path.insert(1, os.path.join(os.path.expanduser("~"), 'workspace/SGMethods'))
-from SLLG.sample_LLG_function_noise_2 import sample_LLG_function_noise_2
-from SLLG.error_sample_pb2 import error_sample_pb2
+from SLLG.sample_LLG_function_noise_2_time_1 import sample_LLG_function_noise_2_time_1
+from SLLG.error_sample_pb2_time_1 import error_sample_pb2_time_1
 from SGMethods.ScalarNodes import unboundedKnotsNested
 from SGMethods.MidSets import midSet
 from SGMethods.SGInterpolant import SGInterpolant
@@ -22,16 +22,16 @@ FEMOrder = 1
 BDFOrder = 1
 Nh = 32  # 8  # 
 NTau = Nh * 8
-NRNDSamples = 128  # 4  # 
+NRNDSamples = 128  # 4  #  
 NParallel = 32
-maxNumNodes = 512  # 64  # 
+maxNumNodes = 550  # 64  # 
 p = 2  # NBB degrere + 1
 interpolationType = "linear"
 
 def F(x):
-    return sample_LLG_function_noise_2(x, Nh, NTau, T, FEMOrder, BDFOrder)
+    return sample_LLG_function_noise_2_time_1(x, Nh, NTau, T, FEMOrder, BDFOrder)
 def physicalError(u, uExa):
-    return error_sample_pb2(u, uExa, Nh, NTau, Nh, NTau, T, FEMOrder, BDFOrder, False)
+    return error_sample_pb2_time_1(u, uExa, Nh, Nh, FEMOrder)
 
 # error computations
 NLCExpansion = 2**10
@@ -86,7 +86,8 @@ while(True):
     interpolant = SGInterpolant(I.midSet, knots, lev2knots, interpolationType=interpolationType, NParallel=NParallel)
     if(interpolant.numNodes > maxNumNodes):
         break
-    print("# nodes:", interpolant.numNodes, "\nNumber effective dimensions:", I.N)
+    midSetMaxDim = np.amax(I.midSet, axis=0)
+    print("# nodes:", interpolant.numNodes, "\nNumber effective dimensions:", I.N, "\nMax midcomponents:", midSetMaxDim)
     uOnSG = interpolant.sampleOnSG(F, dimF, oldSG, uOnSG)
     uInterp = interpolant.interpolate(yyRnd, uOnSG)
     # compute error
@@ -96,8 +97,9 @@ while(True):
     print("Error:", err[w])
     nNodes = np.append(nNodes, interpolant.numNodes)
     nDims = np.append(nDims, I.N)
-    midSetMaxDim = np.amax(I.midSet, axis=0)
-    np.savetxt('convergenge_pwLin_pb2_empiricalProfit.txt',np.array([nNodes, err, nDims]))
+    
+    np.savetxt('convergenge_pwLin_pb2_teoreticalProfit_time_1.csv',np.transpose(np.array([nNodes, err, nDims])), delimiter=',')
+    
     oldSG = interpolant.SG
 
     # P = Profit(I.margin)
@@ -106,14 +108,15 @@ while(True):
     # update midset for next iteration, doubling the number of collocation nodes
     current_num_cps = nNodes[-1]
     while(current_num_cps <= sqrt(2)* nNodes[-1]):
-        P = Profit2(I.margin)
+        P = Profit(I.margin)
         idMax = np.argmax(P)
         I.update(idMax)
         interpolant = SGInterpolant(I.midSet, knots, lev2knots, interpolationType=interpolationType, NParallel=NParallel)
         current_num_cps = interpolant.numNodes
+        if(current_num_cps > maxNumNodes):
+            break
     w+=1
 
-print("Final multi-index set maximum along dims:\n", midSetMaxDim)
 print("# nodes:", nNodes)
 print("# dimen:", nDims)
 print("error:", err)

@@ -3,7 +3,7 @@ from SLLG.expansions_Brownian_motion import param_LC_Brownian_motion
 from SLLG.bdfllg_func import *
 
 
-def sample_LLG_function_noise_2(param, Nh, Ntau, T, r, p):
+def sample_LLG_function_noise_2_time_1(param, Nh, Ntau, T, r, p):
     set_log_level(31)
     alpha = 1.4
     quadrature_degree = 6
@@ -51,8 +51,5 @@ def sample_LLG_function_noise_2(param, Nh, Ntau, T, r, p):
     #     for niter in range(len(mapr)):
     #         file.write(mapr[niter], "/function", niter)
 
-    # return only the DOFS
-    dofs = np.array([])
-    for niter in range(len(mapr)):
-        dofs = np.concatenate((dofs, mapr[niter].vector()[:]))
-    return dofs
+    # return only the DOFS AT FINAL TIME
+    return mapr[-1].vector()[:]
