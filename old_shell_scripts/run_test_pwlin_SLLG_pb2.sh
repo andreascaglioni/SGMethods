@@ -1,0 +1,1 @@
+nohup python3 < SLLG/test_pwPolySG_SLLG_pb2.py > out_test_pwLin_SLLG_pb2.txt &
