@@ -20,11 +20,11 @@ sparse grids using the knapsack-optimal midset (effective dimension grows with
 T = 1
 FEMOrder = 1
 BDFOrder = 1
-Nh = 8  # 32  # 
+Nh = 32  # 8  # 
 NTau = Nh * 8
-NRNDSamples = 4  # 128  # 
+NRNDSamples = 128  # 4  # 
 NParallel = 32
-maxNumNodes = 512  # 550  # 
+maxNumNodes = 512  # 64  # 
 p = 2  # NBB degrere + 1
 interpolationType = "linear"
 
@@ -56,11 +56,23 @@ def Profit(nu):
     # C1 = 1+ c * 3**(-p)
     # C2 = c * (1+2**(-p))
     C1 = 1
-    C2 = 2
+    C2 = 1
     v1 = np.prod(C1* np.power(repRho, -1), axis=1, where=(nu==1))
     v2 = np.prod(C2*np.power(2**nu * repRho, -p), axis=1, where=(nu>1))
     w = np.prod((2**(nu+1)-2)*(p-1)+1, axis=1)
     return v1 * v2 / w
+
+def Profit2(nu):
+    if(len(nu.shape) == 1):
+        nu= np.reshape(nu, (1,-1))
+    nMids = nu.shape[0]
+    nDims = nu.shape[1]
+    rho = 2**(0.5*np.ceil(np.log2(np.linspace(1,nDims,nDims))))
+    repRho = np.repeat(np.reshape(rho, (1, -1)), nMids, axis=0)
+
+    v = np.prod(np.power(2**nu * repRho, -p) ,axis=1, where=(nu>0))
+    w = np.prod((2**(nu+1)-2)*(p-1)+1 ,axis=1)
+    return v/w
 
 err = np.array([])
 nNodes = np.array([])
@@ -81,10 +93,11 @@ while(True):
     errSamples = np.array([ physicalError(uInterp[n], uExa[n]) for n in range(NRNDSamples) ])
     errCurr = sqrt(np.mean(np.square(errSamples)))
     err = np.append(err, errCurr)
+    print("Error:", err[w])
     nNodes = np.append(nNodes, interpolant.numNodes)
     nDims = np.append(nDims, I.N)
-    print("Error:", err[w])
-    np.savetxt('convergenge_pwQuadratic_SLLG_NEWPROFIT.csv',np.array([nNodes, err, nDims]))
+    midSetMaxDim = np.amax(I.midSet, axis=0)
+    np.savetxt('convergenge_pwLin_pb2_empiricalProfit.txt',np.array([nNodes, err, nDims]))
     oldSG = interpolant.SG
 
     # P = Profit(I.margin)
@@ -93,13 +106,14 @@ while(True):
     # update midset for next iteration, doubling the number of collocation nodes
     current_num_cps = nNodes[-1]
     while(current_num_cps <= sqrt(2)* nNodes[-1]):
-        P = Profit(I.margin)
+        P = Profit2(I.margin)
         idMax = np.argmax(P)
         I.update(idMax)
         interpolant = SGInterpolant(I.midSet, knots, lev2knots, interpolationType=interpolationType, NParallel=NParallel)
         current_num_cps = interpolant.numNodes
     w+=1
-print("Multi-index set maximum along dims:\n", np.amax(I.midSet, 0))
+
+print("Final multi-index set maximum along dims:\n", midSetMaxDim)
 print("# nodes:", nNodes)
 print("# dimen:", nDims)
 print("error:", err)
