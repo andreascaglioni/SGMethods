@@ -36,10 +36,20 @@ class SGInterpolant:
             currentMid = self.midSet[n, :]
             combinCoeff = 1
             rangeIds = bk[currentMid[0]]  # index of the 1st mid with 1st components = currentMid[0]+2 (dont need to itertate over it or any following one)
-            for j in range(n+1, rangeIds):  #  in range the second argument is NOT included!
-                d = self.midSet[j, :] - currentMid
-                if(np.max(d)<=1 and np.min(d)>=0):
-                    combinCoeff += int(pow(-1, np.linalg.norm(d, 1)))
+            
+            # for j in range(n+1, rangeIds):  #  in operator range the final bound is NOT included! we begin from n+1 and already considered the case n in definition combiCoeff
+            #     d = self.midSet[j, :] - currentMid
+            #     if(np.max(d)<=1 and np.min(d)>=0):
+            #         combinCoeff += int(pow(-1, np.linalg.norm(d, 1)))
+            
+            midsDifference = self.midSet[(n+1):(rangeIds), :] - currentMid  # NB in np slice start:stop, stop is NOT included!!
+            isBinaryVector = np.all(np.logical_and(midsDifference>=0, midsDifference<=1), axis=1)
+            binaryRows = midsDifference[isBinaryVector]
+            compiELementary = np.power(-1, np.sum(binaryRows, axis=1))
+            combinCoeff += np.sum(compiELementary)
+
+
+                
             if combinCoeff != 0:
                 self.combinationCoeffs.append(combinCoeff)
                 self.activeMIds.append(currentMid)
@@ -111,16 +121,22 @@ class SGInterpolant:
         
         # compute (possibily in parallel) remaining nodes
         if(not(len(toCompute)==0)):
-            pool = Pool(self.NParallel)
-            tmp = np.array(pool.map(Fun, yyToCompute))
-            if(len(tmp.shape) == 1):
-                tmp = tmp.reshape((-1,1))
-            fOnSG[toCompute, :] = tmp
+            if(self.NParallel == 1):
+                for i in range(len(toCompute)):
+                    fOnSG[toCompute[i], :] = Fun(yyToCompute[i])
+            elif(self.NParallel > 1):
+                pool = Pool(self.NParallel)
+                tmp = np.array(pool.map(Fun, yyToCompute))
+                if(len(tmp.shape) == 1):
+                    tmp = tmp.reshape((-1,1))
+                fOnSG[toCompute, :] = tmp
+            else:
+                raise ValueError('self.NParallel not int >= 1"')
+
+                
 
         # alternative to previous section WO parallel
-        # if(not(len(toCompute)==0)):
-        #     for i in range(len(toCompute)):
-        #         fOnSG[toCompute[i], :] = Fun(yyToCompute[i])
+        # 
 
         print("Recycled", nRecycle, "; Discarted", oldXx.shape[0]-nRecycle, "; Sampled", self.SG.shape[0]-nRecycle)
         return fOnSG
