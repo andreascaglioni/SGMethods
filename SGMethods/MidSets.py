@@ -155,8 +155,6 @@ def checkIfElement(mid, midSet):
     assert(mid.size == midSet.shape[1])
     assert(len(mid.shape) == 1)
     assert(len(midSet.shape) == 2)
-
-
     return (midSet == mid).all(axis=1).any()
 
 class midSet():
@@ -167,13 +165,14 @@ class midSet():
         self.midSet = np.zeros((1, self.dimMargin)).astype(int)  # NB the number of columns is the same as for the margin, not self.N! This is for better compatibility later
         self.numMids = self.midSet.shape[0]
         self.margin = np.identity(self.dimMargin).astype(int)
-        self.idsReducedMargin = np.zeros(1).astype(int)
+        # self.idsReducedMargin = np.zeros(1).astype(int)
 
     def update(self, idx_margin):
         """ add to current midset multi-index in position idx_margin in margin
         INPUT   idx_margin int 
         RETURN  None"""
         mid = self.margin[idx_margin,:]
+
         # check if mid is in reduced margin, if not add first the margin element that comes before it
         for n in range(self.dimMargin):
             en = unitVector(self.dimMargin, n)
@@ -186,18 +185,20 @@ class midSet():
                     mid = np.append(mid, 0) # NB dimensino can have grown at most by 1
                     # TODO can it be that a mid in dimension dimMargin is NOT int the reduced margin? I guess no because any time the dimension is increased the *only* mid with highest dimension is the unit vector e_N
                 idx_margin = find_idx_in_margin(self.margin, mid)
+        
         #update midset
         self.midSet = np.row_stack((self.midSet, mid))
         self.midSet =self.midSet[np.lexsort(np.rot90(self.midSet))]
         self.numMids += 1
+        
         #update margin within first dimMargin dimensions. If mid was added in buffer dimension, we add more mids later 
         self.margin = np.delete(self.margin, idx_margin,  0)  # remove added mid 
-        for n in range(self.dimMargin): # add those in forward margin (if they are not already in margin!)
+        for n in range(self.dimMargin): # add all mids in forward margin
             en = unitVector(self.dimMargin, n)
             newMid = mid + en
-            # if(not(newMid in self.margin)):
-            if(~checkIfElement(newMid, self.margin)):
-                self.margin = np.row_stack((self.margin, newMid))
+            self.margin = np.row_stack((self.margin, newMid))
+        self.margin = np.unique(self.margin, axis=0)  # mids just added may already have been in midset
+        
         # increase N by 1 if mid is last coordinate unit vector 
         increaseN = (mid[-1] == 1 and np.all(mid[0:-1:] == np.zeros(self.dimMargin-1)))  # easier alternative (mid == unitVector(self.dimMargin, self.dimMargin))  #
         if increaseN:
@@ -214,15 +215,19 @@ class midSet():
         
 
 
-        # update list of reduced margin indices
-        # 1 delete element just added to margin
-        mask = np.where(self.idsReducedMargin == idx_margin)
-        self.idsReducedMargin = np.delete(self.idsReducedMargin, mask, axis=0)
-        # 2 add new reduced margin elements, if any
-        idx_neighs_mid = np.where(np.linalg.norm(self.margin - mid, ord=1, axis = 1) == 1)  # find neighbours of added mid in margin (at most N)
-        idx_neighs_mid = idx_neighs_mid[0]  # np.where returns list with output I want as unique element
-        for curr_idx in idx_neighs_mid:
-            midCurr  = self.margin[curr_idx]
-            if(check_in_reduced_margin(midCurr, self.midSet)):
-                self.idsReducedMargin = np.append(self.idsReducedMargin, curr_idx)
-        self.idsReducedMargin = np.sort(self.idsReducedMargin)
+
+        # WRONG: cannot update INDICES of mids in reduced margin so easily, because the position of a mid can change when any other mid is added
+        # BETTER: store multi-indeces themselves; if need position in pargin, just do a search
+
+        # # update list of reduced margin indices
+        # # 1 delete element just added to margin
+        # mask = np.where(self.idsReducedMargin == idx_margin)
+        # self.idsReducedMargin = np.delete(self.idsReducedMargin, mask, axis=0)
+        # # 2 add new reduced margin elements, if any
+        # idx_neighs_mid = np.where(np.linalg.norm(self.margin - mid, ord=1, axis = 1) == 1)  # find neighbours of added mid in margin (at most N)
+        # idx_neighs_mid = idx_neighs_mid[0]  # np.where returns list with output I want as unique element
+        # for curr_idx in idx_neighs_mid:
+        #     midCurr  = self.margin[curr_idx]
+        #     if(check_in_reduced_margin(midCurr, self.midSet)):
+        #         self.idsReducedMargin = np.append(self.idsReducedMargin, curr_idx)
+        # self.idsReducedMargin = np.sort(self.idsReducedMargin)
