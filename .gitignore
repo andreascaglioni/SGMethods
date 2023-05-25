@@ -1,8 +1,10 @@
 tests/__pycache__
 SGMethods/__pycache__
 SLLG/__pycache__
+utils/__pycache__
 .idea
 results
+results_old
 test_py.py
 *.csv
 .vscode
