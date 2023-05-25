@@ -12,7 +12,7 @@ from SLLG.expansions_Brownian_motion import param_LC_Brownian_motion
 
 
 NRNDSamples = 100
-maxNumNodes = 450
+maxNumNodes = 100
 p=2
 interpolationType =  "linear"
 
@@ -34,20 +34,18 @@ np.random.seed(1607)
 yyRnd = np.random.normal(0, 1, [NRNDSamples, 2**10])  # infinite paramter vector
 print("Parallel random sampling")
 NParallel = 1
-# pool = Pool(NParallel)
-# uExa = np.array(pool.map(F, yyRnd))
+if NParallel == 1:
+    dimF = F(yyRnd[0,:]).size
+    uExa = np.zeros((NRNDSamples, dimF))
+    for i in range(NRNDSamples):
+        uExa[i,:] = F(yyRnd[i,:])
+else:
+    pool = Pool(NParallel)
+    uExa = np.array(pool.map(F, yyRnd))
 
-# version wo parallel for profiling
-dimF = F(yyRnd[0,:]).size
-uExa = np.zeros((NRNDSamples, dimF))
-for i in range(NRNDSamples):
-    uExa[i,:] = F(yyRnd[i,:])
-
-
+# Choose interpolant
 lev2knots = lambda n: 2**(n+1)-1
 knots = lambda n : unboundedKnotsNested(n, p=p)
-
-# Profits
 def Profit(nu):
     if(len(nu.shape) == 1):
         nu= np.reshape(nu, (1,-1))
@@ -64,7 +62,6 @@ def Profit(nu):
     v2 = np.prod(C2*np.power(2**nu * repRho, -p) ,axis=1, where=(nu>1))
     w = np.prod((2**(nu+1)-2)*(p-1)+1 ,axis=1)
     return v1 * v2 / w
-
 
 def Profit2(nu):
     if(len(nu.shape) == 1):
@@ -92,37 +89,33 @@ def convergenceTest(ProfitFun):
         interpolant = SGInterpolant(I.midSet, knots, lev2knots, interpolationType=interpolationType, NParallel=1)
         if(interpolant.numNodes > maxNumNodes):
             break
-        print("# nodes:", interpolant.numNodes, "\nNumber effective dimensions:", I.N)
+        midSetMaxDim = np.amax(I.midSet, axis=0)
+        print("# nodes:", interpolant.numNodes, "\nNumber effective dimensions:", I.N, "\nMax midcomponents:", midSetMaxDim)
         uOnSG = interpolant.sampleOnSG(F, dimF, oldSG, uOnSG)
         uInterp = interpolant.interpolate(yyRnd, uOnSG)
         # ERROR
         err = np.append(err, computeL2Error(uExa, uInterp))
         print("Error:", err[-1])
         nNodes = np.append(nNodes, interpolant.numNodes)
-        nDims = np.append(nDims, interpolant.N)
-        midSetMaxDim = np.amax(I.midSet, axis=0)
+        nDims = np.append(nDims, I.N)
+        
+        np.savetxt('sinW_example_linear_empricalP2.csv',np.transpose(np.array([nNodes, err, nDims])), delimiter=',')
 
         oldSG = interpolant.SG
-        # update midset for next iteration
-        # P = np.apply_along_axis(ProfitFun, 1, I.margin)
-        P = ProfitFun(I.margin)
-        idMax = np.argmax(P)
 
-        # print("new Mid", I.margin[idMax, :])
-        # I.update(idMax)
+        # update midset for next iteration
+        # P = ProfitFun(I.margin)
+        # idMax = np.argmax(P)
         ncps = interpolant.numNodes
         while interpolant.numNodes < sqrt(2)*ncps:
             P = ProfitFun(I.margin)
             idMax = np.argmax(P)
-            # print("new Mid", I.margin[idMax, :])
             I.update(idMax)
             interpolant = SGInterpolant(I.midSet, knots, lev2knots, interpolationType=interpolationType, NParallel=NParallel)
             if(interpolant.numNodes > maxNumNodes):
                 break
         w+=1
     
-    print(midSetMaxDim)
-
     # tt = np.linspace(0, 1, Nt)
     # plt.plot(tt, uExa[0,:], '.-', tt, uInterp[0,:], '.-')
     # plt.show()
@@ -134,6 +127,6 @@ def convergenceTest(ProfitFun):
     plt.loglog(nNodes, np.power(nNodes, -0.5), '-k')
     plt.loglog(nNodes, np.power(nNodes, -0.25), '-k')
 
-convergenceTest(Profit2)
 
+convergenceTest(Profit)
 plt.show()
