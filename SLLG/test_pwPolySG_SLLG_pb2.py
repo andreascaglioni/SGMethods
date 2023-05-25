@@ -2,6 +2,7 @@ from __future__ import division
 from multiprocessing import Pool
 from math import log, pi, sqrt, factorial, log2
 import numpy as np
+import matplotlib.pyplot as plt
 
 import sys, os
 sys.path.insert(1, os.path.join(os.path.expanduser("~"), 'workspace/SGMethods'))
@@ -23,7 +24,7 @@ Nh = 8  # 32  #
 NTau = Nh * 8
 NRNDSamples = 4  # 128  # 
 NParallel = 32
-maxNumNodes = 64  # 550  # 
+maxNumNodes = 512  # 550  # 
 p = 2  # NBB degrere + 1
 interpolationType = "linear"
 
@@ -51,16 +52,15 @@ def Profit(nu):
     nDims = nu.shape[1]
     rho = 2**(0.5*np.ceil(np.log2(np.linspace(1,nDims,nDims))))
     repRho = np.repeat(np.reshape(rho, (1, -1)), nMids, axis=0)
-    c = sqrt(pi**p * 0.5**(-(p+1)) * (2*p+1)**(0.5*(2*p-1)) ) * np.sqrt(1 + (2**(2*p+2)-4)/(2**(nu+1)))
-    C1 = 1+ c * 3**(-p)
-    C2 = c * (1+2**(-p))
+    # c = sqrt(pi**p * 0.5**(-(p+1)) * (2*p+1)**(0.5*(2*p-1)) ) * np.sqrt(1 + (2**(2*p+2)-4)/(2**(nu+1)))
+    # C1 = 1+ c * 3**(-p)
+    # C2 = c * (1+2**(-p))
     C1 = 1
-    C2 = 1
-    v1 = np.prod(C1/repRho, axis=1, where=(nu==1))
-    v2 = np.prod(C2*np.power(2**nu * repRho, -p) ,axis=1, where=(nu>1))
-    w = np.prod((2**(nu+1)-2)*(p-1)+1 ,axis=1)
+    C2 = 2
+    v1 = np.prod(C1* np.power(repRho, -1), axis=1, where=(nu==1))
+    v2 = np.prod(C2*np.power(2**nu * repRho, -p), axis=1, where=(nu>1))
+    w = np.prod((2**(nu+1)-2)*(p-1)+1, axis=1)
     return v1 * v2 / w
-
 
 err = np.array([])
 nNodes = np.array([])
@@ -86,12 +86,25 @@ while(True):
     print("Error:", err[w])
     np.savetxt('convergenge_pwQuadratic_SLLG_NEWPROFIT.csv',np.array([nNodes, err, nDims]))
     oldSG = interpolant.SG
+
+    # P = Profit(I.margin)
+    # idMax = np.argmax(P)
+    # I.update(idMax)
     # update midset for next iteration, doubling the number of collocation nodes
     current_num_cps = nNodes[-1]
     while(current_num_cps <= sqrt(2)* nNodes[-1]):
         P = Profit(I.margin)
-        idMax = np.argmin(P)
+        idMax = np.argmax(P)
         I.update(idMax)
         interpolant = SGInterpolant(I.midSet, knots, lev2knots, interpolationType=interpolationType, NParallel=NParallel)
         current_num_cps = interpolant.numNodes
     w+=1
+print("Multi-index set maximum along dims:\n", np.amax(I.midSet, 0))
+print("# nodes:", nNodes)
+print("# dimen:", nDims)
+print("error:", err)
+print("rates:", -np.log(err[1::]/err[:-1:])/np.log(nNodes[1::]/nNodes[:-1:]))
+plt.plot(nNodes, err, '.-', nNodes, np.power(nNodes, -0.5), '.k-', nNodes, np.power(nNodes, -0.25), 'k-', )
+plt.show()
+plt.plot(nNodes, nDims, '.-', nNodes, nNodes, 'k-')
+plt.show()
