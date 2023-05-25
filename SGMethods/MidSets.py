@@ -145,12 +145,26 @@ def check_in_reduced_margin(mid, mid_set):
 #         idxRM = np.append(idxRM, i)
 #     return idxRM
 
+def unitVector(d, n):
+    en = np.zeros(d).astype(int)
+    en[n] = 1
+    return en
+
+
+def checkIfElement(mid, midSet):
+    assert(mid.size == midSet.shape[1])
+    assert(len(mid.shape) == 1)
+    assert(len(midSet.shape) == 2)
+
+
+    return (midSet == mid).all(axis=1).any()
+
 class midSet():
     def __init__(self, maxN=inf):
         self.maxN = maxN  # maximum number of allowed dimensions
         self.N = 0  # start only with 0 in midset  
         self.dimMargin = min(self.N+1, maxN) #  NBB always have midset.shape[1] = self.margin.shape[1] = min(N+1, maxN)
-        self.midSet = np.zeros((1, self.dimMargin)).astype(int)  
+        self.midSet = np.zeros((1, self.dimMargin)).astype(int)  # NB the number of columns is the same as for the margin, not self.N! This is for better compatibility later
         self.numMids = self.midSet.shape[0]
         self.margin = np.identity(self.dimMargin).astype(int)
         self.idsReducedMargin = np.zeros(1).astype(int)
@@ -162,14 +176,15 @@ class midSet():
         mid = self.margin[idx_margin,:]
         # check if mid is in reduced margin, if not add first the margin element that comes before it
         for n in range(self.dimMargin):
-            en = np.zeros(self.dimMargin).astype(int)
-            en[n] = 1
-            if(not(mid[n] == 0 or ((mid-en).tolist() in self.midSet.tolist()))):
+            en = unitVector(self.dimMargin, n)
+            if(not(mid[n] == 0 or ((mid-en) in self.midSet))):  
+                # since mid is it is not in the reduced margin, mid-en is in margin
                 mid_tmp = mid - en
                 idx_mid_tmp = find_idx_in_margin(self.margin, mid_tmp)
-                self.update(idx_mid_tmp)
+                self.update(idx_mid_tmp)  # NB recursive call!
                 if(mid.size < self.dimMargin):
                     mid = np.append(mid, 0) # NB dimensino can have grown at most by 1
+                    # TODO can it be that a mid in dimension dimMargin is NOT int the reduced margin? I guess no because any time the dimension is increased the *only* mid with highest dimension is the unit vector e_N
                 idx_margin = find_idx_in_margin(self.margin, mid)
         #update midset
         self.midSet = np.row_stack((self.midSet, mid))
@@ -178,19 +193,18 @@ class midSet():
         #update margin within first dimMargin dimensions. If mid was added in buffer dimension, we add more mids later 
         self.margin = np.delete(self.margin, idx_margin,  0)  # remove added mid 
         for n in range(self.dimMargin): # add those in forward margin (if they are not already in margin!)
-            en = np.zeros(self.dimMargin).astype(int)
-            en[n] = 1
+            en = unitVector(self.dimMargin, n)
             newMid = mid + en
-            # if(not(newMid.tolist() in self.margin.tolist())):
-            if(not(newMid in self.margin)):
+            # if(not(newMid in self.margin)):
+            if(~checkIfElement(newMid, self.margin)):
                 self.margin = np.row_stack((self.margin, newMid))
         # increase N by 1 if mid is last coordinate unit vector 
-        increaseN = (mid[-1] == 1 and np.all(mid[0:-1:] == np.zeros(self.dimMargin-1)))
+        increaseN = (mid[-1] == 1 and np.all(mid[0:-1:] == np.zeros(self.dimMargin-1)))  # easier alternative (mid == unitVector(self.dimMargin, self.dimMargin))  #
         if increaseN:
-            mid = np.append(mid, 0.)  
             self.N+=1
-            # if ADDITIONALLY N < nMax, add (I,1) to margin
-            if(self.N < self.maxN): # NBB remeber that self.midMargin was just updated
+            # if N < nMax, add (I,1) to margin. Otherwise midset has saturated all available dimensions
+            if(self.N < self.maxN): # NBB remeber that self.midMargin was just updated 2 lines above
+                mid = np.append(mid, 0.)
                 marginNewDim = np.hstack((self.midSet, np.ones((self.midSet.shape[0], 1))))
                 self.midSet = np.hstack((self.midSet, np.zeros((self.midSet.shape[0], 1)))).astype(int)
                 self.margin = np.hstack((self.margin, np.zeros((self.margin.shape[0], 1))))
@@ -198,6 +212,8 @@ class midSet():
                 self.dimMargin+=1
         self.margin = self.margin[np.lexsort(np.rot90(self.margin))]
         
+
+
         # update list of reduced margin indices
         # 1 delete element just added to margin
         mask = np.where(self.idsReducedMargin == idx_margin)
