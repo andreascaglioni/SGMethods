@@ -2,6 +2,9 @@ import numpy as np
 import sys, os
 sys.path.insert(1, os.path.join(os.path.expanduser("~"), 'workspace/SGMethods'))
 from SGMethods.MidSets import TPMidSet, SmolyakMidSet, midSet
+import matplotlib.pyplot as plt 
+from mpl_toolkits.mplot3d import Axes3D # <--- This is important for 3d plotting 
+
 
 # ############################# test smolyak midset #################################
 # # free example
@@ -67,9 +70,31 @@ from SGMethods.MidSets import TPMidSet, SmolyakMidSet, midSet
 # assert (np.all(I == ITest))
 
 ############################# test midset class; in particular adding multi-index that is not in reduced margin #################################
-I = midSet()
+# I = midSet()
+# print(I.midSet, "\n###############\n", I.margin, "\n", "#####################################")
+# I.update(0)
+# print(I.midSet, "\n###############\n", I.margin, "\n", "#####################################")
+# I.update(1)
+# print(I.midSet, "\n###############\n", I.margin, "\n", "#####################################")
+
+
+I = midSet(maxN=3)
+I.update(0)
 print(I.midSet, "\n###############\n", I.margin, "\n", "#####################################")
 I.update(0)
 print(I.midSet, "\n###############\n", I.margin, "\n", "#####################################")
-I.update(1)
+I.update(0)
 print(I.midSet, "\n###############\n", I.margin, "\n", "#####################################")
+I.update(5)
+print(I.midSet, "\n###############\n", I.margin, "\n", "#####################################")
+# I.update(3)
+# print(I.midSet, "\n###############\n", I.margin, "\n", "#####################################")
+# I.update(0)
+# print(I.midSet, "\n###############\n", I.margin, "\n", "#####################################")
+
+fig = plt.figure(figsize = (10,10))
+ax = plt.axes(projection='3d')
+ax.scatter(I.midSet[:,0],I.midSet[:,1],I.midSet[:,2], c='b')
+ax.scatter(I.margin[:,0],I.margin[:,1],I.margin[:,2], c='r', marker='^')
+plt.show()
+
