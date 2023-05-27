@@ -10,7 +10,7 @@ sys.path.insert(1, os.path.join(os.path.expanduser("~"), 'workspace/SGMethods'))
 # from SLLG.sample_LLG_function_noise_2_time_1 import sample_LLG_function_noise_2_time_1
 # from SLLG.error_sample_pb2_time_1 import error_sample_pb2_time_1
 from SLLG.sample_LLG_function_noise_2 import sample_LLG_function_noise_2
-from SLLG.error_sample_pb2 import error_sample_pb2 
+from SLLG.error_sample_pb2_L2norm import error_sample_pb2_L2norm
 from SGMethods.ScalarNodes import unboundedKnotsNested
 from SGMethods.MidSets import midSet
 from SGMethods.SGInterpolant import SGInterpolant
@@ -25,11 +25,11 @@ FEMOrder = 1
 BDFOrder = 1
 Nh = 32  # 8  # 
 NTau = Nh * 8
-NRNDSamples = 128  # 4  #  
+NRNDSamples = 1024  # 4  #  
 NParallel = 32
-maxNumNodes = 550  # 64  # 
-p = 3  # NBB degrere + 1
-interpolationType = "quadratic"
+maxNumNodes = 1500  # 64  # 
+p = 2  # NBB degrere + 1
+interpolationType = "linear"
 
 # def F(x):
 #     return sample_LLG_function_noise_2_time_1(x, Nh, NTau, T, FEMOrder, BDFOrder)
@@ -38,7 +38,7 @@ interpolationType = "quadratic"
 def F(x):
     return sample_LLG_function_noise_2(x, Nh, NTau, T, FEMOrder, BDFOrder)
 def physicalError(u, uExa):
-    return error_sample_pb2(u, uExa, Nh, NTau, Nh, NTau, T, FEMOrder, BDFOrder)
+    return error_sample_pb2_L2norm(u, uExa, Nh, NTau, Nh, NTau, T, FEMOrder, BDFOrder)
 
 # error computations
 NLCExpansion = 2**10
@@ -57,29 +57,15 @@ def Profit(nu):
         nu= np.reshape(nu, (1,-1))
     nMids = nu.shape[0]
     nDims = nu.shape[1]
-    rho = 2**(0.5*np.ceil(np.log2(np.linspace(1,nDims,nDims))))
+    rho = 2**(0.5*np.ceil(np.log2(np.linspace(1,nDims,nDims)))) 
     repRho = np.repeat(np.reshape(rho, (1, -1)), nMids, axis=0)
-    # c = sqrt(pi**p * 0.5**(-(p+1)) * (2*p+1)**(0.5*(2*p-1)) ) * np.sqrt(1 + (2**(2*p+2)-4)/(2**(nu+1)))
-    # C1 = 1+ c * 3**(-p)
-    # C2 = c * (1+2**(-p))
+    repSizeSupp = repRho
     C1 = 1
     C2 = 1
-    v1 = np.prod(C1* np.power(repRho, -1), axis=1, where=(nu==1))
+    v1 = np.prod(C1* np.power(repRho*repSizeSupp, -1), axis=1, where=(nu==1))
     v2 = np.prod(C2*np.power(2**nu * repRho, -p), axis=1, where=(nu>1))
     w = np.prod((2**(nu+1)-2)*(p-1)+1, axis=1)
     return v1 * v2 / w
-
-def Profit2(nu):
-    if(len(nu.shape) == 1):
-        nu= np.reshape(nu, (1,-1))
-    nMids = nu.shape[0]
-    nDims = nu.shape[1]
-    rho = 2**(0.5*np.ceil(np.log2(np.linspace(1,nDims,nDims))))
-    repRho = np.repeat(np.reshape(rho, (1, -1)), nMids, axis=0)
-
-    v = np.prod(np.power(2**nu * repRho, -p) ,axis=1, where=(nu>0))
-    w = np.prod((2**(nu+1)-2)*(p-1)+1 ,axis=1)
-    return v/w
 
 err = np.array([])
 nNodes = np.array([])
@@ -99,13 +85,14 @@ while(True):
     uInterp = interpolant.interpolate(yyRnd, uOnSG)
     # compute error
     errSamples = np.array([ physicalError(uInterp[n], uExa[n]) for n in range(NRNDSamples) ])
+
     errCurr = sqrt(np.mean(np.square(errSamples)))
     err = np.append(err, errCurr)
     print("Error:", err[w])
     nNodes = np.append(nNodes, interpolant.numNodes)
     nDims = np.append(nDims, I.N)
     
-    np.savetxt('convergenge_pwQuadr_pb2_empiricalProfit.csv',np.transpose(np.array([nNodes, err, nDims])), delimiter=',')
+    np.savetxt('convergenge_pwLin_pb2_smoothingProfitL2VarLong.csv',np.transpose(np.array([nNodes, err, nDims])), delimiter=',')
     
     oldSG = interpolant.SG
 

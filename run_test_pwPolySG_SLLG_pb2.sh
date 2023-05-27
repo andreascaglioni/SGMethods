@@ -1,1 +1,1 @@
-nohup python3 < SLLG/test_pwPolySG_SLLG_pb2.py > out_pwPolySG_SLLG_linear_teoreticalP_time_1.txt &
+nohup python3 < SLLG/test_pwPolySG_SLLG_pb2_smoothing_profit.py > out_pwPolySG_SLLG_PWLin_smoothingPL2normVarLong.txt &

@@ -9,7 +9,7 @@ from SLLG.compute_H1_error import compute_H1_error
 from SLLG.compute_dtm_error import compute_dtm_error
 
 
-def error_sample_pb2(dofscurr, dofsref, Nhref, Ntauref, Nh, Ntau, T, r, p, DT_ERROR=False):
+def error_sample_pb2_L2norm(dofscurr, dofsref, Nhref, Ntauref, Nh, Ntau, T, r, p, DT_ERROR=False):
 
     Nt = Ntau+1
     tau = T/Ntau
@@ -55,7 +55,5 @@ def error_sample_pb2(dofscurr, dofsref, Nhref, Ntauref, Nh, Ntau, T, r, p, DT_ER
         errtimecurr_dtm = compute_dtm_error(p, matdofsref, V3ref, tauref, ttref, matdofscurr, V3, tau, tt)
         errtime += errtimecurr_dtm
 
-    # 4 COMPUTE MAX OVER TIME
-    err_max = np.amax(errtime)
-
-    return err_max
+    # 4 RETURN L2 ERROR IN TIME
+    return sqrt ( T/Ntauref * np.sum(np.square(errtime)) )  # NB errtime was on REFERENCE time grid
