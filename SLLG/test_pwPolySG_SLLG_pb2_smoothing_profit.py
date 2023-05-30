@@ -25,7 +25,7 @@ FEMOrder = 1
 BDFOrder = 1
 Nh = 32  # 8  # 
 NTau = Nh * 8
-NRNDSamples = 1024  # 4  #  
+NRNDSamples = 1024  # 4  #   
 NParallel = 32
 maxNumNodes = 1500  # 64  # 
 p = 2  # NBB degrere + 1
@@ -63,7 +63,7 @@ def Profit(nu):
     C1 = 1
     C2 = 1
     v1 = np.prod(C1* np.power(repRho*repSizeSupp, -1), axis=1, where=(nu==1))
-    v2 = np.prod(C2*np.power(2**nu * repRho, -p), axis=1, where=(nu>1))
+    v2 = np.prod(C2*np.power(2**nu * repRho*repSizeSupp, -p), axis=1, where=(nu>1))
     w = np.prod((2**(nu+1)-2)*(p-1)+1, axis=1)
     return v1 * v2 / w
 
@@ -85,14 +85,13 @@ while(True):
     uInterp = interpolant.interpolate(yyRnd, uOnSG)
     # compute error
     errSamples = np.array([ physicalError(uInterp[n], uExa[n]) for n in range(NRNDSamples) ])
-
     errCurr = sqrt(np.mean(np.square(errSamples)))
     err = np.append(err, errCurr)
     print("Error:", err[w])
     nNodes = np.append(nNodes, interpolant.numNodes)
     nDims = np.append(nDims, I.N)
     
-    np.savetxt('convergenge_pwLin_pb2_smoothingProfitL2VarLong.csv',np.transpose(np.array([nNodes, err, nDims])), delimiter=',')
+    np.savetxt('convergenge_pwLin_pb2_smoothingProfitL2Long.csv',np.transpose(np.array([nNodes, err, nDims])), delimiter=',')
     
     oldSG = interpolant.SG
 

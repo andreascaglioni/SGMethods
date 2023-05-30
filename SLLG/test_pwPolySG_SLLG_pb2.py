@@ -10,7 +10,7 @@ sys.path.insert(1, os.path.join(os.path.expanduser("~"), 'workspace/SGMethods'))
 # from SLLG.sample_LLG_function_noise_2_time_1 import sample_LLG_function_noise_2_time_1
 # from SLLG.error_sample_pb2_time_1 import error_sample_pb2_time_1
 from SLLG.sample_LLG_function_noise_2 import sample_LLG_function_noise_2
-from SLLG.error_sample_pb2 import error_sample_pb2 
+from SLLG.error_sample_pb2_L2norm import error_sample_pb2_L2norm
 from SGMethods.ScalarNodes import unboundedKnotsNested
 from SGMethods.MidSets import midSet
 from SGMethods.SGInterpolant import SGInterpolant
@@ -25,11 +25,11 @@ FEMOrder = 1
 BDFOrder = 1
 Nh = 32  # 8  # 
 NTau = Nh * 8
-NRNDSamples = 128  # 4  #  
+NRNDSamples = 1024  # 4  #   
 NParallel = 32
-maxNumNodes = 550  # 64  # 
-p = 3  # NBB degrere + 1
-interpolationType = "quadratic"
+maxNumNodes = 1500  # 64  # 
+p = 2  # NBB degrere + 1
+interpolationType = "linear"
 
 # def F(x):
 #     return sample_LLG_function_noise_2_time_1(x, Nh, NTau, T, FEMOrder, BDFOrder)
@@ -38,7 +38,7 @@ interpolationType = "quadratic"
 def F(x):
     return sample_LLG_function_noise_2(x, Nh, NTau, T, FEMOrder, BDFOrder)
 def physicalError(u, uExa):
-    return error_sample_pb2(u, uExa, Nh, NTau, Nh, NTau, T, FEMOrder, BDFOrder)
+    return error_sample_pb2_L2norm(u, uExa, Nh, NTau, Nh, NTau, T, FEMOrder, BDFOrder)
 
 # error computations
 NLCExpansion = 2**10
@@ -69,7 +69,7 @@ def Profit(nu):
     w = np.prod((2**(nu+1)-2)*(p-1)+1, axis=1)
     return v1 * v2 / w
 
-def Profit2(nu):
+def ProfitEmpirical(nu):
     if(len(nu.shape) == 1):
         nu= np.reshape(nu, (1,-1))
     nMids = nu.shape[0]
@@ -105,7 +105,7 @@ while(True):
     nNodes = np.append(nNodes, interpolant.numNodes)
     nDims = np.append(nDims, I.N)
     
-    np.savetxt('convergenge_pwQuadr_pb2_empiricalProfit.csv',np.transpose(np.array([nNodes, err, nDims])), delimiter=',')
+    np.savetxt('convergenge_pwLin_pb2_theoreicalProfitL2Long.csv',np.transpose(np.array([nNodes, err, nDims])), delimiter=',')
     
     oldSG = interpolant.SG
 
