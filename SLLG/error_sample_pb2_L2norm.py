@@ -31,7 +31,7 @@ def error_sample_pb2_L2norm(dofscurr, dofsref, Nhref, Ntauref, Nh, Ntau, T, r, p
         matdofsref[:, n] = dofsref[n*dimV3ref:(n+1)*dimV3ref:]
 
     # 2 PREPARE CURRENT
-    mesh = meshref = UnitSquareMesh(Nh, Nh)
+    mesh = UnitSquareMesh(Nh, Nh)
     Pr3 = VectorElement('Lagrange', mesh.ufl_cell(), r, dim=3)
     V3 = FunctionSpace(mesh, Pr3)
     dimV3 = V3.dim()
@@ -56,4 +56,4 @@ def error_sample_pb2_L2norm(dofscurr, dofsref, Nhref, Ntauref, Nh, Ntau, T, r, p
         errtime += errtimecurr_dtm
 
     # 4 RETURN L2 ERROR IN TIME
-    return sqrt ( T/Ntauref * np.sum(np.square(errtime)) )  # NB errtime was on REFERENCE time grid
+    return sqrt ( tauref * np.sum(np.square(errtime)) )  # NB errtime was on REFERENCE time grid
