@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from math import exp
 
 
-table = np.loadtxt("results/convergenge_pwLin_pb2_smoothingProfitL2VarLong.csv", delimiter=",")
+table = np.loadtxt("results/smoothing_profit_deg_3/convergenge_pwLin_pb2_fasterSmoothProfitL2Long.csv", delimiter=",")
 x = table[:,0]
 y = table[:,1]
 
