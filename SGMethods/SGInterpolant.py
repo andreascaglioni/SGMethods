@@ -86,25 +86,42 @@ class SGInterpolant:
         self.SG = SG
         self.numNodes = SG.shape[0]
 
-    def sampleOnSG(self, Fun, dimF, oldXx = None , oldSamples = None):
+    def sampleOnSG(self, Fun, dimF = None, oldXx = None , oldSamples = None):
         """ First check if there is anything to recycle, then sample new values
         NBB assume F takes as input an np array of parameters and the 1st output are the relevant values"""
-        # sanity checks
-        assert(dimF >= 1)
+
+        dimF = -1  # TODO remove dimF from signature; check all other scripts
+
+        # Find dimF (dimensoin of outoput of F). First try oldSamples; if empy, sample on the first SG node
+        assert(self.SG.shape[0] > 0)
+        if(not(oldSamples is None)):
+            dimF = oldSamples.shape[1]
+            assert(dimF >= 1)
+        else: # compute the first element to assign dimF
+            node0 = self.SG[0]
+            fOnSG0 = Fun(node0)
+            dimF = fOnSG0.size
+        fOnSG = np.zeros((self.numNodes, dimF))  # the return array
+        # reformat oldSamples and oldXx even if they are empty for smooth processing; Sanity checks
         if(oldSamples is None):
             oldXx = np.zeros((0, self.N))
             oldSamples = np.zeros((0, dimF))
-        assert(oldXx.shape[1] <= self.N)  # the parameter space may have gotten larger (smaller: not yet implemented)
-        assert(oldSamples.shape[1] == dimF)
         assert(oldXx.shape[0] == oldSamples.shape[0])
-
-        # embed oldXx in space of self.SG by extending by 0
+        assert(oldSamples.shape[1] == dimF)
+        # assert(oldXx.shape[1] <= self.N)  # the parameter space may have gotten larger (smaller: not yet implemented)
+        # If current parameter space has larger dimension that oldXx, embed oldXx in space of self.SG by extending by 0
         if(oldXx.shape[1] < self.SG.shape[1]):
             filler = np.zeros((oldXx.shape[0], self.SG.shape[1]-oldXx.shape[1]))
             oldXx = np.hstack((oldXx, filler))
-        
+        # If current parameter space is smaller than that of oldXx, modify oldXx and oldSamples to keep only samples ending in 0s. THen purge extra components in oldXx
+        currDim = self.N
+        tailNorm = np.linalg.norm(oldXx[:, currDim::], ord=1, axis=1).astype(int)
+        validEntries = np.where(tailNorm == 0)[0]  # last [0] so theat result is np array
+        oldXx = oldXx[validEntries, 0:self.N]
+        oldSample = oldSamples[validEntries]
+
+        # go thorugh the SG nodes where we want to compute samples. Use oldSamples of mark samples to compute now    
         nRecycle = 0
-        fOnSG = np.zeros((self.numNodes, dimF))
         toCompute = []
         yyToCompute = []
         for n in range(self.numNodes):
@@ -132,12 +149,6 @@ class SGInterpolant:
                 fOnSG[toCompute, :] = tmp
             else:
                 raise ValueError('self.NParallel not int >= 1"')
-
-                
-
-        # alternative to previous section WO parallel
-        # 
-
         print("Recycled", nRecycle, "; Discarted", oldXx.shape[0]-nRecycle, "; Sampled", self.SG.shape[0]-nRecycle)
         return fOnSG
 
