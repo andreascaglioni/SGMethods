@@ -2,13 +2,15 @@ from dolfin import *
 import matplotlib.pyplot as plt
 import math
 
-address_read = "/home/andrea/workspace/SGMethods/m_Ntau_64_Nh_16.h5"
+address_read = "/home/andrea/workspace/SGMethods/m_switching_rectange.h5"
 address_write = "m_plot.xdmf"
 
 Nh = 16
-Ntau = Nh * 4
+Ntau = Nh * 64
 r = 1  # FEM order
-mesh = UnitSquareMesh(Nh, Nh)
+# mesh = UnitSquareMesh(Nh, Nh)
+mesh = RectangleMesh(Point(0, 0), Point(0.2,1), Nh, 5*Nh)
+
 Pr3 = VectorElement('Lagrange', mesh.ufl_cell(), r, dim=3)
 V3 = FunctionSpace(mesh, Pr3)
 
