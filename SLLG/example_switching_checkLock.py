@@ -1,6 +1,6 @@
 from __future__ import division
-from expansions_Brownian_motion import param_LC_Brownian_motion
-from bdfllg_func import *
+from SLLG.expansions_Brownian_motion import param_LC_Brownian_motion
+from SLLG.bdfllg_func import *
 import matplotlib.pyplot as plt
 import multiprocessing
 
