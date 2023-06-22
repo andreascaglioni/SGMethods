@@ -7,8 +7,7 @@ import matplotlib.pyplot as plt
 import sys, os
 sys.path.insert(1, os.path.join(os.path.expanduser("~"), 'workspace/SGMethods'))
 
-# from SLLG.sample_LLG_function_noise_2_time_1 import sample_LLG_function_noise_2_time_1
-# from SLLG.error_sample_pb2_time_1 import error_sample_pb2_time_1
+from SLLG.profits import ProfitMix
 from SLLG.sample_LLG_function_noise_2 import sample_LLG_function_noise_2
 from SLLG.error_sample_pb2_L2norm import error_sample_pb2_L2norm
 from SGMethods.ScalarNodes import unboundedKnotsNested
@@ -26,15 +25,11 @@ BDFOrder = 1
 Nh = 32  # 8  # 
 NTau = Nh * 8
 NRNDSamples = 1024  # 4  #   
-NParallel = 32
+NParallel = 8
 maxNumNodes = 1500  # 64  # 
-p = 2  # NBB degrere + 1
-interpolationType = "linear"
+p = 3  # NBB degrere + 1
+interpolationType = "quadratic"
 
-# def F(x):
-#     return sample_LLG_function_noise_2_time_1(x, Nh, NTau, T, FEMOrder, BDFOrder)
-# def physicalError(u, uExa):
-#     return error_sample_pb2_time_1(u, uExa, Nh, Nh, FEMOrder)
 def F(x):
     return sample_LLG_function_noise_2(x, Nh, NTau, T, FEMOrder, BDFOrder)
 def physicalError(u, uExa):
@@ -52,34 +47,7 @@ dimF = uExa[0].size
 lev2knots = lambda nu: 2**(nu+1)-1
 knots = lambda m : unboundedKnotsNested(m,p=p)
 # Profits
-def Profit(nu):
-    if(len(nu.shape) == 1):
-        nu= np.reshape(nu, (1,-1))
-    nMids = nu.shape[0]
-    nDims = nu.shape[1]
-    rho = 2**(0.5*np.ceil(np.log2(np.linspace(1,nDims,nDims))))
-    repRho = np.repeat(np.reshape(rho, (1, -1)), nMids, axis=0)
-    # c = sqrt(pi**p * 0.5**(-(p+1)) * (2*p+1)**(0.5*(2*p-1)) ) * np.sqrt(1 + (2**(2*p+2)-4)/(2**(nu+1)))
-    # C1 = 1+ c * 3**(-p)
-    # C2 = c * (1+2**(-p))
-    C1 = 1
-    C2 = 1
-    v1 = np.prod(C1* np.power(repRho, -1), axis=1, where=(nu==1))
-    v2 = np.prod(C2*np.power(2**nu * repRho, -p), axis=1, where=(nu>1))
-    w = np.prod((2**(nu+1)-2)*(p-1)+1, axis=1)
-    return v1 * v2 / w
-
-def ProfitEmpirical(nu):
-    if(len(nu.shape) == 1):
-        nu= np.reshape(nu, (1,-1))
-    nMids = nu.shape[0]
-    nDims = nu.shape[1]
-    rho = 2**(0.5*np.ceil(np.log2(np.linspace(1,nDims,nDims))))
-    repRho = np.repeat(np.reshape(rho, (1, -1)), nMids, axis=0)
-
-    v = np.prod(np.power(2**nu * repRho, -p) ,axis=1, where=(nu>0))
-    w = np.prod((2**(nu+1)-2)*(p-1)+1 ,axis=1)
-    return v/w
+Profit = lambda nu :ProfitMix(nu, p)
 
 err = np.array([])
 nNodes = np.array([])
@@ -105,14 +73,10 @@ while(True):
     nNodes = np.append(nNodes, interpolant.numNodes)
     nDims = np.append(nDims, I.N)
     
-    np.savetxt('convergenge_pwLin_pb2_theoreicalProfitL2Long.csv',np.transpose(np.array([nNodes, err, nDims])), delimiter=',')
+    np.savetxt('convergenge_SG_ProfitMix.csv',np.transpose(np.array([nNodes, err, nDims])), delimiter=',')
     
     oldSG = interpolant.SG
 
-    # P = Profit(I.margin)
-    # idMax = np.argmax(P)
-    # I.update(idMax)
-    # update midset for next iteration, doubling the number of collocation nodes
     current_num_cps = nNodes[-1]
     while(current_num_cps <= sqrt(2)* nNodes[-1]):
         P = Profit(I.margin)

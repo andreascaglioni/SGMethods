@@ -1,9 +1,10 @@
 from __future__ import division
-from SLLG.expansions_Brownian_motion import param_LC_Brownian_motion
-from SLLG.bdfllg_func import *
 import matplotlib.pyplot as plt
 import multiprocessing
-
+import sys, os
+sys.path.insert(1, os.path.join(os.path.expanduser("~"), 'workspace/SGMethods'))
+from SLLG.expansions_Brownian_motion import param_LC_Brownian_motion
+from SLLG.bdfllg_func import *
 
 """Example of magnetization switching wiht noise. There is a flat domain and the
 constant initial maginetization constant and is directed perperdicularly. There 
@@ -13,20 +14,19 @@ direction. """
 
 r=1  # FEM order
 p=1
-Nh = 256  #  16  #
+Nh = 16  #256  #  
 Ntau = Nh * 4
 alpha = 1.4
 T=1
 np.random.seed(5295)
+NParallel = 8
 
 # External magnetic field
-H = (0, 0, -20.)
+H = (0, 0, -10.)
 ## g non const rescaled 0.1
-g1 = '-0.5*cos(pi*x[0])'
-g2 = '-0.5*cos(pi*x[1])'
-g3 = '0.1*sqrt(1-('+g1+')*('+g1+')-('+g2+')*('+g2+'))'
 g1 = '0.1*(-0.5)*cos(pi*x[0])'
-g2 = '-0.1*(-0.5)*cos(pi*x[1])'
+g2 = '0.1*(-0.5)*cos(pi*x[1])'
+g3 = '0.1*sqrt(1.-0.25*(cos(pi*x[0])*cos(pi*x[0])+cos(pi*x[1])*cos(pi*x[1])))'
 gex = Expression((g1, g2, g3), degree=r)
 # CONSTANT IC
 m1 = '0.'
@@ -70,10 +70,6 @@ def sample_LLG(n):
         Max[i] = np.amax(valsZ)
         Min[i] = np.amin(valsZ)
     np.savetxt('swsitch_rectange_min_max_sample_'+str(n)+'.csv',np.transpose(np.array([tt, WCurr, Min, Max])), delimiter=',')
-pool = multiprocessing.Pool(32)
-pool.map(sample_LLG, range(0, NMCSamples))
 
-# plt.plot(tt, Max, label="Max sample"+str(n))
-# plt.plot(tt, Min, '--', label="Min sample"+str(n))
-# plt.legend()
-# plt.show()
+pool = multiprocessing.Pool(NParallel)
+pool.map(sample_LLG, range(0, NMCSamples))

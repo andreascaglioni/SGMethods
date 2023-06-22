@@ -13,7 +13,7 @@ from SGMethods.MidSets import midSet
 from SGMethods.MLInterpolant import MLInterpolant
 from SLLG.sample_LLG_function_noise_2 import sample_LLG_function_noise_2
 from SLLG.error_sample_pb2_L2norm import error_sample_pb2_L2norm
-from SLLG.profitL1Holo import PorfitL1Holo
+from SLLG.profits import PorfitL1Holo
 
 from dolfin import UnitSquareMesh, VectorElement, FunctionSpace, PETScDMCollection, Function
 from scipy.interpolate import interp1d
