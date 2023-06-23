@@ -13,13 +13,13 @@ direction. """
 r=1  # FEM order
 p=1
 Nh = 16
-Ntau = Nh * 32
+Ntau = Nh * 64
 alpha = 1.4
 T=1
-np.random.seed(5295)
+np.random.seed(256)
 param = np.random.normal(0,1,10000)  # parameter for LC noise
 # External magnetic field
-H = (0, 0, -15.)
+H = (0, 0, -20.)
 ## g constant
 # g1 = '0.'
 # g2 = '0.'
@@ -44,7 +44,7 @@ tau = T / Ntau
 tt = np.linspace(0, T, Ntau+1)
 W = param_LC_Brownian_motion(tt, param, T)
 Pr = FiniteElement('P', triangle, r)
-mesh = RectangleMesh(Point(0, 0), Point(0.1, 1), Nh, 5*Nh)
+mesh = RectangleMesh(Point(0, 0), Point(0.2, 1), Nh, 5*Nh)
 
 Pr3 = VectorElement('Lagrange', mesh.ufl_cell(), r, dim=3)
 element = MixedElement([Pr3, Pr])
@@ -62,20 +62,20 @@ PETScOptions.set("pc_type", "ilu")
 mapr = bdfllg_func(r, p, alpha, T, tau, minit, VV, V3, V, W, g, m1=[], quadrature_degree=quadrature_degree, Hinput=H, VERBOSE=True)
 
 # SAVE SOLUTION TO FILE
-# with HDF5File(mesh.mpi_comm(), "m_switching_rectangle.h5", "w") as file:
-#     for niter in range(len(mapr)):
-#         file.write(mapr[niter], "/function", niter)
+with HDF5File(mesh.mpi_comm(), "m_switching_rectangle_01_seed256.h5", "w") as file:
+    for niter in range(len(mapr)):
+        file.write(mapr[niter], "/function", niter)
 
-Max = np.zeros(len(mapr))
-Min = np.zeros(len(mapr))
-for i in range(len(mapr)):
-    mCurr = mapr[i]  # sol at curent timestep
-    mZ = mCurr.sub(2,deepcopy=True)  # z component
-    valsZ = mZ.vector().get_local()  # vertices values
-    Max[i] = np.amax(valsZ)
-    Min[i] = np.amin(valsZ)
+# Max = np.zeros(len(mapr))
+# Min = np.zeros(len(mapr))
+# for i in range(len(mapr)):
+#     mCurr = mapr[i]  # sol at curent timestep
+#     mZ = mCurr.sub(2,deepcopy=True)  # z component
+#     valsZ = mZ.vector().get_local()  # vertices values
+#     Max[i] = np.amax(valsZ)
+#     Min[i] = np.amin(valsZ)
 
-plt.plot(Min, '-', label="min")
-plt.plot(Max, '-', label="max")
-plt.legend()
-plt.show()
+# plt.plot(Min, '-', label="min")
+# plt.plot(Max, '-', label="max")
+# plt.legend()
+# plt.show()
