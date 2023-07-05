@@ -46,7 +46,7 @@ p=2
 interpolationType = "linear"
 lev2knots = lambda nu: 2**(nu+1)-1
 knots = lambda m : unboundedKnotsNested(m,p=p)
-Profit = ProfitMix
+Profit = lambda nu : ProfitMix(nu, p)
 
 # The size of the sparse grid in each ML expansion must balance the FE error at different resulutions. In another script we did a pre-rpocesssing that determins the convergence of FE and SG alone and therefore allow to determine the SG sizes
 NNLevels = np.linspace(1,nRefs,nRefs, dtype=int)
@@ -98,6 +98,7 @@ V3 = []
 dimV3 = []
 V = []
 VV = []
+dimVV = []
 g = []
 for i in range(Nh.size):
     tt.append(np.linspace(0, T, Ntau[i]+1))
@@ -109,6 +110,7 @@ for i in range(Nh.size):
     dimV3.append(V3[i].dim())
     V.append(FunctionSpace(mesh[i], Pr))
     VV.append(FunctionSpace(mesh[i], element[i]))
+    dimVV.append(VV[i].dim())
     g.append(interpolate(gex, V3[i]))
 
 # reference solution sampler
@@ -130,7 +132,7 @@ def FApprox(y, k):
     return dofsApprx
 
 ################################# ERROR ESTIMATION #################################
-assert((FEMOrder==1) and (BDFOrder==1))  # error computation implemented only for order 1
+
 def computeErrorMultilevel(uExa, MLTerms):
     """INPUT uExa list 1D arrays: each list element contains dofs of correspondig FE solution in reference space
              MLTERMS list of 2D arrays: k-th entry has shape nY x size of k-th physical space"""
@@ -185,12 +187,12 @@ for i in range(NNLevels.size):
     # generate the list of SG interpolants "single level". I select them iteratively; Each has to have twoce the numer of nodes than the previous one
     SLIL = []
     MidSetObj = midSet()
-    SGICurr = SGInterpolant(MidSetObj.midSet, knots, lev2knots, interpolationType)  # has only 1 collocation node
+    SGICurr = SGInterpolant(MidSetObj.midSet, knots, lev2knots, interpolationType)
     SLIL.append(SGICurr)
     for k in range(1, nLevels):
         SGICurr = SGInterpolant(MidSetObj.midSet, knots, lev2knots, interpolationType)
         while(SGICurr.numNodes < SGCards[i][k]):
-            P = Profit(MidSetObj.margin, p)
+            P = Profit(MidSetObj.margin)
             idMax = np.argmax(P)
             MidSetObj.update(idMax)
             SGICurr = SGInterpolant(MidSetObj.getMidSet(), knots, lev2knots, interpolationType)
@@ -205,7 +207,7 @@ for i in range(NNLevels.size):
     err.append(errCurr)
     
     # compute cost
-    costKK = Ntt[:nLevels:]*dimV3[:nLevels:]
+    costKK = Ntt[:nLevels:]*dimVV[:nLevels:]  # the cost of 1 FE computation is # timesteps x dimension FE space
     totalCost.append(interpolant.totalCost(costKK))
 
     np.savetxt('convergenge_multilevel_NONconstIC_g_02.csv',np.transpose(np.array([totalCost, err])), delimiter=',')

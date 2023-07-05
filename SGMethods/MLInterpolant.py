@@ -13,7 +13,8 @@ class MLInterpolant:
         MLSamplesF = []
         for k in range(self.nLevels):
             FApproxCurrLevel = lambda y : FApprox(y, k)
-            MLSamplesF.append(self.SLIL[self.nLevels-1-k].sampleOnSG(FApproxCurrLevel))
+            samplesCurrentLevel = self.SLIL[self.nLevels-1-k].sampleOnSG(FApproxCurrLevel)
+            MLSamplesF.append(samplesCurrentLevel)
         return MLSamplesF
     
     def interpolate(self, yy, MLSamplesF):
@@ -23,7 +24,7 @@ class MLInterpolant:
         for k in range(1, self.nLevels):
             samplesCurr = MLSamplesF[self.nLevels-1-k]
             FMock = lambda y : 1/0  # TODO write something more decent
-            samplesCurrReduced = self.SLIL[k-1].sampleOnSG(FMock, self.dimF, self.SLIL[k].SG, samplesCurr)
+            samplesCurrReduced = self.SLIL[k-1].sampleOnSG(FMock, oldXx=self.SLIL[k].SG, oldSamples=samplesCurr)
             InterpolantOnYY += self.SLIL[k].interpolate(yy, samplesCurr) - self.SLIL[k-1].interpolate(yy, samplesCurrReduced)
         return InterpolantOnYY
 
