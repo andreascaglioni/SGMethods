@@ -1,7 +1,7 @@
 import numpy as np
 
 def coordUnitVector(dim, entry):
-    en = np.zeros(dim)
+    en = np.zeros(dim, dtype=int)
     en[entry]=1
     return en
 
