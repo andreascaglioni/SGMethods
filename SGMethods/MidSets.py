@@ -130,16 +130,23 @@ def checkIfElement(mid, midSet):
 class midSet():
     """Multi-index set class; can be grown by adding mids from reduced margin
     Start from {0}
-    New dimensions are also added as follows: I keep an empty dimenision as buffer, when a fully fimensional mid is added, increase the buffer by 1"""
+    New dimensions are also added as follows: I keep an empty dimenision as buffer, when a fully dimensional mid is added, increase the buffer by 1
+     If the maximum dimension maxN is reached, then there is no buffer anymore"""
     def __init__(self, maxN=inf, trackReducedMargin=False):
         self.maxN = maxN  # maximum number of allowed dimensions
+        self.midSet = np.zeros((1,1), dtype=int)  # NB the number of columns is always the same as for the margin, not self.N! This is for better compatibility later
         self.N = 0  # start only with 0 in midset  
-        self.dimMargin = min(self.N+1, maxN) #  NBB always have midset.shape[1] = self.margin.shape[1] = min(N+1, maxN)
-        self.midSet = np.zeros((1, self.dimMargin)).astype(int)  # NB the number of columns is the same as for the margin, not self.N! This is for better compatibility later
         self.numMids = self.midSet.shape[0]
+        self.dimMargin = min(self.N+1, maxN) #  NBB always have midset.shape[1] = self.margin.shape[1] = min(N+1, maxN)
         self.margin = np.identity(self.dimMargin).astype(int)
         self.trackReducedMargin = trackReducedMargin
         self.reducedMargin = np.identity(self.dimMargin).astype(int)  # store mids in reduced margin
+
+    def getMidSet(self):
+        """returns the midset without the buffer dimension, if it is there. Otherwose simply return the midset"""
+        if(np.linalg.norm(self.midSet[:,-1], ord=1) <1.e-4):
+            return self.midSet[:, :-1:]
+        return self.midSet
 
     def update(self, idx_margin):
         """ add to current midset multi-index in position idx_margin in margin
