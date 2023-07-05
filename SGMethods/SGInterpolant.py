@@ -65,7 +65,7 @@ class SGInterpolant:
             for x in it:
                 currNodeActiveDims = [meshGrid[j][it.multi_index] for j in range(len(meshGrid))]
                 # complete it with 0s in inactive dimensions
-                currNode = np.zeros(self.N, dtype=int)
+                currNode = np.zeros(self.N)
                 currNode[currActiveDims] = currNodeActiveDims
                 # check = np.where(~(SG-currNode).any(axis=1))[0]
                 check = np.where( np.sum(np.abs(SG-currNode), axis=1) < 1.e-4)[0]
@@ -110,11 +110,12 @@ class SGInterpolant:
             oldXx = np.hstack((oldXx, filler))
 
         # If current parameter space is smaller than that of oldXx, modify oldXx and oldSamples to keep only samples ending in 0s. THen purge extra components in oldXx
-        currDim = self.N
-        tailNorm = np.linalg.norm(oldXx[:, currDim::], ord=1, axis=1).astype(int)
-        validEntries = np.where(tailNorm == 0)[0]  # last [0] so the result is np array
-        oldXx = oldXx[validEntries, 0:self.N]
-        oldSamples = oldSamples[validEntries]
+        if(oldXx.shape[1] > self.SG.shape[1]):
+            currDim = self.N
+            tailNorm = np.linalg.norm(oldXx[:, currDim::], ord=1, axis=1).astype(int)
+            validEntries = np.where(tailNorm == 0)[0]  # last [0] so the result is np array
+            oldXx = oldXx[validEntries, 0:self.N]
+            oldSamples = oldSamples[validEntries]
 
         # go thorugh the SG nodes where we want to compute samples. Use oldSamples of mark samples to compute now    
         nRecycle = 0
