@@ -39,8 +39,8 @@ g3 = '0.2*sqrt(1- 0.25*cos(pi*x[0])*cos(pi*x[0]) - 0.25*cos(pi*x[1])*cos(pi*x[1]
 
 ######################### NUMERICS COEFFICIENTS #########################
 nRefs = 6  # first approximation is 1 level, last one is 6 levels
-NRNDSamples = 128  # 4  #   
-NParallel = 32  # 4  # 
+NRNDSamples = 4  #  128  #  
+NParallel = 4  #32  #  
 
 p=2
 interpolationType = "linear"
@@ -175,6 +175,7 @@ yyRnd = np.random.normal(0, 1, [NRNDSamples, 1000])
 print("Parallel random sampling reference solution...")
 pool = Pool(NParallel)
 uExa = pool.map(F, yyRnd)
+
 #compute sequence of approximations, error
 totalCost = []
 err = []
@@ -192,7 +193,7 @@ for i in range(NNLevels.size):
             P = Profit(MidSetObj.margin, p)
             idMax = np.argmax(P)
             MidSetObj.update(idMax)
-            SGICurr = SGInterpolant(MidSetObj.midSet, knots, lev2knots, interpolationType)
+            SGICurr = SGInterpolant(MidSetObj.getMidSet(), knots, lev2knots, interpolationType)
         SLIL.append(SGICurr)
     
     # Define the ML inteprolant
@@ -208,7 +209,7 @@ for i in range(NNLevels.size):
     totalCost.append(interpolant.totalCost(costKK))
 
     np.savetxt('convergenge_multilevel_NONconstIC_g_02.csv',np.transpose(np.array([totalCost, err])), delimiter=',')
-
+    
 # OUTPUT
 print("error:", err)
 print("cost:", totalCost)
