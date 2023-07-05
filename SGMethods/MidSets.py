@@ -1,6 +1,7 @@
 import numpy as np
 from math import floor, log, inf
-
+from utils.utils import coordUnitVector as unitVector
+from utils.utils import lexicSort as lexicSort
 
 def TPMidSet(w, N):
     """ each row is a multi-index
@@ -102,18 +103,7 @@ def SmolyakMidSet(w, N):
 #         return I.astype(int)
 
 
-def count_cps(I, r):
-    """INPUT: I np array shape  number of nodes x number of dimensions
-              r function that counts nodes"""
-    ncps = 0
-    for i in range(I.shape[0]):
-        ncps += r(I[i, :])
-    return ncps
 
-
-"""Multi-index set class; can be grown by adding mids from reduced margin
-Start from {0}
-New dimensions are also added as follows: I keep an empty dimenision as buffer, when a fully fimensional mid is added, increase the buffer by 1"""
 
 def find_idx_in_margin(margin, mid):
     idx = np.all(margin == mid, axis=1)
@@ -131,42 +121,16 @@ def midIsInReducedMargin(mid, mid_set):
     return np.all(condition)
 
 
-# def find_reduced_margin(midset, margin):
-#     N = midset.shape[1]
-#     idxRM = np.zeros((0, margin.shape[1]))
-#     for i in range(margin.shape[0]):
-#         mid = margin[i,:]
-#         back_margin_mid = mid - np.identity(N)
-#         c1 = np.equal(back_margin_mid, midset).all(1)
-#         c2 = mid > 0
-#         conditions_RM = np.logical_or(c1, c2)
-#     if(np.all(conditions_RM)):
-#         idxRM = np.append(idxRM, i)
-#     return idxRM
-
-def unitVector(d, n):
-    en = np.zeros(d).astype(int)
-    en[n] = 1
-    return en
-
-
 def checkIfElement(mid, midSet):
     assert(mid.size == midSet.shape[1])
     assert(len(mid.shape) == 1)
     assert(len(midSet.shape) == 2)
     return (midSet == mid).all(axis=1).any()
 
-def lecSortInsert(mid, midSet):
-    """INPUT mid 1D array of int: new multi-index
-             midSet 2D array of int: The mutli-index set. The number of COLUMNS is the same as length mid
-        OUTPUT incremented midSet with mid. If mid was already inside, do not add it (midSet is a SET); otherwise add mid in lexicographic position"""
-    assert(len(mid.shape)==1)
-    assert(len(midSet.shape)==2)
-    assert(mid.size == midSet.shape[1])
-    for n in range(mid.size):
-        a=0
-
 class midSet():
+    """Multi-index set class; can be grown by adding mids from reduced margin
+    Start from {0}
+    New dimensions are also added as follows: I keep an empty dimenision as buffer, when a fully fimensional mid is added, increase the buffer by 1"""
     def __init__(self, maxN=inf, trackReducedMargin=False):
         self.maxN = maxN  # maximum number of allowed dimensions
         self.N = 0  # start only with 0 in midset  
@@ -239,3 +203,49 @@ class midSet():
                     self.reducedMargin = np.vstack((self.reducedMargin, np.reshape(fwMid, (1,-1))))
             self.reducedMargin = np.unique(self.reducedMargin, axis=0) 
             self.reducedMargin = self.reducedMargin[np.lexsort(np.rot90(self.reducedMargin))]
+
+def checkDownward(midSet):
+    # TODO
+    return False
+
+def computeMidSetFast(Profit, PMin):
+    """INPUT Profit function w input a mid (array of int) output a positive double. PROFIT HAS TO BE MONOTONOUS WRT DOMENSION AND EACH COPMPNENT
+             PMin positive double
+       OUTPUT I 2D arry of int: multi-index set of multi-indices with Profit bigger than PMin
+       NOTE this function just determines the max dimension possible, then call recursive function"""
+    
+    dMax = 1
+    nu = unitVector(dMax+1,dMax)
+    while(Profit(nu)>PMin):
+        dMax+=1
+        nu = unitVector(dMax+1,dMax)
+    # at this point. dMax is the maximumdimension that allows the last coordinate unit vector to have profit > PMin
+    return computeMidSetFastRecursive(Profit, PMin, dMax)
+
+def computeMidSetFastRecursive(Profit, PMin, N):
+    """Same as above, however this is the 'workhorse' that does the most computations and works by recursion on N smaller and smaller"""
+    if N == 0:
+        return np.array([0], dtype=int)
+    elif N == 1:  # this is the final case of the recursion
+        nu = 0
+        assert(Profit(nu) > 0)
+        while(Profit(nu+1)>PMin):
+            nu = nu+1
+        # at this point, nu is the largest mid with P > Pmin
+        return np.linspace(0, nu, nu+1, dtype=int).reshape((-1,1))
+    else:  # N>1
+        I = np.zeros((0, N), dtype=int)
+        # check how large the LAST component can be
+        nuNExtra = unitVector(N, N-1)  # has only a 1 in the last component
+        while(Profit(nuNExtra)>PMin):
+            nuNExtra[-1] += 1
+        maxLastComp = nuNExtra[-1] - 1
+        # recursively compute the other dimensions. Since I started with the LAST components, I can simply call again the function Profit that will look onyl at the first N-1 components
+        for lastComponentNu in range(0, maxLastComp+1):
+            nuCurr = np.zeros(N, dtype=int)
+            nuCurr[-1] = lastComponentNu
+            PRec = PMin / Profit(nuCurr)
+            INewComps = computeMidSetFastRecursive(Profit, PRec, N-1)
+            INewMids = np.hstack((INewComps, np.full((INewComps.shape[0], 1), lastComponentNu)))
+            I = np.vstack((I, INewMids))
+        return lexicSort(I)
