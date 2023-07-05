@@ -86,7 +86,7 @@ class SGInterpolant:
 
         dimF = -1  # TODO remove dimF from signature; check all other scripts
 
-        # Find dimF (dimensoin of outoput of F). First try oldSamples; if empy, sample on the first SG node
+        # Find dimF (dimensoin of outoput of F). First try oldSamples; if empty, sample on the first SG node
         assert(self.SG.shape[0] > 0)
         if(not(oldSamples is None)):
             dimF = oldSamples.shape[1]
@@ -96,23 +96,25 @@ class SGInterpolant:
             fOnSG0 = Fun(node0)
             dimF = fOnSG0.size
         fOnSG = np.zeros((self.numNodes, dimF))  # the return array
+        
         # reformat oldSamples and oldXx even if they are empty for smooth processing; Sanity checks
         if(oldSamples is None):
             oldXx = np.zeros((0, self.N))
             oldSamples = np.zeros((0, dimF))
         assert(oldXx.shape[0] == oldSamples.shape[0])
         assert(oldSamples.shape[1] == dimF)
-        # assert(oldXx.shape[1] <= self.N)  # the parameter space may have gotten larger (smaller: not yet implemented)
+        
         # If current parameter space has larger dimension that oldXx, embed oldXx in space of self.SG by extending by 0
         if(oldXx.shape[1] < self.SG.shape[1]):
             filler = np.zeros((oldXx.shape[0], self.SG.shape[1]-oldXx.shape[1]))
             oldXx = np.hstack((oldXx, filler))
+
         # If current parameter space is smaller than that of oldXx, modify oldXx and oldSamples to keep only samples ending in 0s. THen purge extra components in oldXx
         currDim = self.N
         tailNorm = np.linalg.norm(oldXx[:, currDim::], ord=1, axis=1).astype(int)
-        validEntries = np.where(tailNorm == 0)[0]  # last [0] so theat result is np array
+        validEntries = np.where(tailNorm == 0)[0]  # last [0] so the result is np array
         oldXx = oldXx[validEntries, 0:self.N]
-        oldSample = oldSamples[validEntries]
+        oldSamples = oldSamples[validEntries]
 
         # go thorugh the SG nodes where we want to compute samples. Use oldSamples of mark samples to compute now    
         nRecycle = 0
