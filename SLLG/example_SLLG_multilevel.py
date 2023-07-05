@@ -39,8 +39,8 @@ g3 = '0.2*sqrt(1- 0.25*cos(pi*x[0])*cos(pi*x[0]) - 0.25*cos(pi*x[1])*cos(pi*x[1]
 
 ######################### NUMERICS COEFFICIENTS #########################
 nRefs = 6  # first approximation is 1 level, last one is 6 levels
-NRNDSamples = 4  #  128  #  
-NParallel = 4  #32  #  
+NRNDSamples = 128  # 4  #  
+NParallel = 32  # 4  # 
 
 p=2
 interpolationType = "linear"
@@ -58,7 +58,7 @@ SGCards = [[1],
            [1500, 887, 193, 42, 10, 2]] 
 
 FEMOrder = BDFOrder = 1
-Nh = 2**(np.linspace(2, 2+nRefs-1, nRefs, dtype=int))  # NB in linspace the final value is INCLUDED
+Nh = 2**(np.linspace(0, nRefs-1, nRefs, dtype=int))  # NB in linspace the final value is INCLUDED
 Ntau = Nh*4
 Nhref = Nh[-1]*2
 Ntauref = Nhref*4
