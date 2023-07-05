@@ -36,20 +36,12 @@ class SGInterpolant:
             currentMid = self.midSet[n, :]
             combinCoeff = 1
             rangeIds = bk[currentMid[0]]  # index of the 1st mid with 1st components = currentMid[0]+2 (dont need to itertate over it or any following one)
-            
-            # for j in range(n+1, rangeIds):  #  in operator range the final bound is NOT included! we begin from n+1 and already considered the case n in definition combiCoeff
-            #     d = self.midSet[j, :] - currentMid
-            #     if(np.max(d)<=1 and np.min(d)>=0):
-            #         combinCoeff += int(pow(-1, np.linalg.norm(d, 1)))
-            
             midsDifference = self.midSet[(n+1):(rangeIds), :] - currentMid  # NB in np slice start:stop, stop is NOT included!!
             isBinaryVector = np.all(np.logical_and(midsDifference>=0, midsDifference<=1), axis=1)
             binaryRows = midsDifference[isBinaryVector]
             compiELementary = np.power(-1, np.sum(binaryRows, axis=1))
             combinCoeff += np.sum(compiELementary)
 
-
-                
             if combinCoeff != 0:
                 self.combinationCoeffs.append(combinCoeff)
                 self.activeMIds.append(currentMid)
@@ -73,11 +65,13 @@ class SGInterpolant:
             for x in it:
                 currNodeActiveDims = [meshGrid[j][it.multi_index] for j in range(len(meshGrid))]
                 # complete it with 0s in inactive dimensions
-                currNode = np.zeros(self.N)
+                currNode = np.zeros(self.N, dtype=int)
                 currNode[currActiveDims] = currNodeActiveDims
-                check = np.where(np.linalg.norm(SG-currNode, 1, axis=1) < 1.e-10)[0] #  check if current node is already in SG (NBB SG is always fully dimensional, also if some components are 0.)
+                # check = np.where(~(SG-currNode).any(axis=1))[0]
+                check = np.where( np.sum(np.abs(SG-currNode), axis=1) < 1.e-4)[0]
+                # check = np.where(np.linalg.norm(SG-currNode, 1, axis=1) < 1.e-10)[0] #  check if current node is already in SG (NBB SG is always fully dimensional, also if some components are 0.)
                 found = check.shape[0]
-                assert(found <= 1)  # if currNode was in the SG more than once, somewthing woulod be very wrong
+                assert(found <= 1)  # if currNode was in the SG more than once, something would be very wrong
                 if found:  # if found, add the index to mapTPtoSG[n]
                     self.mapTPtoSG[n][it.multi_index] = check[0]
                 else:  # if not found, add it to sparse grid and add new index to mapTPtoSG
