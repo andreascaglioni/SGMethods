@@ -34,6 +34,9 @@ def PorfitL1Holo(nu, p):
 def ProfitMix(nu, p):  
     """this complies with stuff proved in paper. In particular the holomoprhy and the explicit estimate on the first derivative
     if use p>=3, i.e. at least piecewise quadratic interpolation, I get THEORETICAL dim-independent convergence."""
+    # convert ints into 1D 1 entry arrays
+    if(isinstance(nu, int)):
+        nu = np.array([nu], dtype=int)
     if(len(nu.shape) == 1):
         nu= np.reshape(nu, (1,-1))
     nMids = nu.shape[0]
