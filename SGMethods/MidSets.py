@@ -144,6 +144,8 @@ class midSet():
 
     def getMidSet(self):
         """returns the midset without the buffer dimension, if it is there. Otherwose simply return the midset"""
+        if(self.midSet.shape == (1,1)):  # the case of trivial midset [0]
+           return self.midSet
         if(np.linalg.norm(self.midSet[:,-1], ord=1) <1.e-4):
             return self.midSet[:, :-1:]
         return self.midSet

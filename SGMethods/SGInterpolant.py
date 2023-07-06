@@ -124,6 +124,8 @@ class SGInterpolant:
         for n in range(self.numNodes):
             currNode = self.SG[n,:]
             check = np.where(np.linalg.norm(oldXx-currNode, 1, axis=1) < 1.e-10)[0]
+            if(check.size>1):
+                print(check)
             assert(check.size<=1)
             found = len(check)
             if found:
