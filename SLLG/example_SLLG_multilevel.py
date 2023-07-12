@@ -51,11 +51,11 @@ Profit = lambda nu : ProfitMix(nu, p)
 # The size of the sparse grid in each ML expansion must balance the FE error at different resulutions. In another script we did a pre-rpocesssing that determins the convergence of FE and SG alone and therefore allow to determine the SG sizes
 NNLevels = np.linspace(1,nRefs,nRefs, dtype=int)
 SGCards = [[1],
-           [1, 1],
-           [10,3,1],
-           [82,18,4,1],
-           [602, 131, 27, 7, 2],
-           [1500, 887, 193, 42, 10, 2]] 
+           [1,1],
+           [1,3,10],
+           [1,4,18,82],
+           [2,7,27,131,602],
+           [2,10,42,193,887,1500]] 
 
 FEMOrder = BDFOrder = 1
 Nh = 2**(np.linspace(0, nRefs-1, nRefs, dtype=int))  # NB in linspace the final value is INCLUDED
