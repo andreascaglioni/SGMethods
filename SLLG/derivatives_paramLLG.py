@@ -11,6 +11,10 @@ from SLLG.sample_LLG_function_noise_2 import sample_LLG_function_noise_2
 from SLLG.error_sample_pb2_L2norm import error_sample_pb2_L2norm
 
 
+""" Compute derivatives of parameter-to-solution amp of SLLG. 
+The results are stored in dm, a 2d array. Each row corresponds to a different parameter. 
+Each colum correpsond to decreasing finite differences"""
+
 T=1
 Nh=32
 Ntau = Nh*8

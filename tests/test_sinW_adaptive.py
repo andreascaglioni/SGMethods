@@ -17,8 +17,7 @@ NRNDSamples = 100
 maxNumNodes = 400
 p=2
 interpolationType =  "linear"
-
-
+NParallel = 8
 Nt = 100
 tt = np.linspace(0, 1, Nt)
 dt = 1/Nt
@@ -26,20 +25,17 @@ dt = 1/Nt
 def F(x):
     return np.sin(param_LC_Brownian_motion(tt, x, 1))
 
-def physicalNorm(x):
-    if(len(x.shape)==1):
-        x = np.reshape(x, (1, -1))
-    return sqrt(dt)*np.linalg.norm(x, ord=2, axis=1)  # L2 norm in time 
-
-def computeL2Error(uExa, Iu):
-    assert(uExa.shape == Iu.shape)
-    errSample = physicalNorm(uExa-Iu)
+def L2errParam(u, uExa):
+    assert(uExa.shape == u.shape)
+    if(len(u.shape)==1):
+        u = np.reshape(u, (1, -1))
+        uExa = np.reshape(uExa, (1, -1))
+    errSample = sqrt(dt)*np.linalg.norm(u-uExa, ord=2, axis=1) 
     return sqrt(np.mean(np.square(errSample)))
 
 np.random.seed(1607)
 yyRnd = np.random.normal(0, 1, [NRNDSamples, 2**10])  # infinite paramter vector
-print("Parallel random sampling")
-NParallel = 1
+print("Parallel random sampling reference solution...")
 if NParallel == 1:
     dimF = F(yyRnd[0,:]).size
     uExa = np.zeros((NRNDSamples, dimF))
@@ -54,46 +50,48 @@ dimF = uExa.shape[1]
 lev2knots = lambda n: 2**(n+1)-1
 knots = lambda n : unboundedKnotsNested(n, p=p)
 
-
-
 # convergence test
 err = np.array([])
 nNodes = np.array([])
 nDims = np.array([])
 w=0
-I = midSet()
+I = midSet(trackReducedMargin=True)
 oldSG = None
 uOnSG = None
+
+oldRM = np.array([])
+estimator_reduced_margin = np.array([])
 while True:
     print("Computing w  = ", w)
-    interpolant = SGInterpolant(I.midSet, knots, lev2knots, interpolationType=interpolationType, NParallel=1)
+    # COMPUTE
+    interpolant = SGInterpolant(I.midSet, knots, lev2knots, interpolationType=interpolationType, NParallel=NParallel)
     if(interpolant.numNodes > maxNumNodes):
         break
     midSetMaxDim = np.amax(I.midSet, axis=0)
     print("# nodes:", interpolant.numNodes, "\nNumber effective dimensions:", I.N, "\nMax midcomponents:", midSetMaxDim)
     uOnSG = interpolant.sampleOnSG(F, dimF, oldSG, uOnSG)
     uInterp = interpolant.interpolate(yyRnd, uOnSG)
-    # ERROR
-    err = np.append(err, computeL2Error(uExa, uInterp))
+    # COMPUTE ERROR
+    err = np.append(err, L2errParam(uExa, uInterp))
     print("Error:", err[-1])
     nNodes = np.append(nNodes, interpolant.numNodes)
     nDims = np.append(nDims, I.N)
-    
     np.savetxt('sinW_example_linear_adaptive.csv',np.transpose(np.array([nNodes, err, nDims])), delimiter=',')
-
     oldSG = interpolant.SG
 
     # ESTIMATE
-    estimator_reduced_margin = compute_aposteriori_estimator_reduced_margin(I, knots, lev2knots, F, dimF, interpolant.SG, uOnSG, yyRnd, physicalNorm, NRNDSamples, uInterp, interpolationType=interpolationType, NParallel=NParallel)
+    estimator_reduced_margin = compute_aposteriori_estimator_reduced_margin(oldRM, estimator_reduced_margin, I, knots, lev2knots, F, interpolant.SG, uOnSG, yyRnd, L2errParam, uInterp, interpolationType=interpolationType, NParallel=NParallel)
+    oldRM = I.reducedMargin
+
+    print("error indicators reduced margin", np.sum(estimator_reduced_margin))
     # MARK
     idMax = np.argmax(estimator_reduced_margin)  # NBB index in REDUCED margin
     mid = I.reducedMargin[idMax, :]
     idxMargin = np.where(( I.margin==mid).all(axis=1) )[0][0]
+    
     # REFINE
     I.update(idxMargin)
     w+=1
-    
-
 
 print(err)
 rates = -np.log(err[1::]/err[:-1:])/np.log(nNodes[1::]/nNodes[:-1:])

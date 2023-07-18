@@ -94,13 +94,13 @@ def F(x):
 def physicalError(u, uExa):
     return error_sample_fast(u, mesh, V3, tt, uExa, V3, tt, BDFOrder)
     
-######################### COMPUTE REFERENCE
+######################### COMPUTE REFERENCE #########################
 yyRnd = np.random.normal(0, 1, [NRNDSamples, 1000])
 print("Parallel random sampling")
 pool = Pool(NParallel)
 uExa = pool.map(F, yyRnd)
 
-######################### RUN CONVERGENCE TEST
+######################### RUN CONVERGENCE TEST #########################
 err = np.array([])
 nNodes = np.array([])
 nDims = np.array([])
