@@ -1,0 +1,1 @@
+nohup python3 < SLLG/example_SLLG_adaptive_SG.py > out_adaptive_SG_SLLG.txt &
