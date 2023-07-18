@@ -6,6 +6,9 @@ from compute_H1_error import compute_H1_error
 from compute_magnitude_error import compute_magnitude_error
 from math import ceil
 
+
+"""Just consider a sample path and test converngece of BDF+FE for time and space approximation"""
+
 addr_results = 'test_convegence_SLLG_problem_2/'
 set_log_level(31)
 
