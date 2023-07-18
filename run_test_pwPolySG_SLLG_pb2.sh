@@ -1,1 +1,0 @@
-nohup python3 < SLLG/test_pwPolySG_SLLG_pb2_smoothing_profit.py > out_pwPolySG_SLLG_PWLin_empiricalPL2Long.txt &
