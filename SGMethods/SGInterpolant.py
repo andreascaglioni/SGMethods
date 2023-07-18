@@ -6,7 +6,8 @@ from multiprocessing import Pool
 
 
 class SGInterpolant:
-    def __init__(self, midSet, knots, lev2knots, interpolationType="linear", NParallel = 1):
+    def __init__(self, midSet, knots, lev2knots, interpolationType="linear", NParallel = 1, verbose=True):
+        self.verbose=verbose
         self.midSet = midSet  # np array of shape (#mids, N)
         self.cardMidSet = midSet.shape[0]
         self.N = midSet.shape[1]
@@ -148,7 +149,8 @@ class SGInterpolant:
                 fOnSG[toCompute, :] = tmp
             else:
                 raise ValueError('self.NParallel not int >= 1"')
-        print("Recycled", nRecycle, "; Discarted", oldXx.shape[0]-nRecycle, "; Sampled", self.SG.shape[0]-nRecycle)
+        if self.verbose:
+            print("Recycled", nRecycle, "; Discarted", oldXx.shape[0]-nRecycle, "; Sampled", self.SG.shape[0]-nRecycle)
         return fOnSG
 
     def interpolate(self, xNew, fOnSG):
