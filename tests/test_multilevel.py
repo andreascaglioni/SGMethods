@@ -21,16 +21,16 @@ interpolationType = "linear"
 lev2knots = lambda nu: 2**(nu+1)-1
 knots = lambda m : unboundedKnotsNested(m,p=p)
 Profit = lambda nu: ProfitMix(nu, p)
-NNLevels = [1,2,3,4,5,6]
+NNLevels = [1,2,3,4,5]
 SGCards = [[1],
-           [1, 1],
-           [10,3,1],
-           [82,18,4,1],
-           [602, 131, 27, 7, 2],
-           [1500, 887, 193, 42, 10, 2]] 
+           [1,1],
+           [1,3,10],
+           [1,4,18,82],
+           [2,7,27,131,602],
+           [2,10,42,193,887,1500]] 
 
 ################################ EXACT AND APPROXIMATE SAMPLERS ################################
-nTau = 2**np.array(NNLevels,dtype=int)
+nTau = 2**np.linspace(1, NNLevels[-1], NNLevels[-1], dtype=int)
 tau = 1/nTau
 nTT = nTau+1
 tt = []
@@ -89,7 +89,6 @@ for i in range(len(NNLevels)):
             SGICurr = SGInterpolant(MidSetObj.getMidSet(), knots, lev2knots, interpolationType, NParallel=NParallel)
         SLIL.append(SGICurr)
     print("define ML inteprolant...")
-    # define interpolant ML
     interpolant = MLInterpolant(SLIL)
     print("sampleML inteprolant...")
     FOnSGML = interpolant.sample(FApprox)
