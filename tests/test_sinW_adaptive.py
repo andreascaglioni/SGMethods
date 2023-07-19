@@ -14,10 +14,10 @@ from SLLG.expansions_Brownian_motion import param_LC_Brownian_motion
 
 
 NRNDSamples = 100
-maxNumNodes = 400
+maxNumNodes = 150
 p=2
 interpolationType =  "linear"
-NParallel = 8
+NParallel = 16
 Nt = 100
 tt = np.linspace(0, 1, Nt)
 dt = 1/Nt
@@ -54,13 +54,14 @@ knots = lambda n : unboundedKnotsNested(n, p=p)
 err = np.array([])
 nNodes = np.array([])
 nDims = np.array([])
+err_estimator = np.array([])
 w=0
 I = midSet(trackReducedMargin=True)
 oldSG = None
 uOnSG = None
 
 oldRM = np.array([])
-estimator_reduced_margin = np.array([])
+error_indicators_RM = np.array([])
 while True:
     print("Computing w  = ", w)
     # COMPUTE
@@ -76,16 +77,20 @@ while True:
     print("Error:", err[-1])
     nNodes = np.append(nNodes, interpolant.numNodes)
     nDims = np.append(nDims, I.N)
-    np.savetxt('sinW_example_linear_adaptive.csv',np.transpose(np.array([nNodes, err, nDims])), delimiter=',')
     oldSG = interpolant.SG
 
     # ESTIMATE
-    estimator_reduced_margin = compute_aposteriori_estimator_reduced_margin(oldRM, estimator_reduced_margin, I, knots, lev2knots, F, interpolant.SG, uOnSG, yyRnd, L2errParam, uInterp, interpolationType=interpolationType, NParallel=NParallel)
+    error_indicators_RM = compute_aposteriori_estimator_reduced_margin(oldRM, error_indicators_RM, I, knots, lev2knots, F, interpolant.SG, uOnSG, yyRnd, L2errParam, uInterp, interpolationType=interpolationType, NParallel=NParallel)
     oldRM = I.reducedMargin
+    err_estimator = np.append(err_estimator, np.sum(error_indicators_RM))
+    np.savetxt('sinW_example_linear_adaptive.csv',np.transpose(np.array([nNodes, err, nDims, err_estimator])), delimiter=',')
+    print("error indicators reduced margin", np.sum(error_indicators_RM))
 
-    print("error indicators reduced margin", np.sum(estimator_reduced_margin))
     # MARK
-    idMax = np.argmax(estimator_reduced_margin)  # NBB index in REDUCED margin
+    # I consider the correspondin profit i.e. I divide the norm of hierarchica surpluses by the number of corresponding added nodes (work)
+    RM = I.reducedMargin
+    work_RM = np.prod((2**(RM+1)-2)*(p-1)+1, axis=1)
+    idMax = np.argmax(error_indicators_RM / work_RM)  # NBB index in REDUCED margin
     mid = I.reducedMargin[idMax, :]
     idxMargin = np.where(( I.margin==mid).all(axis=1) )[0][0]
     

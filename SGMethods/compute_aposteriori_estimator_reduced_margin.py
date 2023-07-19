@@ -24,12 +24,7 @@ def compute_aposteriori_estimator_reduced_margin(oldRM, old_estimators, I, knots
     # norm{\Delta_nu u} 
     # where we use 
     # \Delta_nu u =  I_{\Lambda \cup \nu}[u] - I_{\Lambda}[u]
-    
-    NBB NOTE ON PARALLELIZATION: one ahs to decide whether to parallelize
-    1. the evaluation of the param-to-sol map in each SG interpolation
-    2. the computation of each error indicator and do serially all sampling of param-to-sol map within
-    we choose 2.  because each new SG interpolant has few new nodes on which to evaluate;
-    settin up SG and inteprolant is costyl if many parameters"""
+    """
     
 
     dimReducedMargin = I.reducedMargin.shape[0]
@@ -59,7 +54,5 @@ def compute_aposteriori_estimator_reduced_margin(oldRM, old_estimators, I, knots
         interpolantExt = SGInterpolant(IExt, knots, lev2knots, interpolationType=interpolationType, NParallel=NParallel, verbose=False)
         uOnSGExt = interpolantExt.sampleOnSG(F, oldXx=SG, oldSamples=uOnSG)
         uInterpExt = interpolantExt.interpolate(yyRnd, uOnSGExt)
-        # errSamples = np.array([physicalNorm(uInterpExt[n] - uInterp[n]) for n in range(NRNDSamples)])
-        # estimator_reduced_margin[i] = sqrt(np.mean(np.square(errSamples)))
         estimator_reduced_margin[i] = L2errParam(uInterpExt, uInterp)
     return estimator_reduced_margin
