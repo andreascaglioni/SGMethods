@@ -98,7 +98,7 @@ I = midSet(trackReducedMargin=True)
 oldSG = None
 uOnSG = None
 oldRM = np.array([])
-indicators_reduced_margin = np.array([])
+error_indicators_RM = np.array([])
 
 while True:
     print("Computing w  = ", w)
@@ -119,15 +119,17 @@ while True:
     oldSG = interpolant.SG
 
     # ESTIMATE
-    indicators_reduced_margin = compute_aposteriori_estimator_reduced_margin(oldRM, indicators_reduced_margin, I, knots, lev2knots, F, interpolant.SG, uOnSG, yyRnd, L2ErrorParam, uInterp, interpolationType=interpolationType, NParallel=NParallel)
-    error_estimator = np.append(error_estimator, np.sum(indicators_reduced_margin))
+    error_indicators_RM = compute_aposteriori_estimator_reduced_margin(oldRM, error_indicators_RM, I, knots, lev2knots, F, interpolant.SG, uOnSG, yyRnd, L2ErrorParam, uInterp, interpolationType=interpolationType, NParallel=NParallel)
+    error_estimator = np.append(error_estimator, np.sum(error_indicators_RM))
     oldRM = I.reducedMargin
 
     np.savetxt('example_SLLG_adaptive_SG.csv',np.transpose(np.array([nNodes, err, nDims, error_estimator])), delimiter=',')
-    print("error indicators reduced margin", np.sum(indicators_reduced_margin))
+    print("error indicators reduced margin", np.sum(error_indicators_RM))
     
     # MARK
-    idMax = np.argmax(indicators_reduced_margin)  # NBB index in REDUCED margin
+    RM = I.reducedMargin
+    work_RM = np.prod((2**(RM+1)-2)*(p-1)+1, axis=1)  # TODO relate to lev2knots istead of hard-coding
+    idMax = np.argmax(error_indicators_RM / work_RM)  # NBB index in REDUCED margin
     mid = I.reducedMargin[idMax, :]
     idxMargin = np.where(( I.margin==mid).all(axis=1) )[0][0]
     

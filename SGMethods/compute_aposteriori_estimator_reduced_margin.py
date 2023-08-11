@@ -8,6 +8,7 @@ from multiprocessing import Pool
 
 
 def findMid(mid, midSet):
+    # TODO make faster expliting lexicographic order
     if(midSet.size==0):
         return False, -1
     assert(midSet.shape[1] == mid.size)
@@ -20,23 +21,21 @@ def findMid(mid, midSet):
         return True, pos[0]
 
 def compute_aposteriori_estimator_reduced_margin(oldRM, old_estimators, I, knots, lev2knots, F, SG, uOnSG, yyRnd, L2errParam, uInterp, interpolationType="linear", NParallel=1):
-    """for each element in *reduced* margin, compute 
-    # norm{\Delta_nu u} 
-    # where we use 
-    # \Delta_nu u =  I_{\Lambda \cup \nu}[u] - I_{\Lambda}[u]
+    """INPUT 
+       OUTPUT
+       DESCIRPTION for each element in *reduced* margin, compute norm{\Delta_nu u} where we use \Delta_nu u =  I_{\Lambda \cup \nu}[u] - I_{\Lambda}[u]
     """
-    
-
+    assert(oldRM.shape[0] == old_estimators.size)
     dimReducedMargin = I.reducedMargin.shape[0]
     estimator_reduced_margin = np.zeros(dimReducedMargin)
-
     # first recycle from previous list of estimators, if any
     if(oldRM.size==0):
         toCompute = range(I.reducedMargin.shape[0])
     else:
+        # NB did the margin dimensionality grow?
         dimDiff = I.reducedMargin.shape[1] - oldRM.shape[1]
         assert(dimDiff>=0)
-        if dimDiff>0:
+        if dimDiff>0: # if yes, 
             oldRM = np.hstack( (oldRM, np.zeros((oldRM.shape[0], dimDiff), dtype=int)) )
         toCompute = []  # if I dont find a mid in oldRM, list it here to compute it later
         for i in range(dimReducedMargin):
@@ -50,7 +49,7 @@ def compute_aposteriori_estimator_reduced_margin(oldRM, old_estimators, I, knots
     # for the estimators corresponding to new mids, compute explicitly
     for i in toCompute:
         currMid = I.reducedMargin[i, :]
-        IExt = lexicSort( np.vstack((I.midSet, currMid)) )
+        IExt = lexicSort( np.vstack((I.midSet, currMid)) )  # TODO write lexSortInsert(mid, midSet)
         interpolantExt = SGInterpolant(IExt, knots, lev2knots, interpolationType=interpolationType, NParallel=NParallel, verbose=False)
         uOnSGExt = interpolantExt.sampleOnSG(F, oldXx=SG, oldSamples=uOnSG)
         uInterpExt = interpolantExt.interpolate(yyRnd, uOnSGExt)

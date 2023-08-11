@@ -13,7 +13,7 @@ from SLLG.expansions_Brownian_motion import param_LC_Brownian_motion
 
 
 
-NRNDSamples = 100
+NRNDSamples = 1024
 maxNumNodes = 150
 p=2
 interpolationType =  "linear"
@@ -89,7 +89,7 @@ while True:
     # MARK
     # I consider the correspondin profit i.e. I divide the norm of hierarchica surpluses by the number of corresponding added nodes (work)
     RM = I.reducedMargin
-    work_RM = np.prod((2**(RM+1)-2)*(p-1)+1, axis=1)
+    work_RM = np.prod((2**(RM+1)-2)*(p-1)+1, axis=1)  # TODO relate to lev2knots istead of hard-coding
     idMax = np.argmax(error_indicators_RM / work_RM)  # NBB index in REDUCED margin
     mid = I.reducedMargin[idMax, :]
     idxMargin = np.where(( I.margin==mid).all(axis=1) )[0][0]
@@ -97,11 +97,18 @@ while True:
     # REFINE
     I.update(idxMargin)
     w+=1
+    plt.loglog(nNodes, err, '.-')
+    plt.loglog(nNodes, err_estimator, '.-')
+    plt.loglog(nNodes, np.power(nNodes, -0.5), '-k')
+    plt.loglog(nNodes, np.power(nNodes, -0.25), '-k')
+    plt.pause(0.05)
+
 
 print(err)
 rates = -np.log(err[1::]/err[:-1:])/np.log(nNodes[1::]/nNodes[:-1:])
 print("Rate:",  rates)
-plt.loglog(nNodes, err, '.-')
-plt.loglog(nNodes, np.power(nNodes, -0.5), '-k')
-plt.loglog(nNodes, np.power(nNodes, -0.25), '-k')
-plt.show()
+# plt.loglog(nNodes, err, '.-')
+# plt.loglog(nNodes, err_estimator, '.-')
+# plt.loglog(nNodes, np.power(nNodes, -0.5), '-k')
+# plt.loglog(nNodes, np.power(nNodes, -0.25), '-k')
+# plt.draw()
