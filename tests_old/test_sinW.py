@@ -13,7 +13,6 @@ from SLLG.profits import ProfitMix
 
 
 # NUMERICS PARAMETERS
-NParallel=8
 NRNDSamples = 256
 np.random.seed(1607)
 maxNumNodes = 128
@@ -37,9 +36,7 @@ def computeL2Error(uExa, Iu):
     errSample = spaceNorm(uExa-Iu)
     return sqrt(np.mean(np.square(errSample)))
 yyRnd = np.random.normal(0, 1, [NRNDSamples, 1000])  # infinite paramter vector
-print("Parallel random sampling")
-pool = Pool(NParallel)
-uExa = np.array(pool.map(F, yyRnd))
+uExa = np.array(list(map(F, yyRnd)))
 
 # CONVERGENCE TEST
 err = np.array([])
@@ -69,12 +66,12 @@ while True:
         P = Profit(I.margin)
         idMax = np.argmax(P)
         I.update(idMax)
-        interpolant = SGInterpolant(I.midSet, knots, lev2knots, interpolationType=interpolationType, NParallel=NParallel)
+        interpolant = SGInterpolant(I.midSet, knots, lev2knots, interpolationType=interpolationType)
         if(interpolant.numNodes > maxNumNodes):
             break
     w+=1
 # RESULTS
-print(err)
+print("Error: ", err)
 rates = -np.log(err[1::]/err[:-1:])/np.log(nNodes[1::]/nNodes[:-1:])
 print("Rate:",  rates)
 plt.loglog(nNodes, err, '.-')
