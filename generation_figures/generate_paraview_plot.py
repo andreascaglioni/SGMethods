@@ -2,8 +2,8 @@ from dolfin import *
 import matplotlib.pyplot as plt
 import math
 
-address_read = "/home/andrea/workspace/SGMethods/m_switching_rectange.h5"
-address_write = "m_plot.xdmf"
+address_read = "/home/andrea/workspace/SGMethods/ANIMATION/m_switching_rectangle_01_seed5295.h5"
+address_write = "m_plot_rect_5265.xdmf"
 
 Nh = 16
 Ntau = Nh * 64
