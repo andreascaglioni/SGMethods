@@ -1,1 +1,1 @@
-nohup python3 < SLLG/test_pwPolySG_SLLG_pb2.py > out_pwPolySG_SLLG_PWQuad_PMix.txt &
+nohup python3 < SLLG/test_pwPolySG_SLLG_pb2_L1ProfitMix.py > out_pwPolySG_L1HoloMix.txt &
