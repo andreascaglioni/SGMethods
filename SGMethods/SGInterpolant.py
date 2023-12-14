@@ -69,7 +69,7 @@ class SGInterpolant:
                 currNode = np.zeros(self.N)
                 currNode[currActiveDims] = currNodeActiveDims
                 # check = np.where(~(SG-currNode).any(axis=1))[0]
-                check = np.where( np.sum(np.abs(SG-currNode), axis=1) < 1.e-4)[0]
+                check = np.where( np.sum(np.abs(SG-currNode), axis=1) < 1.e-10)[0]
                 # check = np.where(np.linalg.norm(SG-currNode, 1, axis=1) < 1.e-10)[0] #  check if current node is already in SG (NBB SG is always fully dimensional, also if some components are 0.)
                 found = check.shape[0]
                 assert(found <= 1)  # if currNode was in the SG more than once, something would be very wrong
