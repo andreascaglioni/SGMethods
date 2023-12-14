@@ -47,7 +47,7 @@ def param_LC_Brownian_motion_int(tt, yy, T):
 def param_KL_Brownian_motion(tt, yy):
     W = 0 * tt
     for n in range(len(yy)):
-        W = W + sqrt(2) * 2 / (pi * (2 * n - 1)) * np.sin(0.5 * (2 * n - 1) * tt) * yy[n]
+        W = W + sqrt(2)*np.sin((n-0.5)*pi*tt) /(pi*(n-0.5))  * yy[n]
 
     return W
 

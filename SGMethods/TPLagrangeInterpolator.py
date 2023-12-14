@@ -14,7 +14,7 @@ class TPLagrangeInterpolator:
         # sanity check
         assert(self.nNodesDims == F.shape[:-1:])
         # compute \lambda_i coefficients
-        self.lambdaCoeffs = ()  # tuple of length N, each entry is 1/( \prod_{j\neq i} x_i-x_j}) i.e. coeffcieints appearing in barycentric interpolation formula [Trefetten]
+        self.lambdaCoeffs = ()  # tuple of length N, each entry is 1/( \prod_{j\neq i} x_i-x_j}) i.e. coeffcieints appearing in barycentric interpolation formula [Trefetten-approximation theory and approximation practice]
         for n in range(self.nDims):
             lCurrD = np.ones(self.nNodesDims[n])
             currNodes = self.nodesTuple[n]

@@ -76,7 +76,6 @@ def ProfitMixL1holo(nu, p):
     for i in range(nMids):
         llUniqueAppearing, contLLAppearing = np.unique(ll[np.where(idMid==i)], return_counts=True)
         tmp = np.power(np.power(2, -3/2 * llUniqueAppearing) * contLLAppearing, contLLAppearing)
-        print(tmp)
         v1[i] = C1 * np.prod(tmp)
     
     # value for nu_i>1    

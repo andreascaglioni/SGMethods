@@ -5,6 +5,9 @@ import sys, os
 sys.path.insert(1, os.path.join(os.path.expanduser("~"), 'workspace/SGMethods'))
 from SGMethods.ScalarNodes import unboundedNodesOptimal
 
+
+"""Generate figure of 1D interpolation. Nodes, samples and a degree 2 piecewise polynomail interpolation"""
+
 font = {'family': 'serif',
         'color':  'black',
         'weight': 'normal',
