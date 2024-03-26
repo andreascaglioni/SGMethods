@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import sys, os
 sys.path.insert(1, os.path.join(os.path.expanduser("~"), 'workspace/SGMethods'))
 
-from SLLG.profits import ProfitMixL1holo
+from SLLG.profits import ProfitMix
 from SLLG.sample_LLG_function_noise_2 import sample_LLG_function_noise_2
 from SLLG.error_sample_pb2_L2norm import error_sample_pb2_L2norm
 from SGMethods.ScalarNodes import unboundedKnotsNested
@@ -19,7 +19,7 @@ from SGMethods.SGInterpolant import SGInterpolant
 T = 1
 FEMOrder = 1
 BDFOrder = 1
-Nh = 32  # 8  # 
+Nh = 16  # 8  # 
 NTau = Nh * 8
 NRNDSamples = 1024  # 4  #   
 NParallel = 8
@@ -44,7 +44,7 @@ dimF = uExa[0].size
 lev2knots = lambda nu: 2**(nu+1)-1
 knots = lambda m : unboundedKnotsNested(m,p=p)
 # Profits
-Profit = lambda nu :ProfitMixL1holo(nu, p)
+Profit = lambda nu :ProfitMix(nu, p)
 
 err = np.array([])
 nNodes = np.array([])
@@ -70,7 +70,7 @@ while(True):
     nNodes = np.append(nNodes, interpolant.numNodes)
     nDims = np.append(nDims, I.N)
     
-    np.savetxt('convergenge_SG_ProfitL1Mix.csv',np.transpose(np.array([nNodes, err, nDims])), delimiter=',')
+    np.savetxt('convergenge_SG_ProfitL1MixSimple_COARSE.csv',np.transpose(np.array([nNodes, err, nDims])), delimiter=',')
     
     oldSG = interpolant.SG
 

@@ -2,6 +2,7 @@ from scipy.stats import norm
 from scipy.special import erfinv
 from math import log, sqrt, log2, exp, pi
 import numpy as np
+from numpy.polynomial.hermite import hermroots
 
 
 def unboundKnotsNonNest(n):
@@ -32,17 +33,34 @@ def unboundedKnotsNested(n, p=2):
     return unboundedNodesOptimal(n, p)
 
 
+def equispacedNodes(n):
+    """n number of nodes
+    return n equispaced nodes on [-1,1] with the first and last node on the closure"""
+    if(n==1):
+        return 0
+    else:
+        return np.linspace(-1,1, n)
 
-def unboundedKnotsTest(n):
-    assert(n%2==1)
-    m = int((n-1)/2)
-    xx = np.linspace(-m,m,n)/(m+1)
-    return 2*sqrt(5) * erfinv(xx)
+def equispacedInteriorNodes(n):
+    """n number of nodes
+    return n equispaced nodes on (-1,1) with the first and last node on the closure"""
+    if(n==1):
+        return 0
+    else:
+        xx = np.linspace(-1,1, n+2)
+        return xx[1:-1:]
 
-def unboundedKnotsTest2(n):
-    assert(n%2==1)
-    m = int((n-1)/2)
-    xx = np.linspace(1, m, m)/(m+1)
-    v = 2*sqrt(2) * erfinv(xx)
-    vr = np.sort(-v)
-    return np.hstack((vr, np.array([0.]), v))
+def CCNodes(n):
+    """n number of nodes
+    return n Clenshw-CUrtis nodes, i.e. extrema of (n-1)-th Chebyshev polynomial"""
+    if(n==1):
+        return 0
+    else:
+        return  -np.cos(pi*(np.linspace(0,n-1,n))/(n-1))
+        
+def HermiteNodes(n):
+    """n number of nodes
+    return n Hermite nodes, i.e. roots of the n-th Hermite polynomial"""
+    en = np.zeros(n+1)
+    en[-1]=1
+    return hermroots(en)
