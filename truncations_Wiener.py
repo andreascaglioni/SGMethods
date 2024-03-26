@@ -1,8 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from math import sqrt, pi
+from math import sqrt, pi, log
 from scipy import integrate
-
+from copy import deepcopy
+from SLLG.expansions_Brownian_motion import param_LC_Brownian_motion
 """geerate a Wiener process, compute the KLE and LCE truncations. Compare convergence as number of terms 
 increases in different norms"""
 
@@ -35,39 +36,89 @@ def compute_KLE(WW, tt, nY):
     WWKL = np.dot(phi.T, YY)
     return WWKL
 
+def compute_LCE(WW, tt, nY):
+    # use recursive formula for LCE    
+    # coeff 0,1
+    xNew = 1
+    LCECoeffs = np.array([np.interp(xNew, tt, WW)])  # nb the basis function is 1 at t=1
+    WWTmp = WW - param_LC_Brownian_motion(tt, LCECoeffs, T=1)
+    xxEval = np.array([xNew])
+    yyEval = LCECoeffs
+    # other coeff.s
+    L = int(log(nY, 2))
+    JMax = nY - 2**L
+    for ell in range(1, L+1):
+        maxBasisFun = 2**(-(ell-1)/2)*0.5
+        for j in range(0, 2**(ell-1)):
+            if j == ell-1 and j > JMax:
+                break
+            xNew = (j+0.5)*2**-(ell-1)
+            yInterp = np.interp(xNew, tt, WWTmp)
+            LCECoeffs = np.append(LCECoeffs, yInterp/maxBasisFun)
+            xxEval = np.append(xxEval, xNew)
+            yyEval = np.append(yyEval, yInterp)
+            WWTmp = WW - param_LC_Brownian_motion(tt, LCECoeffs, T=1)
+    return param_LC_Brownian_motion(tt, LCECoeffs, T=1)
 
-# first sample Wiener process with definition
-nt = 10000
+########## EXAMPLE 1: just plot a Wiener process sample path and truncated KLE, LCE
+"""
+# sample Wiener process with definition
+nt = 2**10+1
 tt = np.linspace(0,1,nt)
 WW = sample_Wiener(tt)
-
 #compute KLE
 nY = 1000
 WWKL = compute_KLE(WW, tt, nY)
-
-# PLOT PATHS
+#compute LCE
+nY = 1000
+WWLC = compute_LCE(WW, tt, nY)
+# plot
+print("error KLE:", L2err(WW, WWKL, tt))
+print("error LCE:", L2err(WW, WWLC, tt))
 plt.plot(tt, WW, label="classic")
 plt.plot(tt, WWKL, label="KLE")
+plt.plot(tt, WWLC, label="LCE")
 plt.legend()
 plt.show()
-print(L2err(WW, WWKL, tt))
+"""
 
-# PLOT CONVERGENCE KLE in L2
-err = []
-NNY = 2**np.arange(1,8)
-for nY in NNY:
-    WWKL = compute_KLE(WW, tt, nY)
-    errCurr = L2err(WW, WWKL, tt)
-    err.append(errCurr)
-print("error refinement KLE:", err)
-plt.loglog(NNY, err, '.-')
+########## EXAMPLE 2: COMPARE CONVERGENCE OF KLE AND LCE IN  L2(\Omega, L^2(0,T))
+# approximate the probabiltiy L2 norm with a Monte Carlo estimate
+nt = 2**10+1
+tt = np.linspace(0,1,nt)
+NMC = 100
+nRefs = 7
+errKL = np.zeros((NMC, nRefs))
+errLC = np.zeros_like(errKL)
+for nSample in range(NMC):
+    WW = sample_Wiener(tt)
+    NNY = 2**np.arange(0,nRefs+1)
+    for nRef in range(len(NNY)):
+        nY = NNY[nRef]
+        WWKL = compute_KLE(WW, tt, nY)
+        WWLC = compute_LCE(WW, tt, nY)
+
+        plt.plot(tt, WW, label="Wiener process")
+        plt.plot(tt, WWLC, label="LC")
+        plt.show()
+
+        errCurrLC = L2err(WW, WWLC, tt)
+        errKL[nSample, nRef] = L2err(WW, WWKL, tt)
+        errLC[nSample, nRef] = L2err(WW, WWLC, tt)
+errKL = np.mean(errKL, axis=0)  # MC average
+errLC = np.mean(errLC, axis=0)  # MC average
+
+print("error refinement KLE:", errKL)
+print("error refinement LCE:", errLC)
+
+plt.loglog(NNY, errKL, '.-')
+plt.loglog(NNY, errLC, '.-')
 plt.loglog(NNY, 1/NNY, 'k-')
-plt.loglog(NNY, 1/np.sqrt(NNY), 'k-')
+plt.loglog(NNY, np.power(NNY, -0.5), 'k-')
 plt.show()
 
 
 
-# compute LCE coefficients
-# convergence truncation in L2 (KLE wins because it is optimal)
+# compare convergence truncation in L2 (KLE wins because it is optimal)
 # then in L1
 # then in Linfty
