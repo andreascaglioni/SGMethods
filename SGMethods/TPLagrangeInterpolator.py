@@ -2,7 +2,16 @@ import numpy as np
 
 
 class TPLagrangeInterpolator:
+    """Given function samples on tensor product nodes, interpolates with tensor product Lagrange interpolation
+    """    
     def __init__(self, nodesTuple, F):
+        """Initializes the interpolator with nodes and function values
+
+        Args:
+            nodesTuple (tuple of 1D array double): k-th entry contains 1D nodes in direction k
+            F (Function): given paramter vector, returns function value
+        """
+
         # formatting input
         if(len(F.shape) == len(nodesTuple)):  # F is scalar field
             F = np.reshape(F, F.shape + (1,))
@@ -26,8 +35,15 @@ class TPLagrangeInterpolator:
             self.lambdaCoeffs = self.lambdaCoeffs + (lCurrD,)
 
     def __call__(self, xNew):
-        # xNew array shaped (numX, N)
-        # OUTPUT 2D array of size (numX, dimData)
+        """Sample the tensor product Lagrange interpolant on new points xNew
+
+        Args:
+            xNew (1D array double): Nodes where to sample the interpolant
+
+        Returns:
+            2D array double: Each row is the value of the interpolant on the corresponding row of xNew
+        """        
+
         numX = xNew.shape[0]
         assert(xNew.shape[1] == self.nDims)
         # change shape F to cardY1 x ... x cardY_N x 1 x dimData for later product with another tensor

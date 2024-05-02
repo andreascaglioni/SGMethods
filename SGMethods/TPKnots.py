@@ -2,12 +2,15 @@ import numpy as np
 
 
 def TPKnots(ScalarKnots, numKnotsDir):
-    '''INPUT
-    ScalarKnots (function) ScalarKnots(n) generates n 1D knots
-    numKnotsDir (1D array of size N) number of knots in each direction
-    OUTPUT
-    kk (list of np 1D arrays) knots along each direction
-    knotsGrid (np array of shape #TP nodes x N) the TP grid where each row is a node'''
+    """Generate tensor product nodes
+
+    Args:
+        ScalarKnots (function): ScalarKnots(n) generates set pf n 1D nodes
+        numKnotsDir (array): Number of nodes in each direction
+
+    Returns:
+        tuple of np.array : Nodes along each direction
+    """
 
     kk = ()
     for i in range(len(numKnotsDir)):

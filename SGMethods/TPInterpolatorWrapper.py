@@ -6,11 +6,25 @@ from SGMethods.TPLagrangeInterpolator import TPLagrangeInterpolator
 from SGMethods.TPPwQuadraticInterpolator import TPPwQuadraticInterpolator
 from SGMethods.TPPwCubicInterpolator import TPPwCubicInterpolator
 
-'''wrap RegularGridInterpolator to handle case of 1 collocation point in some direction. In this directions, 
-the ROM is a constant extrapolation'''
 
 class TPInterpolatorWrapper:
+    """ Wrapper for many Tensor Product interpolation methods.
+    If a direction has only 1 colllocation node, it should be 0. In this directions, the interpolation approximation is a constant extrapolation
+    """    
     def __init__(self, activeNodesTuple, activeDims, fOnNodes, interpolationType="polynomial"):
+        """Take parameters to define tensor product interpolant
+
+        Args:
+            activeNodesTuple (tuple of 1D array double): Tople of 1D nodes in each direction for whihc there is more than 1 node
+            activeDims (array): Dimensions with more that 1 node
+            fOnNodes (N+1 array double): Values of data to interpolate (each data point may be vector of some lenght, so +1)
+            interpolationType (str, optional): Choose between;
+                - linear: Tensor product linear piecewise polynomail interpolant;
+                - quadratic: Tensor product quadratic piecewise polynomial interpolant;
+                - cubic: Tensor product cubic piecewise polynomial interpolant;
+                - polynomial: Tensor product Lagrange interpolant.
+            Defaults to "polynomial".
+        """        
         self.fOnNodes = fOnNodes
         self.activeDims = activeDims  # dimensions with more than one node
         if(interpolationType == "linear"):
@@ -25,6 +39,16 @@ class TPInterpolatorWrapper:
             error("interpolation type: " , interpolationType, "not recognized")
 
     def __call__(self, xNew):
+        """Interpolate on desired new points in paramter space with method chosen in constructor.
+        It will first purge all directions with 1 collocation nodes because in these directions the interpolant is constant
+
+        Args:
+            xNew (ND array double): new parameter vectors to evaluate. One per row
+
+        Returns:
+            array of double: output of f on xNew (new nodes). One per row.
+        """    
+            
         # if xNew has len(shape)=1, reshape it
         if(len(xNew.shape)==1):
             xNew = np.reshape(xNew, (-1,1))

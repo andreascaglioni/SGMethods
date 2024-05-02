@@ -6,7 +6,21 @@ from multiprocessing import Pool
 
 
 class SGInterpolant:
+    """Sparse grid interpolant class. It stores all relevant information to define it lke multi-index set, 1D notes etc. 
+        It automatically computes the sparse grid and inclusio-exclusion coefficients upon initialization.
+        It allows to interpolate high dimensinal functions on the sparse grid.
+    """    
     def __init__(self, midSet, knots, lev2knots, interpolationType="linear", NParallel = 1, verbose=True):
+        """Initializa important data and compute inclusion-exclusion coefficients and sparse grid
+
+        Args:
+            midSet (2D array int): Multi-index set NB downward closed!! 
+            knots (function): given n\in\N, computes n nodes
+            lev2knots (function): given level nu\in\N_0, computes corresponding number of 1D nodes
+            interpolationType (str, optional): Type of interpolant. For options, see class "TPInterpolatorWrapper". Defaults to "linear".
+            NParallel (int, optional): Number of parallel ocmputations. Defaults to 1.
+            verbose (bool, optional): Verbose output. Defaults to True.
+        """        
         self.verbose=verbose
         self.midSet = midSet  # np array of shape (#mids, N)
         self.cardMidSet = midSet.shape[0]
@@ -29,8 +43,10 @@ class SGInterpolant:
         self.NParallel = NParallel
 
     def setupInterpolant(self):
-        """assign combinCoeff, activeMIds, activeTPDims, activeTPNodesList, mapTPtoSG 
-        based on midSet, knots, lev2knots"""
+        """ Computes and saves in class attributes some important quantities:
+        combinCoeff, activeMIds, activeTPDims, activeTPNodesList, mapTPtoSG 
+        based on: midSet, knots, lev2knots
+        """
         bookmarks = np.unique(self.midSet[:,0], return_index=True)[1]
         bk = np.hstack((bookmarks[2:], np.array([self.cardMidSet, self.cardMidSet])))
         for n in range(self.cardMidSet):
@@ -57,7 +73,11 @@ class SGInterpolant:
                 self.mapTPtoSG.append(shp)  # to be filled
                 
     def setupSG(self):
-        """assign SG (sparse grid), numNodes, mapTPtoSG based on self.activeTPNodesList"""
+        """Computes and saves in class attributes some important quantities:
+        SG (sparse grid), numNodes, mapTPtoSG
+        based on: self.activeTPNodesList
+        """        
+        
         SG = np.array([]).reshape((0, self.N))
         for n, currActiveTPNodes in enumerate(self.activeTPNodesList):
             currActiveDims = self.activeTPDims[n]
@@ -82,8 +102,22 @@ class SGInterpolant:
         self.numNodes = SG.shape[0]
 
     def sampleOnSG(self, Fun, dimF = None, oldXx = None , oldSamples = None):
-        """ First check if there is anything to recycle, then sample new values
-        NBB assume F takes as input an np array of parameters and the 1st output are the relevant values"""
+        """Sample a given function on the sparse grid. Optionally recycle previous samples. Also takes care automatically of the case in which in the meainwhile the sparse grid has increased dimension
+            First check if there is anything to recycle, then sample new values
+            NBB assume F takes as input an np array of parameters and the 1st output are the relevant values
+            
+        Args:
+            Fun (function): given array of parameters (double), give back array in codomain
+            dimF (int, optional): dimension codomain F. Defaults to None.
+            oldXx (2D array double, optional): each row is a parameter vector. Defaults to None.
+            oldSamples (_type_, optional): Each row is a sample value in corresponding parameter vector in oldXx. Defaults to None.
+
+        Raises:
+            ValueError: _description_
+
+        Returns:
+            2D array fo double: Values of Fun on the sparse grid 9each row is a value correspondin to a paramter vector)
+        """    
 
         dimF = -1  # TODO remove dimF from signature; check all other scripts
 

@@ -2,7 +2,16 @@ import numpy as np
 
 
 class TPPwQuadraticInterpolator:
+    """Given function samples on tensor product nodes, interpolates with tensor product piecewise quadratic interpolation
+    """    
     def __init__(self, nodesTuple, F):
+        """Initializes the interpolator with nodes and function values
+
+        Args:
+            nodesTuple (tuple of 1D array double): k-th entry contains 1D nodes in direction k
+            F (Function): given paramter vector, returns function value
+        """
+
         # formatting input if F is scalar field
         if(len(F.shape) == len(nodesTuple)): 
             F = np.reshape(F, F.shape + (1,))
@@ -15,8 +24,14 @@ class TPPwQuadraticInterpolator:
         assert(self.nNodesDims == F.shape[:-1:])
 
     def __call__(self, xNew):
-        # xNew array shaped (numX, N)
-        # OUTPUT 2D array of size (numX, dimData)
+        """Sample the tensor product Lagrange interpolant on new points xNew
+
+        Args:
+            xNew (1D array double): Nodes where to sample the interpolant
+
+        Returns:
+            2D array double: Each row is the value of the interpolant on the corresponding row of xNew
+        """   
         
         numX = xNew.shape[0]
         assert(xNew.shape[1] == self.nDims)
