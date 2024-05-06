@@ -3,11 +3,23 @@ from math import floor, log, inf
 from utils.utils import coordUnitVector as unitVector
 from utils.utils import lexicSort as lexicSort
 
+
+"""A collection of functions to generate multi-index sets"""
+
+
 def TPMidSet(w, N):
-    """ each row is a multi-index
-    define with base knot 0
-    codnition: max_i=0^{d-1} x_i leq w
-    NBB leq so w=0 onyl mid 0 included """
+    """Generate a tensor product multi-index set such that
+        max_i=0^{N-1} nu_i leq w
+        NB leq so for w=0 only multi-index 0 included
+    
+    Args:
+        w (int): maximum l^infty norm of multi-index 
+        N (int): number of dimensions
+    
+    Returns:
+        np.array: multi-index set (each row is a multi-index)
+    """
+    
     assert(N>=1)
     assert(w>=0)
     if w == 0:
@@ -26,9 +38,18 @@ def TPMidSet(w, N):
         return I
 
 def anisoSmolyakMidSet_freeN(w,a):
-    """as following function, but here dimension is determined as maximum possible effective dimension
-    input w int or float
-          a FUNCTION a(L) L length of sequence"""
+    """Generate the anisotropic Smolyak multi-index set. The dimension (N) is determined by value of a
+        sum_i=0^{N-1} a_i*nu_i leq w
+        NB leq so for w=0 only multi-index 0 included
+        
+    Args:
+        w (double or int): maximum l^infty norm of multi-index 
+        a (function): a(N) gives anisotropy vector of length N
+    
+    Returns:
+        np.array: multi-index set (each row is a multi-index)
+    """
+
     # find the maximum N for which a \cdot e_N \leq w
     N = 1
     while(a(N+1)[-1] <= w):
@@ -36,7 +57,19 @@ def anisoSmolyakMidSet_freeN(w,a):
     return anisoSmolyakMidSet(w, N, a(N))
 
 def anisoSmolyakMidSet(w, N, a):
-    """ now a is a np array containing weights so that I = {i : \sum_n i_n a_n \leq w}"""
+    """Generate the anisotropic Smolyak multi-index set.
+        sum_i=0^{N-1} a_i*nu_i leq w
+        NB leq so for w=0 only multi-index 0 included
+        
+    Args:
+        w (double or int): maximum l^infty norm of multi-index 
+        N (int): number of dimensions
+        a (array double): anisotropy vector (of length N)
+    
+    Returns:
+        np.array: multi-index set (each row is a multi-index)
+    """
+    
     assert N >= 1
     assert(np.all(a>0))
     assert(a.shape[0] == N)
@@ -56,8 +89,19 @@ def anisoSmolyakMidSet(w, N, a):
         return I
 
 def SmolyakMidSet(w, N):
-    """ Each row is a multi-index define with base knot 0, condition: \sum_i=0^{d-1} x_i \leq w
-    NBB leq so w=0 onyl mid 0 included """
+    """Generate the (isotropic) Smolyak multi-index set.
+        sum_i=0^{N-1} nu_i leq w
+        NB leq so for w=0 only multi-index 0 included
+        
+    Args:
+        w (double or int): maximum l^infty norm of multi-index 
+        N (int): number of dimensions
+    
+    Returns:
+        np.array: multi-index set (each row is a multi-index)
+    """
+    # """ Each row is a multi-index define with base knot 0, condition: \sum_i=0^{d-1} x_i \leq w
+    # NBB leq so w=0 onyl mid 0 included """
     assert N >= 1
     a = np.repeat(1., N)
     return anisoSmolyakMidSet(w, N, a)
@@ -122,17 +166,34 @@ def midIsInReducedMargin(mid, mid_set):
 
 
 def checkIfElement(mid, midSet):
+    """_summary_
+
+    Args:
+        mid (_type_): _description_
+        midSet (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     assert(mid.size == midSet.shape[1])
     assert(len(mid.shape) == 1)
     assert(len(midSet.shape) == 2)
     return (midSet == mid).all(axis=1).any()
 
 class midSet():
-    """Multi-index set class; can be grown by adding mids from reduced margin
-    Start from {0}
-    New dimensions are also added as follows: I keep an empty dimenision as buffer, when a fully dimensional mid is added, increase the buffer by 1
-     If the maximum dimension maxN is reached, then there is no buffer anymore"""
+    """Multi-index set class. 
+        Can be grown by adding mids from reduced margin
+        Start from {0}
+        New dimensions are also added as follows: I keep an empty dimenision as buffer, when a fully dimensional mid is added, increase the buffer by 1  
+        If the maximum dimension maxN is reached, then there is no buffer anymore
+    """    
     def __init__(self, maxN=inf, trackReducedMargin=False):
+        """Initialize basic variables; then build default midset {0}  with its margin, reduced margin (if tracked)
+
+        Args:
+            maxN (int, optional): Maximum number of dimensions. Defaults to inf.
+            trackReducedMargin (bool, optional): whether or not to keep track of reduced margin (costs more). Defaults to False.
+        """
         self.maxN = maxN  # maximum number of allowed dimensions
         self.midSet = np.zeros((1,1), dtype=int)  # NB the number of columns is always the same as for the margin, not self.N! This is for better compatibility later
         self.N = 0  # start only with 0 in midset  
@@ -143,7 +204,11 @@ class midSet():
         self.reducedMargin = np.identity(self.dimMargin).astype(int)  # store mids in reduced margin
 
     def getMidSet(self):
-        """returns the midset without the buffer dimension, if it is there. Otherwose simply return the midset"""
+        """Get the midset as an array without the buffer dimension, if it is there. Otherwose simply return the midset
+        Returns:
+            2D array int: multi-index set
+        """
+
         if(self.midSet.shape == (1,1)):  # the case of trivial midset [0]
            return self.midSet
         if(np.linalg.norm(self.midSet[:,-1], ord=1) <1.e-4):
@@ -151,9 +216,12 @@ class midSet():
         return self.midSet
 
     def update(self, idx_margin):
-        """ add to current midset multi-index in position idx_margin in margin
-        INPUT   idx_margin int 
-        RETURN  None"""
+        """ Add a multi-index in the margin to the multi-index set while keeping it downward-closed. 
+
+        Args:
+            idx_margin (int): Index in margin of the multi-index to be added
+        """        
+
         midOriginal = self.margin[idx_margin,:]
         mid = self.margin[idx_margin,:]
         # check if mid is in reduced margin. If not, add first the margin element(s) that sits below it
@@ -213,15 +281,19 @@ class midSet():
             self.reducedMargin = np.unique(self.reducedMargin, axis=0) 
             self.reducedMargin = self.reducedMargin[np.lexsort(np.rot90(self.reducedMargin))]
 
-def checkDownward(midSet):
-    # TODO
-    return False
-
 def computeMidSetFast(Profit, PMin):
-    """INPUT Profit function w input a mid (array of int) output a positive double. PROFIT HAS TO BE MONOTONOUS WRT DOMENSION AND EACH COPMPNENT
-             PMin positive double
-       OUTPUT I 2D arry of int: multi-index set of multi-indices with Profit bigger than PMin
-       NOTE this function just determines the max dimension possible, then call recursive function"""
+    """Compute midset based on a profit function and a minimum profit threshold:
+    \Lambda = \setc{\bnu\in\FF}{\PP_{\bnu} \geq PMin}
+    NB Profit should be monotone (decreasing) wrt each dimension (to get downward-closed multi-index set!)
+    NB This function just determines the max dimension possible, then call recursive function
+
+    Args:
+        Profit (function): give a multi-index, returns a profit (positive double)
+        PMin (double): minimum profit threshold for multi-index to be included
+
+    Returns:
+        2D array int: multi-index set (each row is a multi-index)
+    """    
     
     dMax = 1
     nu = unitVector(dMax+1,dMax)
@@ -232,7 +304,19 @@ def computeMidSetFast(Profit, PMin):
     return computeMidSetFastRecursive(Profit, PMin, dMax)
 
 def computeMidSetFastRecursive(Profit, PMin, N):
-    """Same as above, however this is the 'workhorse' that does the most computations and works by recursion on N smaller and smaller"""
+    """ The 'workhorse' of computeMidSetFast.
+    Computes recrursively over the N dimensions the multi-index set such that the profit is above the threshold PMin
+
+    Args:
+        Profit (function): give a multi-index, returns a profit (positive double)
+        PMin (double): minimum profit threshold for multi-index to be included
+        N (int): number of dimensions
+
+    Returns:
+        2D array int: multi-index set (each row is a multi-index of length N)
+    """    
+    
+    assert(N>=0)
     if N == 0:
         return np.array([0], dtype=int)
     elif N == 1:  # this is the final case of the recursion

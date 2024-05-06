@@ -4,8 +4,17 @@ from math import log, sqrt, log2, exp, pi
 import numpy as np
 from numpy.polynomial.hermite import hermroots
 
+"""Module for generating 1D interpolation nodes"""
 
 def unboundKnotsNonNest(n):
+    """Generate desired number of nodes that eventually cover R and are not nested
+
+    Args:
+        n (int): number of nodes
+
+    Returns:
+        array: n interpolation nodes
+    """    
     assert (n > 0)
     assert (n % 2 == 1)
     if n == 0:
@@ -15,9 +24,16 @@ def unboundKnotsNonNest(n):
     return norm.ppf(knotsBounded)
 
 def unboundedNodesOptimal(n, p=2):
-    """ n number of nodes
-        p int number of interpolation pts, so degree+1 !!
-        return np.array length n of optimal nodes for order p interpolant"""    
+    """Generate desired number of nodes that eventually cover R with a distribution that is optimal for L2_mu (mu=gaussian density) error of degree p piecewise polynomial interpolant
+
+    Args:
+        n (int): number of nodes
+        p (int, optional): Piecewise polynomial interpolant degree + 1 (=number of needed nodes to detemrine piecewise poly in each interval). Defaults to 2.
+        NB n must be odd because one node is 0 and nodes are symmetric around 0
+    Returns:
+        array: n interpolation nodes
+    """    
+
     assert(n%2==1)
     m = int((n-1)/2)
     xx = np.linspace(-m,m,n)/(m+1)
@@ -26,24 +42,46 @@ def unboundedNodesOptimal(n, p=2):
     
 
 def unboundedKnotsNested(n, p=2):
-    """ n number of nodes must be of form 2^(i+1) - 1
-        p int number of interpolation pts, so degree+1 !!
-        return np.array length n of optimal nodes for order p interpolant """
+    """Use previous function to generated NESTED nodes that eventually conver R and are optimal for L^2_mu (mu = normal density) error of degree p piecewise polynomial interpolant
+
+    Args:
+        n (int): number of nodes
+        p (int, optional): Piecewise polynomial interpolant degree + 1 (=number of needed nodes to detemrine piecewise poly in each interval). Defaults to 2.
+        NB n must be odd because one node is 0 and nodes are symmetric around 0
+        NB n must have corect value for nestedness: n = 2^(i+1) - 1 for i=0,1,...
+
+    Returns:
+        _type_: _description_
+    """
     assert (log2(n + 1) - 1 >= 0 & (abs(log2(n + 1) - int(log2(n + 1)) < 1.e-10)))
     return unboundedNodesOptimal(n, p)
 
 
 def equispacedNodes(n):
-    """n number of nodes
-    return n equispaced nodes on [-1,1] with the first and last node on the closure"""
+    """Gnerate n equispaced nodes on [-1,1] with the first and last node on the closure
+
+    Args:
+        n (int): number of nodes
+
+    Returns:
+        array of double: n  nodes
+    """    
+    
     if(n==1):
         return 0
     else:
         return np.linspace(-1,1, n)
 
 def equispacedInteriorNodes(n):
-    """n number of nodes
-    return n equispaced nodes on (-1,1) with the first and last node on the closure"""
+    """Generates n equispaced nodes on (-1,1) with the first and last node in the interior at same distance from -1,1
+
+    Args:
+        n (int): number of nodes
+
+    Returns:
+        array of double: n  nodes
+    """
+
     if(n==1):
         return 0
     else:
@@ -51,16 +89,30 @@ def equispacedInteriorNodes(n):
         return xx[1:-1:]
 
 def CCNodes(n):
-    """n number of nodes
-    return n Clenshw-CUrtis nodes, i.e. extrema of (n-1)-th Chebyshev polynomial"""
+    """Generate n Clenshaw-Curtis nodes, i.e. extrema of (n-1)-th Chebyshev polynomial
+
+    Args:
+        n (int): number of nodes >=1
+
+    Returns:
+        array of double: n nodes; if n=1, return [0]
+    """
+
     if(n==1):
         return 0
     else:
         return  -np.cos(pi*(np.linspace(0,n-1,n))/(n-1))
         
 def HermiteNodes(n):
-    """n number of nodes
-    return n Hermite nodes, i.e. roots of the n-th Hermite polynomial"""
+    """Hermite interpolation nodes (roots of the n-th Hermite polynomial)
+
+    Args:
+        n (int): number of nodes >=1
+
+    Returns:
+        array of double: n nodes; if n=1, return [0]
+    """    
+    
     en = np.zeros(n+1)
     en[-1]=1
     return hermroots(en)

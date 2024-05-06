@@ -8,6 +8,15 @@ from multiprocessing import Pool
 
 
 def findMid(mid, midSet):
+    """Find position of multi-index in multi-index set
+
+    Args:
+        mid (array int): the multi-index we search for
+        midSet (2D array int): multi-index set (each row is a multi-index) 
+
+    Returns:
+        tuple(bool,int): first vaue tells if mid is in midSet, second value is the position of mid in midSet (-1 if not found)
+    """
     # TODO make faster expliting lexicographic order
     if(midSet.size==0):
         return False, -1
@@ -21,9 +30,26 @@ def findMid(mid, midSet):
         return True, pos[0]
 
 def compute_aposteriori_estimator_reduced_margin(oldRM, old_estimators, I, knots, lev2knots, F, SG, uOnSG, yyRnd, L2errParam, uInterp, interpolationType="linear", NParallel=1):
-    """INPUT 
-       OUTPUT
-       DESCIRPTION for each element in *reduced* margin, compute norm{\Delta_nu u} where we use \Delta_nu u =  I_{\Lambda \cup \nu}[u] - I_{\Lambda}[u]
+    """Compute pointwise a-posteriori error estimator on the reduced margin as in [Guignard, Noible (2018)].
+    Recycles values computed previously if possible.
+
+    Args:
+        oldRM (2D array int): Old reduced margin (each row is a multi-index)
+        old_estimators (array): poitwise estimator on old reduced margin
+        I (MidSet): Current multi-index set
+        knots (function): Nodes function
+        lev2knots (function): level-to-know function
+        F (function): Function to be interpolated
+        SG (SGInterpolant): Current interpolation operator instance
+        uOnSG (array double): Values F on a previous sparse grid 
+        yyRnd (ND array double): Random parameters for estimation norm
+        L2errParam (function): Compute L2 error in paramter space
+        uInterp (array): values of the function to be itnerpolated on current sparse grid
+        interpolationType (str, optional): Type of interpolant (see class SGInterpolant). Defaults to "linear".
+        NParallel (int, optional): Number of parallel computations. Defaults to 1.
+
+    Returns:
+        array double: Pointwise estimator on reduced margin
     """
     assert(oldRM.shape[0] == old_estimators.size)
     dimReducedMargin = I.reducedMargin.shape[0]
