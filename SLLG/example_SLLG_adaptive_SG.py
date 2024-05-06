@@ -8,7 +8,7 @@ sys.path.insert(1, os.path.join(os.path.expanduser("~"), 'workspace/SGMethods'))
 from SGMethods.MidSets import midSet
 from SGMethods.SGInterpolant import SGInterpolant
 from SGMethods.ScalarNodes import unboundedKnotsNested
-from SGMethods.compute_aposteriori_estimator_reduced_margin import compute_aposteriori_estimator_reduced_margin
+from SGMethods.compute_aposteriori_estimator import compute_aposteriori_estimator_reduced_margin
 from SLLG.expansions_Brownian_motion import param_LC_Brownian_motion
 from SLLG.bdfllg_func import *
 from SLLG.error_sample_fast import error_sample_fast
