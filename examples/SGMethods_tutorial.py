@@ -30,9 +30,9 @@ yyRnd = np.random.normal(0, 1, [256, 1000])  # 256 random parameters of (effecti
 uExa = np.array(list(map(F, yyRnd)))  # Random sample of exact function
 
 # define the sparse grid interpolant
-anisoVec = lambda N : 2**(-np.linspace(0, N-1, N))
-I = anisoSmolyakMidSet(w=5, N=10, a=anisoVec(10))  # anisotropic Smolyak multi-index set
-interpolant = SGInterpolant(I.midSet, knots, lev2knots, interpolationType=interpolationType)
+anisoVec = lambda N : 2**(np.linspace(0, N-1, N))
+midSet = anisoSmolyakMidSet(w=5, N=10, a=anisoVec(10))  # anisotropic Smolyak multi-index set
+interpolant = SGInterpolant(midSet, knots, lev2knots, interpolationType=interpolationType)
 uOnSG = interpolant.sampleOnSG(F)
 uInterp = interpolant.interpolate(yyRnd, uOnSG)
 error = computeL2Error(uExa, uInterp)
