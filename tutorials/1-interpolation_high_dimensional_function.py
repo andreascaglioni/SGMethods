@@ -8,7 +8,8 @@ from SGMethods.MidSets import anisoSmolyakMidSet, midSet
 from SGMethods.SGInterpolant import SGInterpolant
 
 """Tutorial on sparse grid interpolation with SGMethods. 
-We interpolate an infiite-dimensional (domain) parametetric map"""
+We see how to use SGMethods to  interpolate an infinite-dimensional (domain) parametetric map.
+We first carry out a single interpolation, then a convergence test."""
 
 # the parametric function to interpolate
 weightFun = lambda N : np.power(np.linspace(1, N, N), -2)
@@ -16,9 +17,9 @@ def F(y):
     weightCUrr = weightFun(y.size)
     return sin(np.dot(weightCUrr, y))
 
-# Numerics parameters
-p=2  # polynomial degree
-interpolationType =  "linear"
+# Sparse grid parameters
+p = 2  # polynomial degree
+interpolationType =  "linear"  # use piecewise-linear interpolation
 lev2knots = lambda n: 2**(n+1)-1
 knots = lambda n : unboundedKnotsNested(n, p)
 
@@ -29,7 +30,7 @@ def computeL2Error(uExa, Iu):
 yyRnd = np.random.normal(0, 1, [256, 1000])  # 256 random parameters of (effectively) infinite paramter vector
 uExa = np.array(list(map(F, yyRnd)))  # Random sample of exact function
 
-# define the sparse grid interpolant
+# Examlpe of sparse grid interpolation
 anisoVec = lambda N : 2**(np.linspace(0, N-1, N))
 midSet = anisoSmolyakMidSet(w=5, N=10, a=anisoVec(10))  # anisotropic Smolyak multi-index set
 interpolant = SGInterpolant(midSet, knots, lev2knots, interpolationType=interpolationType)
@@ -37,6 +38,8 @@ uOnSG = interpolant.sampleOnSG(F)
 uInterp = interpolant.interpolate(yyRnd, uOnSG)
 error = computeL2Error(uExa, uInterp)
 print("Error:", error)
+# TODO plot the function and its approximation with respect to first two scalar parameters
+
 
 
 ############################################################################################################
@@ -74,6 +77,7 @@ while True:
         if(interpolant.numNodes > maxNumNodes):  # refinement termination condition
             break
     w+=1
+    
 # Sumamrize results
 print("Errors: ", err)
 rates = -np.log(err[1::]/err[:-1:])/np.log(nNodes[1::]/nNodes[:-1:])
