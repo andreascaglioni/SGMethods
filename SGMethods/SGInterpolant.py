@@ -15,8 +15,8 @@ class SGInterpolant:
 
         Args:
             midSet (2D array int): Multi-index set NB downward closed!! 
-            knots (function): given n\in\N, computes n nodes
-            lev2knots (function): given level nu\in\N_0, computes corresponding number of 1D nodes
+            knots (function): given n\in\mathbb{N}, computes n nodes
+            lev2knots (function): given level nu\in\mathbb{N}_0, computes corresponding number of 1D nodes
             interpolationType (str, optional): Type of interpolant. For options, see class "TPInterpolatorWrapper". Defaults to "linear".
             NParallel (int, optional): Number of parallel ocmputations. Defaults to 1.
             verbose (bool, optional): Verbose output. Defaults to True.
