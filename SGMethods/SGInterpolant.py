@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.interpolate import RegularGridInterpolator
 from SGMethods.MidSets import TPMidSet
 from SGMethods.TPKnots import TPKnots
 from SGMethods.TPInterpolatorWrapper import TPInterpolatorWrapper
@@ -10,14 +11,23 @@ class SGInterpolant:
         It automatically computes the sparse grid and inclusio-exclusion coefficients upon initialization.
         It allows to interpolate high dimensinal functions on the sparse grid.
     """    
-    def __init__(self, midSet, knots, lev2knots, interpolationType="linear", NParallel = 1, verbose=True):
+    def __init__(self, midSet, knots, lev2knots, TPInterpolant = RegularGridInterpolator, NParallel = 1, verbose=True):
         """Initializa important data and compute inclusion-exclusion coefficients and sparse grid
 
         Args:
             midSet (2D array int): Multi-index set NB downward closed!! 
             knots (function): given n\in\mathbb{N}, computes n nodes
             lev2knots (function): given level nu\in\mathbb{N}_0, computes corresponding number of 1D nodes
-            interpolationType (str, optional): Type of interpolant. For options, see class "TPInterpolatorWrapper". Defaults to "linear".
+            # interpolationType (str, optional): Type of interpolant. For options, see class "TPInterpolatorWrapper". 
+            #    Default is "linear". To give your favourite TP interpolant as an argument select "given"
+            TPInterpolant (class, optional): Class to be used as tensor product interpolant. Defaults to piecewie linear. 
+                Important is that the class has a method __call__ that takes as input a np array (parameters).
+                Examples are (Piecewise linear (default), quadratic, cubic and Lagrange (spectral polynomial) interpolation respectively):
+                    RegularGridInterpolator(activeNodesTuple, self.fOnNodes, method='linear', bounds_error=False, fill_value=None)
+                    TPPwQuadraticInterpolator(activeNodesTuple, self.fOnNodes)
+                    TPPwCubicInterpolator(activeNodesTuple, self.fOnNodes)
+                    TPLagrangeInterpolator(activeNodesTuple, self.fOnNodes)
+
             NParallel (int, optional): Number of parallel ocmputations. Defaults to 1.
             verbose (bool, optional): Verbose output. Defaults to True.
         """        
@@ -27,7 +37,7 @@ class SGInterpolant:
         self.N = midSet.shape[1]
         self.knots = knots #  NBB need knots[1] = 0 to increase number of dimensions
         self.lev2knots = lev2knots #  NBB need lev2knots(0)=1 to increase number of dimensions
-        self.interpolationType=interpolationType
+        self.TPInterpolant = TPInterpolant
         
         self.combinationCoeffs = [] #  list of int
         self.activeMIds = [] #  list of np arrays
@@ -194,6 +204,6 @@ class SGInterpolant:
             currentActiveDims = self.activeTPDims[n]
             mapCurrTPtoSG = self.mapTPtoSG[n]
             fOnCurrentTPGrid = fOnSG[mapCurrTPtoSG, :]  # output is a matrix of shape = shape(mapCurrTPtoSG) + (dimF,)
-            L = TPInterpolatorWrapper(currentActiveNodesTuple, currentActiveDims, fOnCurrentTPGrid, self.interpolationType)
+            L = TPInterpolatorWrapper(currentActiveNodesTuple, currentActiveDims, fOnCurrentTPGrid, self.TPInterpolant)
             out = out + self.combinationCoeffs[n] * L(xNew)
         return out

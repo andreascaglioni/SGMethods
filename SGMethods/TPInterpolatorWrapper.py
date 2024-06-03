@@ -11,7 +11,7 @@ class TPInterpolatorWrapper:
     """ Wrapper for many Tensor Product interpolation methods.
     If a direction has only 1 colllocation node, it should be 0. In this directions, the interpolation approximation is a constant extrapolation
     """    
-    def __init__(self, activeNodesTuple, activeDims, fOnNodes, interpolationType="polynomial"):
+    def __init__(self, activeNodesTuple, activeDims, fOnNodes, TPInterpolant):
         """Take parameters to define tensor product interpolant
 
         Args:
@@ -27,16 +27,19 @@ class TPInterpolatorWrapper:
         """        
         self.fOnNodes = fOnNodes
         self.activeDims = activeDims  # dimensions with more than one node
-        if(interpolationType == "linear"):
-            self.L = RegularGridInterpolator(activeNodesTuple, self.fOnNodes, method='linear', bounds_error=False, fill_value=None)
-        elif(interpolationType == "quadratic"):
-            self.L = TPPwQuadraticInterpolator(activeNodesTuple, self.fOnNodes)
-        elif(interpolationType == "cubic"):
-            self.L = TPPwCubicInterpolator(activeNodesTuple, self.fOnNodes)
-        elif(interpolationType == "polynomial"):
-            self.L = TPLagrangeInterpolator(activeNodesTuple, self.fOnNodes)
-        else:
-            error("interpolation type: " , interpolationType, "not recognized")
+        # if(interpolationType == "linear"):
+        #     self.L = RegularGridInterpolator(activeNodesTuple, self.fOnNodes, method='linear', bounds_error=False, fill_value=None)
+        # elif(interpolationType == "quadratic"):
+        #     self.L = TPPwQuadraticInterpolator(activeNodesTuple, self.fOnNodes)
+        # elif(interpolationType == "cubic"):
+        #     self.L = TPPwCubicInterpolator(activeNodesTuple, self.fOnNodes)
+        # elif(interpolationType == "polynomial"):
+        #     self.L = TPLagrangeInterpolator(activeNodesTuple, self.fOnNodes)
+        # elif(interpolationType == "given"):
+        #     self.L = TPInterpolant(activeNodesTuple, self.fOnNodes)
+        # else:
+        #     error("interpolation type: " , interpolationType, "not recognized")
+        self.L = TPInterpolant(activeNodesTuple, self.fOnNodes)
 
     def __call__(self, xNew):
         """Interpolate on desired new points in paramter space with method chosen in constructor.

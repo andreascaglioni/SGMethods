@@ -10,6 +10,7 @@ from SGMethods.SGInterpolant import SGInterpolant
 from SGMethods.ScalarNodes import unboundedKnotsNested
 from SLLG.expansions_Brownian_motion import param_LC_Brownian_motion
 from SLLG.profits import ProfitMix
+from scipy.interpolate import RegularGridInterpolator
 
 class TestInterpolatedValue(unittest.TestCase):
     def test_list_int(self):
@@ -26,7 +27,8 @@ class TestInterpolatedValue(unittest.TestCase):
         np.random.seed(1607)
         maxNumNodes = 128
         p=2
-        interpolationType =  "linear"
+        # interpolationType =  "linear"
+        TPInterpolant = lambda activeNodesTuple, fOnNodes : RegularGridInterpolator(activeNodesTuple, fOnNodes, method='linear', bounds_error=False, fill_value=None)
         lev2knots = lambda n: 2**(n+1)-1
         knots = lambda n : unboundedKnotsNested(n, p=p)
         Profit = lambda nu : ProfitMix(nu, p)
@@ -58,7 +60,7 @@ class TestInterpolatedValue(unittest.TestCase):
         uOnSG = None
         while True:
             print("Computing w  = ", w)
-            interpolant = SGInterpolant(I.midSet, knots, lev2knots, interpolationType=interpolationType, NParallel=1)
+            interpolant = SGInterpolant(I.midSet, knots, lev2knots, TPInterpolant=TPInterpolant, NParallel=1)
             if(interpolant.numNodes > maxNumNodes):
                 break
             midSetMaxDim = np.amax(I.midSet, axis=0)
@@ -76,7 +78,7 @@ class TestInterpolatedValue(unittest.TestCase):
                 P = Profit(I.margin)
                 idMax = np.argmax(P)
                 I.update(idMax)
-                interpolant = SGInterpolant(I.midSet, knots, lev2knots, interpolationType=interpolationType, NParallel=NParallel)
+                interpolant = SGInterpolant(I.midSet, knots, lev2knots, TPInterpolant==TPInterpolant, NParallel=NParallel)
                 if(interpolant.numNodes > maxNumNodes):
                     break
             w+=1
