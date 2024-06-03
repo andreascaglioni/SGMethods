@@ -5,7 +5,7 @@ import sys, os
 sys.path.insert(1, os.path.join(os.path.expanduser("~"), 'workspace/SGMethods'))
 from SGMethods.ScalarNodes import unboundedKnotsNested
 from SGMethods.MidSets import midSet
-from SGMethods.compute_aposteriori_estimator_reduced_margin import compute_aposteriori_estimator_reduced_margin
+from SGMethods.compute_aposteriori_estimator import compute_aposteriori_estimator_reduced_margin
 from SGMethods.SGInterpolant import SGInterpolant
 """An example using the [Gerstner-Griebel] adaptivity"""
 
