@@ -131,14 +131,18 @@ class SGInterpolant:
 
         dimF = -1  # TODO remove dimF from signature; check all other scripts
 
-        # Find dimF (dimensoin of outoput of F). First try oldSamples; if empty, sample on the first SG node
+
+
+        # Find dimF (dimension of output of F). First try oldSamples; if empty, sample on the first SG node
         assert(self.SG.shape[0] > 0)
         if(not(oldSamples is None)):
+            oldSamples = np.atleast_1d(oldSamples)  # if have 1 sample and F returns a scalar, turn it into an array
             dimF = oldSamples.shape[1]
             assert(dimF >= 1)
         else: # compute the first element to assign dimF
             node0 = self.SG[0]
             fOnSG0 = Fun(node0)
+            fOnSG0 = np.atleast_1d(fOnSG0)  # if F returns a scalar, turn it into an array 
             dimF = fOnSG0.size
         fOnSG = np.zeros((self.numNodes, dimF))  # the return array
         
@@ -206,4 +210,4 @@ class SGInterpolant:
             fOnCurrentTPGrid = fOnSG[mapCurrTPtoSG, :]  # output is a matrix of shape = shape(mapCurrTPtoSG) + (dimF,)
             L = TPInterpolatorWrapper(currentActiveNodesTuple, currentActiveDims, fOnCurrentTPGrid, self.TPInterpolant)
             out = out + self.combinationCoeffs[n] * L(xNew)
-        return out
+        return np.squeeze(out)  # remove dimensions of length 1
