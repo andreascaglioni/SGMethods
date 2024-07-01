@@ -18,27 +18,17 @@ class TPInterpolatorWrapper:
             activeNodesTuple (tuple of 1D array double): Tople of 1D nodes in each direction for whihc there is more than 1 node
             activeDims (array): Dimensions with more that 1 node
             fOnNodes (N+1 array double): Values of data to interpolate (each data point may be vector of some lenght, so +1)
-            interpolationType (str, optional): Choose between;
-                - linear: Tensor product linear piecewise polynomail interpolant;
-                - quadratic: Tensor product quadratic piecewise polynomial interpolant;
-                - cubic: Tensor product cubic piecewise polynomial interpolant;
-                - polynomial: Tensor product Lagrange interpolant.
-            Defaults to "polynomial".
+            TPInterpolant (function): Function to create the "raw" interpolant opeartor. Input: activeNodesTuple, fOnNodes as input 
+                Resulting interpolant can be called with __call__(nNew), whre xNew is 2D array, each row is a new point to interpolate.
+            Some interpolants are available either in standard packages or were implemented in this project. For example:
+                - RegularGridInterpolator(activeNodesTuple, self.fOnNodes, method='linear', bounds_error=False, fill_value=None)  (From scipy)
+                - TPPwQuadraticInterpolator(activeNodesTuple, self.fOnNodes) (this project)
+                - TPPwCubicInterpolator(activeNodesTuple, self.fOnNodes) (this project)
+                - TPLagrangeInterpolator(activeNodesTuple, self.fOnNodes) (this project)
+                - TPInterpolant (this project)
         """        
         self.fOnNodes = fOnNodes
         self.activeDims = activeDims  # dimensions with more than one node
-        # if(interpolationType == "linear"):
-        #     self.L = RegularGridInterpolator(activeNodesTuple, self.fOnNodes, method='linear', bounds_error=False, fill_value=None)
-        # elif(interpolationType == "quadratic"):
-        #     self.L = TPPwQuadraticInterpolator(activeNodesTuple, self.fOnNodes)
-        # elif(interpolationType == "cubic"):
-        #     self.L = TPPwCubicInterpolator(activeNodesTuple, self.fOnNodes)
-        # elif(interpolationType == "polynomial"):
-        #     self.L = TPLagrangeInterpolator(activeNodesTuple, self.fOnNodes)
-        # elif(interpolationType == "given"):
-        #     self.L = TPInterpolant(activeNodesTuple, self.fOnNodes)
-        # else:
-        #     error("interpolation type: " , interpolationType, "not recognized")
         self.L = TPInterpolant(activeNodesTuple, self.fOnNodes)
 
     def __call__(self, xNew):

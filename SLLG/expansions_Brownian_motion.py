@@ -45,9 +45,10 @@ def param_LC_Brownian_motion_int(tt, yy, T):
     return W
 
 def param_KL_Brownian_motion(tt, yy):
+    # yy is a vector of real paarmeters; for the stocahstic process, a vector of iid standard normal random variables samples
     W = 0 * tt
     for n in range(len(yy)):
-        W = W + sqrt(2)*np.sin((n-0.5)*pi*tt) /(pi*(n-0.5))  * yy[n]
+        W = W + pi*(n+0.5) * sqrt(2)*np.sin((n+0.5)*pi*tt) * yy[n]  # sqrt(lambda_n) * phi_n * y_n
 
     return W
 
