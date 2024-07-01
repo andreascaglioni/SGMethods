@@ -17,7 +17,6 @@ def sampleParametricPoisson(yy, nH, orderDecayCoefficients):
     # for n in range(len(yy)):
     #     strA = strA + "+" + "sin(x[0]*2.*pi*" + str(n+1) + ")/(" + str(n+1) + "*" + str(n+1) + ")" + "*" + str(yy[n])
     
-    # Diffusion coefficient a(y,x) = 1 + 1/C * \sum_{n=1}^N y_n \frac{sin(x[0]*2*pi*n)}{n^4}, where C = 1.65 makes the functions uniformly positive
     strA = "1."
     for n in range(len(yy)):
         strA = strA + "+" + "sin(x[0]*2.*pi*" + str(n+1) + ")/pow(" + str(n+1) + ","+ str(orderDecayCoefficients) +")" + "*" + str(yy[n])
