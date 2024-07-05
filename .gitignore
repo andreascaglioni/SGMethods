@@ -10,3 +10,4 @@ test_py.py
 .vscode
 test.py
 demonstration_material
+tutorials/__pycache__/
