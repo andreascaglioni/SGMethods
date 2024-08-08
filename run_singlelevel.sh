@@ -1,1 +1,0 @@
-nohup python3 < SLLG/example_SLLG_singlelevel.py > out_singlelevel.txt &

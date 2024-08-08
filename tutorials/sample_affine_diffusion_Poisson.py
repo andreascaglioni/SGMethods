@@ -25,25 +25,26 @@ def parametric_affine_diffusion(yy, orderDecayCoefficients):
 
 def parametric_lognormal_diffusion(yy, orderDecayCoefficients):
     """Lognormal parametric diffusion for Poisson problem
+        a(\by, \bx) = exp(b(\by, \bx))
         a(\by, \bx) = a_*(\bx) + a_0(\bx)*exp(\sum_{n=1}^{\infty} y_n \phi_n(x))
     Args:
         yy (double array): Vector of scalar parameters, unbounded!
         orderDecayCoefficients (positive int): Order of decay terms affine diffusion
     
     Returns:
-        Expression: Affine parametric diffusion as a Dolfin Expression, for the fixed given parameter yy"""
-
-
-    as = 0
-    a_0 = 1
-
-
-    C = pi**2/6 * 1.1  # makes the function uniformly positive
-    strA = "1."
-    for n in range(len(yy)):
-        strA = strA + "+" + "sin(x[0]*2.*pi*" + str(n+1) + ")/("+str(C)+"*pow(" + str(n+1) + ","+ \
-            str(orderDecayCoefficients) + "))" + "*" + str(yy[n])
-    return Expression(strA, degree=2)
+        Expression: Lognormal parametric diffusion as a Dolfin Expression, for the fixed given parameter yy"""
+    
+    raise NotImplementedError("This function is not yet implemented")
+    # TODO complete implementation
+    # a_s = 0
+    # a_0 = 1
+    # C = pi**2/6 * 1.1  # makes the function uniformly positive
+    # strA = "1."
+    # for n in range(len(yy)):
+    #     strA = strA + "+" + "sin(x[0]*2.*pi*" + str(n+1) + ")/("+str(C)+"*pow(" + str(n+1) + ","+ \
+    #         str(orderDecayCoefficients) + "))" + "*" + str(yy[n])
+    # strA = str(a_s) + "+" + str(a_0) + "*" + "exp(" + strA + ")"  # 
+    # return Expression(strA, degree=2)
 
 def sampleParametricPoisson(yy, nH, orderDecayCoefficients):
     """Sample the parameter-to-finite element solution map of the affine diffusion parametric Poisson Problem 

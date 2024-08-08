@@ -1,0 +1,1 @@
+a Python object oriented code for sparse grid interpolation (a.k.a. stochastic collocation). A number of nodes, multi-index sets and interpolation methods are implemented, oryou can use your own. Single- and multilevel, a-priori and adaptive versions

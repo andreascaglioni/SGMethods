@@ -1,1 +1,0 @@
-nohup python3 < SLLG/example_switching_checkLock.py > out_swithcing_checkLock.txt &
