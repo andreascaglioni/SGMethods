@@ -8,22 +8,22 @@ A Python object-oriented code for sparse grid interpolation (a.k.a. stochastic c
 - [Contributing](#contributing)
 - [License](#license)
 
-## Features: 
+## Features
 - Several nodes, multi-index sets, and interpolation methods are implemented...
-- Or you can define and use your own followind the examples
+- Or you can define and use your own following the examples
 - Single- and multilevel methods
 - A-priori and adaptive constructions available
 - Tests
 - Documentation
 
 ## Installation
-1. Clone the repo:
+1. Clone the repository
 ```sh
-	git clone git@github.com:andreascaglioni/SGMethods.git
+git clone git@github.com:andreascaglioni/SGMethods.git
 ```
-	or
+or
 ```sh
-	git clone https://github.com/andreascaglioni/SGMethods.git
+git clone https://github.com/andreascaglioni/SGMethods.git
 ```
 
 2. Install dependencies
@@ -41,5 +41,5 @@ Contributions are welcome! Please open an issue or submit a pull request.
 Distributed under the MIT License. See `LICENSE` for more information.
 
 ## Contact
-Andrea Scaglioni - [Get in touch on my website](https://andreascaglioni.net/getintouch)
+Andrea Scaglioni - [Get in touch on my website](https://andreascaglioni.net/contacts)
 
