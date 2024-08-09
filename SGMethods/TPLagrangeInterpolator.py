@@ -13,7 +13,7 @@ class TPLagrangeInterpolator:
         """
 
         # formatting input
-        if(len(F.shape) == len(nodesTuple)):  # F is scalar field
+        if(len(F.shape) == len(nodesTuple)):  # F is scalar field, have to reformat it to N x 1 arrays
             F = np.reshape(F, F.shape + (1,))
         self.nodesTuple = nodesTuple  # tuple of length N, each entry is a vector of 1D interpolation nodes
         self.F = F  # N+1 Dimensional tensor containing values of data to interpolate (each data point may be vector of length dimData, so +1)
