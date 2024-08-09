@@ -28,7 +28,7 @@ git clone https://github.com/andreascaglioni/SGMethods.git
 
 2. Install dependencies
 ```sh
-	pip install -r requirements.txt
+pip install -r requirements.txt
 ```
 
 ## Installation
