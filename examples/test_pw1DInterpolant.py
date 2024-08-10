@@ -2,9 +2,9 @@ import numpy as np
 from scipy.interpolate import interp1d
 import sys, os
 sys.path.insert(1, os.path.join(os.path.expanduser("~"), 'workspace/SGMethods'))
-from SGMethods.ScalarNodes import unboundedKnotsNested
-from SGMethods.SGInterpolant import SGInterpolant
-from SGMethods.MidSets import midSet
+from SGMethods.nodes_1d import unboundedKnotsNested
+from SGMethods.sparse_grid_interpolant import SGInterpolant
+from SGMethods.multi_index_sets import midSet
 import matplotlib.pyplot as plt
 from math import pi, sqrt, exp
 from scipy.stats import norm

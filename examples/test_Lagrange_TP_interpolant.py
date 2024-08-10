@@ -1,8 +1,8 @@
 import sys, os
 sys.path.insert(1, os.path.join(os.path.expanduser("~"), 'workspace/SGMethods'))
-from SGMethods.TPLagrangeInterpolator import TPLagrangeInterpolator
-from SGMethods.ScalarNodes import unboundedKnotsNested
-from SGMethods.TPKnots import TPKnots
+from SGMethods.tp_lagrange import TPLagrangeInterpolator
+from SGMethods.nodes_1d import unboundedKnotsNested
+from SGMethods.nodes_tp import TPKnots
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import axes3d

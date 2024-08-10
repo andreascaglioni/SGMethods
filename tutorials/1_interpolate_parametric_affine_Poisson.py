@@ -3,11 +3,11 @@ import matplotlib.pyplot as plt
 from math import pi, sqrt
 import sys, os
 sys.path.insert(1, os.path.join(os.path.expanduser("~"), 'workspace/SGMethods'))
-from SGMethods.ScalarNodes import CCNodes
-from SGMethods.TPLagrangeInterpolator import TPLagrangeInterpolator
-from SGMethods.MidSets import anisoSmolyakMidSet
-from SGMethods.SGInterpolant import SGInterpolant
-from tutorials.sample_affine_diffusion_Poisson import sampleParametricPoisson, computeErrorSamplesPoisson
+from SGMethods.nodes_1d import CCNodes
+from SGMethods.tp_lagrange import TPLagrangeInterpolator
+from SGMethods.multi_index_sets import anisoSmolyakMidSet
+from SGMethods.sparse_grid_interpolant import SGInterpolant
+from tutorials.parametric_affine_poisson import sampleParametricPoisson, computeErrorSamplesPoisson
 
 """Tutorial on sparse grid interpolation with SGMethods. 
 We see how to use SGMethods to approximate the parametric affine diffusion Poisson problem."""

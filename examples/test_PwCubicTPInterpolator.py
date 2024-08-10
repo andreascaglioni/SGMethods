@@ -4,8 +4,8 @@ from math import sqrt
 
 import sys, os
 sys.path.insert(1, os.path.join(os.path.expanduser("~"), 'workspace/SGMethods'))
-from SGMethods.TPPwCubicInterpolator import TPPwCubicInterpolator
-from SGMethods.ScalarNodes import unboundedKnotsNested
+from SGMethods.tp_piecewise_cubic import TPPwCubicInterpolator
+from SGMethods.nodes_1d import unboundedKnotsNested
 
 
 def computeL2Error(uExa, Iu):  # NBB if rnd points normally distributed, need no gaussian weight!

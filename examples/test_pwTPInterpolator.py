@@ -3,9 +3,9 @@ import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 import sys, os
 sys.path.insert(1, os.path.join(os.path.expanduser("~"), 'workspace/SGMethods'))
-from SGMethods.TPInterpolatorWrapper import TPInterpolatorWrapper
-from SGMethods.TPKnots import TPKnots
-from SGMethods.ScalarNodes import unboundedKnotsNested
+from SGMethods.tp_interpolant_wrapper import TPInterpolatorWrapper
+from SGMethods.nodes_tp import TPKnots
+from SGMethods.nodes_1d import unboundedKnotsNested
 
 
 N = 2

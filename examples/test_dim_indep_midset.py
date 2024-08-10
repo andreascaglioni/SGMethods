@@ -6,7 +6,7 @@ import numpy as np
 from math import floor, log
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D # <--- This is important for 3d plotting 
-from SGMethods.MidSets import SmolyakMidSet
+from SGMethods.multi_index_sets import SmolyakMidSet
 
 def dim_indep_midset(N, L, deg, rho):
     """INPUT N int number parametric dimensions

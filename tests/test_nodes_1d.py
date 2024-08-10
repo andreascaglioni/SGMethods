@@ -2,7 +2,7 @@ import unittest
 import numpy as np
 from math import sqrt
 from scipy.special import erfinv
-from SGMethods.ScalarNodes import unboundedKnotsNested
+from SGMethods.nodes_1d import unboundedKnotsNested
 
 
 

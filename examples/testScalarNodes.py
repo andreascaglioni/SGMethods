@@ -2,7 +2,7 @@ import sys, os
 sys.path.insert(1, os.path.join(os.path.expanduser("~"), 'workspace/SGMethods'))
 import numpy as np
 import matplotlib.pyplot as plt
-from SGMethods.ScalarNodes import unboundedKnotsNested
+from SGMethods.nodes_1d import unboundedKnotsNested
 
 
 # free example

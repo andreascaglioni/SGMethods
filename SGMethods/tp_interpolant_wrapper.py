@@ -2,9 +2,9 @@ from distutils.log import error
 from matplotlib.image import interpolations_names
 import numpy as np
 from scipy.interpolate import RegularGridInterpolator
-from SGMethods.TPLagrangeInterpolator import TPLagrangeInterpolator
-from SGMethods.TPPwQuadraticInterpolator import TPPwQuadraticInterpolator
-from SGMethods.TPPwCubicInterpolator import TPPwCubicInterpolator
+from SGMethods.tp_lagrange import TPLagrangeInterpolator
+from SGMethods.tp_piecewise_quadratic import TPPwQuadraticInterpolator
+from SGMethods.tp_piecewise_cubic import TPPwCubicInterpolator
 
 
 class TPInterpolatorWrapper:

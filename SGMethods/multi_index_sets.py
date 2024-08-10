@@ -1,7 +1,7 @@
 import numpy as np
 from math import floor, log, inf
-from utils.utils import coordUnitVector as unitVector
-from utils.utils import lexicSort as lexicSort
+from SGMethods.utils import coordUnitVector as unitVector
+from SGMethods.utils import lexicSort as lexicSort
 
 
 """A collection of functions to generate multi-index sets"""

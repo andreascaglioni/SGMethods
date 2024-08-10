@@ -4,9 +4,9 @@ sys.path.insert(1, os.path.join(os.path.expanduser("~"), 'workspace/SGMethods'))
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import axes3d
-from SGMethods.MidSets import SmolyakMidSet, anisoSmolyakMidSet
-from SGMethods.SGInterpolant import SGInterpolant
-from SGMethods.ScalarNodes import unboundedKnotsNested
+from SGMethods.multi_index_sets import SmolyakMidSet, anisoSmolyakMidSet
+from SGMethods.sparse_grid_interpolant import SGInterpolant
+from SGMethods.nodes_1d import unboundedKnotsNested
 from ParametricPoisson import sampleParametricPoisson, computeErrorPoisson
 import scipy.io
 from multiprocessing import Pool

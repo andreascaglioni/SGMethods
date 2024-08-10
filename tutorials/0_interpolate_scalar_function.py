@@ -3,9 +3,9 @@ from math import sin, sqrt
 from scipy.interpolate import RegularGridInterpolator
 import sys, os
 sys.path.insert(1, os.path.join(os.path.expanduser("~"), 'workspace/SGMethods'))
-from SGMethods.ScalarNodes import unboundedKnotsNested
-from SGMethods.MidSets import anisoSmolyakMidSet
-from SGMethods.SGInterpolant import SGInterpolant
+from SGMethods.nodes_1d import unboundedKnotsNested
+from SGMethods.multi_index_sets import anisoSmolyakMidSet
+from SGMethods.sparse_grid_interpolant import SGInterpolant
 
 
 """We use SGMethods to interpolate an infinite-dimensional (domain) parametetric map."""

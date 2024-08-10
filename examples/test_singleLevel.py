@@ -2,10 +2,10 @@ import numpy as np
 from math import sin, sqrt
 import sys, os
 sys.path.insert(1, os.path.join(os.path.expanduser("~"), 'workspace/SGMethods'))
-from SGMethods.SGInterpolant import SGInterpolant
-from SGMethods.ScalarNodes import unboundedKnotsNested
-from SGMethods.MidSets import midSet
-from SGMethods.MLInterpolant import MLInterpolant
+from SGMethods.sparse_grid_interpolant import SGInterpolant
+from SGMethods.nodes_1d import unboundedKnotsNested
+from SGMethods.multi_index_sets import midSet
+from SGMethods.multilevel_interpolant import MLInterpolant
 from SLLG.profits import ProfitMix
 from SLLG.expansions_Brownian_motion import param_LC_Brownian_motion
 import matplotlib.pyplot as plt

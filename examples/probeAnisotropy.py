@@ -2,8 +2,8 @@ import sys, os
 sys.path.insert(1, os.path.join(os.path.expanduser("~"), 'workspace/SGMethods'))
 import numpy as np
 import matplotlib.pyplot as plt
-from SGMethods.MidSets import  SmolyakMidSet
-from SGMethods.SGInterpolant import SGInterpolant
+from SGMethods.multi_index_sets import  SmolyakMidSet
+from SGMethods.sparse_grid_interpolant import SGInterpolant
 import scipy.io
 from numpy.linalg import lstsq
 

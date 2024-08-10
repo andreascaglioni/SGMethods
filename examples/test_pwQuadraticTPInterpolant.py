@@ -6,9 +6,9 @@ from mpl_toolkits.mplot3d import axes3d
 from multiprocessing import Pool
 import sys, os
 sys.path.insert(1, os.path.join(os.path.expanduser("~"), 'workspace/SGMethods'))
-from SGMethods.MidSets import TPMidSet
-from SGMethods.SGInterpolant import SGInterpolant
-from SGMethods.ScalarNodes import unboundedKnotsNested
+from SGMethods.multi_index_sets import TPMidSet
+from SGMethods.sparse_grid_interpolant import SGInterpolant
+from SGMethods.nodes_1d import unboundedKnotsNested
 from SLLG.expansions_Brownian_motion import param_LC_Brownian_motion
 
 

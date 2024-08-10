@@ -3,15 +3,20 @@ import sys, os
 sys.path.insert(1, os.path.join(os.path.expanduser("~"), 'workspace/SGMethods'))
 import numpy as np
 import matplotlib.pyplot as plt
-from SGMethods.MidSets import SmolyakMidSet, anisoSmolyakMidSet
-from SGMethods.SGInterpolant import SGInterpolant
-from SGMethods.ScalarNodes import unboundedKnotsNested
-from ParametricPoisson import sampleParametricPoisson, computeErrorPoisson
 import scipy.io
 from multiprocessing import Pool
 
-"""We test the sparse grid interpolant on a Poisson problem with lognormal diffusion decaying algebraically
-The convergence of 2 SG interpolants are compared:
+# Import from SGMethods
+from SGMethods.multi_index_sets import SmolyakMidSet, anisoSmolyakMidSet
+from SGMethods.sparse_grid_interpolant import SGInterpolant
+from SGMethods.nodes_1d import unboundedKnotsNested
+
+# Import from examples
+from parametric_poisson import sampleParametricPoisson, computeErrorPoisson
+
+
+"""We test the sparse grid interpolant on a Poisson problem with *  lognormal diffusion* decaying
+ algebraically. The convergence of 2 SG interpolants are compared:
 1. anisotrpoic midset as usual
 2. isotropic midset"""
 

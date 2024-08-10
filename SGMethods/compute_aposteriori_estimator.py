@@ -2,8 +2,8 @@ import numpy as np
 from math import sqrt
 import sys, os
 sys.path.insert(1, os.path.join(os.path.expanduser("~"), 'workspace/SGMethods'))
-from SGMethods.SGInterpolant import SGInterpolant
-from utils.utils import coordUnitVector, lexicSort
+from SGMethods.sparse_grid_interpolant import SGInterpolant
+from SGMethods.utils import coordUnitVector, lexicSort
 from multiprocessing import Pool
 
 

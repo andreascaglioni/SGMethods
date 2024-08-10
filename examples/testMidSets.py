@@ -1,7 +1,7 @@
 import numpy as np
 import sys, os
 sys.path.insert(1, os.path.join(os.path.expanduser("~"), 'workspace/SGMethods'))
-from SGMethods.MidSets import TPMidSet, SmolyakMidSet, midSet
+from SGMethods.multi_index_sets import TPMidSet, SmolyakMidSet, midSet
 import matplotlib.pyplot as plt 
 from mpl_toolkits.mplot3d import Axes3D # <--- This is important for 3d plotting 
 

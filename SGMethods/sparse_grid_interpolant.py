@@ -1,8 +1,8 @@
 import numpy as np
 from scipy.interpolate import RegularGridInterpolator
-from SGMethods.MidSets import TPMidSet
-from SGMethods.TPKnots import TPKnots
-from SGMethods.TPInterpolatorWrapper import TPInterpolatorWrapper
+from SGMethods.multi_index_sets import TPMidSet
+from SGMethods.nodes_tp import TPKnots
+from SGMethods.tp_interpolant_wrapper import TPInterpolatorWrapper
 from multiprocessing import Pool
 
 
