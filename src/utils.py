@@ -40,3 +40,33 @@ def compute_level_LC(i):
         l = floor(log2(i))+1
         j = i - 2**(l-1)
     return l, j
+
+
+def findMid(mid, midSet):
+    """Find position of multi-index in multi-index set
+
+    Args:
+        mid (array int): the multi-index we search for
+        midSet (2D array int): multi-index set (each row is a multi-index) 
+
+    Returns:
+        tuple(bool,int): first vaue tells if mid is in midSet, second value is 
+        the position of mid in midSet (-1 if not found)
+    """
+    # TODO make faster expliting lexicographic order
+    if(midSet.size==0):
+        return False, -1
+    assert(midSet.shape[1] == mid.size)
+    boolVec = np.all(midSet==mid, axis=1)
+    pos = np.where(boolVec)[0]
+    assert(pos.size<2)
+    if len(pos)==0:
+        return False, -1
+    else:
+        return True, pos[0]
+    
+    def find_idx_in_margin(margin, mid):
+        idx = np.all(margin == mid, axis=1)
+        idx = np.where(idx == True)
+        idx = idx[0][0]
+        return idx

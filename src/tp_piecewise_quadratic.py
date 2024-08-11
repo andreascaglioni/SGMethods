@@ -2,21 +2,24 @@ import numpy as np
 
 
 class TPPwQuadraticInterpolator:
-    """Given function samples on tensor product nodes, interpolates with tensor product piecewise quadratic interpolation
+    """Given function samples on tensor product nodes, interpolates with tensor 
+        product piecewise quadratic interpolation.
     """    
     def __init__(self, nodesTuple, F):
-        """Initializes the interpolator with nodes and function values
+        """Initializes the interpolator with nodes and function values.
 
         Args:
-            nodesTuple (tuple of 1D array double): k-th entry contains 1D nodes in direction k
-            F (Function): given paramter vector, returns function value
+            nodesTuple (tuple of 1D array double): k-th entry contains 1D nodes 
+                in direction k.
+            F (Function): given paramter vector, returns function value.
         """
 
-        # formatting input if F is scalar field
+        # Format input if F is scalar field
         if(len(F.shape) == len(nodesTuple)): 
             F = np.reshape(F, F.shape + (1,))
-        self.nodesTuple = nodesTuple  # tuple of length N, each entry is a vector of 1D interpolation nodes
-        self.F = F  # N+1 Dimensional tensor containing values of data to interpolate (each data point may be vector of length dimData, so +1)
+
+        self.nodesTuple = nodesTuple
+        self.F = F
         self.nDims = len(nodesTuple)
         self.nNodesDims = tuple(len(x) for x in self.nodesTuple)
         self.dimF = F.shape[-1]
@@ -30,7 +33,8 @@ class TPPwQuadraticInterpolator:
             xNew (1D array double): Nodes where to sample the interpolant
 
         Returns:
-            2D array double: Each row is the value of the interpolant on the corresponding row of xNew
+            2D array double: Each row is the value of the interpolant on the 
+                corresponding row of xNew.
         """   
         
         numX = xNew.shape[0]
@@ -42,13 +46,17 @@ class TPPwQuadraticInterpolator:
         SS = np.ones((self.nDims, numX), dtype=int)
         for n in range(self.nDims):
             # stencil is computed 1 dimneison at a time. 
-            # assume x to be scalar. to identify its stencil, think of the the first even collocation node to the left .
-            # for many x, it is faster to determine the stencil to which each x belongs of the array of xs is sorted. 
-            # so 1. sort x: 2. find corresponding stencil of sorted sx; 3. sort list of stencil indices by reverse sorting of x
-
+            # assume x scalar. To identify its stencil, think of the the first 
+            #   even collocation node to the left.
+            # For many x, it is faster to determine the stencil to which each x
+            #   belongs of the array of xs is sorted. 
+            # so 
+            #   1. sort x;
+            #   2. find corresponding stencil of sorted sx; 
+            #   3. sort list of stencil indices by reverse sorting of x.
             znOriginal = xNew[:,n]
             sorting = np.argsort(znOriginal)
-            revSorting = np.argsort(sorting)  #  znOriginal = zn[revSorting]
+            revSorting = np.argsort(sorting)
             zn = znOriginal[sorting]
             xn = self.nodesTuple[n]
             halfxn = xn[0::2]
@@ -65,7 +73,7 @@ class TPPwQuadraticInterpolator:
             x0 = xn[jj*2]
             x1 = xn[jj*2+1]
             x2 = xn[jj*2+2]
-            L0 = ((znOriginal-x1)*(znOriginal-x2))/((x0-x1)*(x0-x2))  # 1D w length numX
+            L0 = ((znOriginal-x1)*(znOriginal-x2))/((x0-x1)*(x0-x2))
             L1 = ((znOriginal-x0)*(znOriginal-x2))/((x1-x0)*(x1-x2))
             L2 = ((znOriginal-x0)*(znOriginal-x1))/((x2-x0)*(x2-x1))
 
