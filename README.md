@@ -31,7 +31,7 @@ git clone https://github.com/andreascaglioni/SGMethods.git
 pip install -r requirements.txt
 ```
 
-## Installation
+## Usage
 See the tutorials 
 
 ## Contributing
