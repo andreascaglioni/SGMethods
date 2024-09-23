@@ -12,9 +12,9 @@ A Python object-oriented code for sparse grid interpolation (also called stochas
 - Several nodes, multi-index sets, and interpolation methods are implemented...
 - Or you can define and use your own following the examples
 - Single- and multilevel methods
-- A-priori and adaptive constructions available
-- Tests
-- Documentation
+- A-priori and adaptive sparse grid construction (Coming soon)
+- Tests  (Coming soon)
+- Documentation (Coming soon)
 
 ## Installation
 1. Clone the repository
