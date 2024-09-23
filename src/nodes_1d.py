@@ -6,6 +6,71 @@ from numpy.polynomial.hermite import hermroots
 
 """Module for generating 1D interpolation nodes"""
 
+def equispacedNodes(n):
+    """Gnerate n equispaced nodes on [-1,1] with first and last node on boundary
+
+    Args:
+        n (int): number of nodes
+
+    Returns:
+        array of double: n  nodes
+    """
+
+    if (n == 1):
+        return 0
+    else:
+        return np.linspace(-1, 1, n)
+
+
+def equispacedInteriorNodes(n):
+    """Generates n equispaced nodes on (-1,1) with the first and last node in 
+    the interior at same distance from -1,1
+
+    Args:
+        n (int): number of nodes
+
+    Returns:
+        array of double: n  nodes
+    """
+
+    if (n == 1):
+        return 0
+    else:
+        xx = np.linspace(-1, 1, n+2)
+        return xx[1:-1:]
+
+
+def CCNodes(n):
+    """Generate n Clenshaw-Curtis nodes, i.e. extrema of (n-1)-th Chebyshev 
+        polynomial
+
+    Args:
+        n (int): number of nodes >=1
+
+    Returns:
+        array of double: n nodes; if n=1, return [0]
+    """
+
+    if (n == 1):
+        return 0
+    else:
+        return -np.cos(pi*(np.linspace(0, n-1, n))/(n-1))
+
+
+def HermiteNodes(n):
+    """Hermite interpolation nodes (roots of the n-th Hermite polynomial)
+
+    Args:
+        n (int): number of nodes >=1
+
+    Returns:
+        array of double: n nodes; if n=1, return [0]
+    """
+
+    en = np.zeros(n+1)
+    en[-1] = 1
+    return hermroots(en)
+
 
 def unboundKnotsNonNest(n):
     """Generate nodes that eventually cover R, not nested
@@ -66,68 +131,3 @@ def unboundedKnotsNested(n, p=2):
     """
     assert (log2(n+1)-1 >= 0 & (abs(log2(n+1) - int(log2(n+1)) < 1.e-10)))
     return unboundedNodesOptimal(n, p)
-
-
-def equispacedNodes(n):
-    """Gnerate n equispaced nodes on [-1,1] with first and last node on boundary
-
-    Args:
-        n (int): number of nodes
-
-    Returns:
-        array of double: n  nodes
-    """
-
-    if (n == 1):
-        return 0
-    else:
-        return np.linspace(-1, 1, n)
-
-
-def equispacedInteriorNodes(n):
-    """Generates n equispaced nodes on (-1,1) with the first and last node in 
-    the interior at same distance from -1,1
-
-    Args:
-        n (int): number of nodes
-
-    Returns:
-        array of double: n  nodes
-    """
-
-    if (n == 1):
-        return 0
-    else:
-        xx = np.linspace(-1, 1, n+2)
-        return xx[1:-1:]
-
-
-def CCNodes(n):
-    """Generate n Clenshaw-Curtis nodes, i.e. extrema of (n-1)-th Chebyshev polynomial
-
-    Args:
-        n (int): number of nodes >=1
-
-    Returns:
-        array of double: n nodes; if n=1, return [0]
-    """
-
-    if (n == 1):
-        return 0
-    else:
-        return -np.cos(pi*(np.linspace(0, n-1, n))/(n-1))
-
-
-def HermiteNodes(n):
-    """Hermite interpolation nodes (roots of the n-th Hermite polynomial)
-
-    Args:
-        n (int): number of nodes >=1
-
-    Returns:
-        array of double: n nodes; if n=1, return [0]
-    """
-
-    en = np.zeros(n+1)
-    en[-1] = 1
-    return hermroots(en)
