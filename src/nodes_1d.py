@@ -72,25 +72,6 @@ def HermiteNodes(n):
     return hermroots(en)
 
 
-def unboundKnotsNonNest(n):
-    """Generate nodes that eventually cover R, not nested
-
-    Args:
-        n (int): number of nodes
-
-    Returns:
-        array: n interpolation nodes
-    """
-    assert (n > 0)
-    assert (n % 2 == 1)
-    if n == 0:
-        return np.array([0])
-    knotsExtrema = norm.cdf([-sqrt(2 * log(n)), sqrt(2 * log(n))])
-    knotsBounded = knotsExtrema[0] + \
-        (knotsExtrema[1] - knotsExtrema[0]) * np.linspace(0, 1, int(n))
-    return norm.ppf(knotsBounded)
-
-
 def unboundedNodesOptimal(n, p=2):
     """Generate desired number of nodes that eventually cover R with a 
     distribution that is optimal for L2_mu (mu=gaussian density) error of degree
