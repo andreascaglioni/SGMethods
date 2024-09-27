@@ -27,7 +27,7 @@ class TPPwQuadraticInterpolator:
         assert(self.nNodesDims == F.shape[:-1:])
 
     def __call__(self, xNew):
-        """Sample the tensor product Lagrange interpolant on new points xNew
+        """Sample the tensor product interpolant on new points xNew
 
         Args:
             xNew (1D array double): Nodes where to sample the interpolant
@@ -49,7 +49,7 @@ class TPPwQuadraticInterpolator:
             # assume x scalar. To identify its stencil, think of the the first 
             #   even collocation node to the left.
             # For many x, it is faster to determine the stencil to which each x
-            #   belongs of the array of xs is sorted. 
+            #   belongs iff the array of xs is sorted. 
             # so 
             #   1. sort x;
             #   2. find corresponding stencil of sorted sx; 
@@ -60,13 +60,16 @@ class TPPwQuadraticInterpolator:
             zn = znOriginal[sorting]
             xn = self.nodesTuple[n]
             halfxn = xn[0::2]
+            # jj are the indices, for aeach element in scalar interpol point
+            # zn, of the knot to the left in the scalar knots sequence xn
             jj = np.zeros(zn.size, dtype=int)
             pPrev = -1
+            p=0
             for i in range(1, halfxn.size):
                 p = np.searchsorted(zn, halfxn[i], side='right')
                 jj[pPrev:p] = i-1
                 pPrev = p
-            jj[p:] = i-1
+            jj[p:] = halfxn.size-1
             jj = jj[revSorting]
             SS[n, :] = jj
             # compute 3 corresponding basis functions in dim n
