@@ -54,7 +54,7 @@ class TPPwCubicInterpolator:
             #   1. sort x; 
             #   2. find corresponding stencil of sorted xs; 
             #   3. sort list of stencil indices by reverse sorting of x.
-            # NBB first stencil (-\infty, y_2] second collocation nodes; last 
+            # NBB first stencil (-infty, y_2] second collocation nodes; last 
             #   stencil [y_{n-1}, infty) (y_{N} last collocation node).
             znOriginal = xNew[:,n]
             sorting = np.argsort(znOriginal)

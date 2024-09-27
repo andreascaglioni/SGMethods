@@ -6,7 +6,7 @@ from fenics import set_log_level, DOLFIN_EPS, Constant, Expression,UnitSquareMes
 
 def parametric_affine_diffusion(yy, orderDecayCoefficients):
     """"Affine parametric diffusion for Poisson problem
-        a(\by, \bx) = 1 + \sum_{n=1}^{N} y_n*\sin(x_1*2.*pi*n)/(C*n^r)
+        a(\by, \bx) = 1 + sum_{n=1}^{N} y_n*\sin(x_1*2.*pi*n)/(C*n^r)
     Args:
         yy (double array): Vector of scalar parameters in [-1,1]
         orderDecayCoefficients (positive int): Order of decay terms affine diffusion
@@ -26,7 +26,7 @@ def parametric_affine_diffusion(yy, orderDecayCoefficients):
 def parametric_lognormal_diffusion(yy, orderDecayCoefficients):
     """Lognormal parametric diffusion for Poisson problem
         a(\by, \bx) = exp(b(\by, \bx))
-        a(\by, \bx) = a_*(\bx) + a_0(\bx)*exp(\sum_{n=1}^{\infty} y_n \phi_n(x))
+        a(\by, \bx) = a_*(\bx) + a_0(\bx)*exp(sum_{n=1}^{infty} y_n \phi_n(x))
     Args:
         yy (double array): Vector of scalar parameters, unbounded!
         orderDecayCoefficients (positive int): Order of decay terms affine diffusion

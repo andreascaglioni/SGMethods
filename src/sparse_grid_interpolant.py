@@ -21,8 +21,8 @@ class SGInterpolant:
         Args:
             midSet (2D array int): Multi-index set 
                 NB downward closed!! 
-            knots (function): given n\in\mathbb{N}, computes n nodes
-            lev2knots (function): given level nu\in\mathbb{N}_0, computes 
+            knots (function): given nin\mathbb{N}, computes n nodes
+            lev2knots (function): given level nuin\mathbb{N}_0, computes 
                 corresponding number of 1D nodes
             TPInterpolant (class, optional): Class to be used as tensor product
                 interpolant. Defaults to piecewie linear. 
