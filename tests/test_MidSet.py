@@ -3,6 +3,7 @@ from src.MidSet import MidSet
 
 
 def test_MidSet():
+    # Define and enlarge a multi-index set
     Lambda = MidSet(trackReducedMargin=True)
     Lambda.enlarge_from_margin(0)
     Lambda.enlarge_from_margin(0)

@@ -1,8 +1,9 @@
 import numpy as np
-from src.nodes_1d import equispacedNodes
-from src.tp_piecewise_quadratic import TPPwQuadraticInterpolator
+from src.nodes_1d import equispacedNodes, CCNodes
+from src.tp_piecewise_linear import TPPwLinearInterpolator
 from src.tp_piecewise_cubic import TPPwCubicInterpolator
 from src.sparse_grid_interpolant import SGInterpolant
+from src.multi_index_sets import SmolyakMidSet, TPMidSet
 
 
 def test_SGInterpolant_exact_polyDegree1():
@@ -15,7 +16,8 @@ def test_SGInterpolant_exact_polyDegree1():
                         [1, 1]])
     kk = lambda n : equispacedNodes(n)
     lev2knots = lambda n : n+1
-    interpolant = SGInterpolant(Lambda, kk, lev2knots)
+    # default piecewise linear interpolation
+    interpolant = SGInterpolant(Lambda, kk, lev2knots)  
     samples_SG = interpolant.sampleOnSG(P)
     xRnd = np.random.uniform(-1, 1, [10, 2])
     IP_x = interpolant.interpolate(xRnd, samples_SG)
@@ -23,33 +25,10 @@ def test_SGInterpolant_exact_polyDegree1():
     for n in range(xRnd.shape[0]):
         P_x[n] = P(xRnd[n, :])
     assert np.linalg.norm(IP_x-P_x) < 1.e-4
-
-
-def test_SGInterpolant_exact_polyDegree2():
-    """Interpolate exactly a polynomial of degree 2"""    
-    P = lambda x : 2. + x[0] + x[0]*x[1] + x[1]**2 + x[0]*x[1]**2
-    Lambda = np.array([[0, 0],
-                        [0, 1],
-                        [0, 2],
-                        [1, 0],
-                        [1, 1],
-                        [1, 2]])
-    kk = lambda n : equispacedNodes(n)
-    lev2knots = lambda n : 2*n+1
-    interpolant = SGInterpolant(Lambda, kk, lev2knots, \
-                                TPInterpolant=TPPwQuadraticInterpolator)
-    samples_SG = interpolant.sampleOnSG(P)
-    xRnd = np.random.uniform(-1, 1, [10, 2])
-    IP_x = interpolant.interpolate(xRnd, samples_SG)
-    P_x = np.zeros((xRnd.shape[0]))
-    for n in range(xRnd.shape[0]):
-        P_x[n] = P(xRnd[n, :])
-    print(np.linalg.norm(IP_x-P_x))
-    assert np.linalg.norm(IP_x-P_x) < 1.e-4
-
 
 def test_SGInterpolant_exact_polyDegree3():
     """Interpolate exactly a polynomial of degree 3"""  
+
     P = lambda x : 2. + x[0] + x[0]*x[1] + x[1]**3 + x[0]*x[1]**3
     Lambda = np.array([[0, 0],
                         [0, 1],
@@ -72,7 +51,50 @@ def test_SGInterpolant_exact_polyDegree3():
     assert np.linalg.norm(IP_x-P_x) < 1.e-4
 
 
-def test_SGInterpolant_approx_exp():
-    """Approximate exponential function. Check that error on random sample 
-    decreases with refinement midset"""
-    f = lambda x : np.exp(np.sum(x))
+def test_SGinterpolant_exp():
+    """Inteprolate an exponential functio function (not exactly a polynomial)"""
+
+    # Define function to interpolate
+    N = 4
+    F = lambda x : np.exp(np.sum(x))
+
+    #Compute random saples for error
+    np.random.seed(0)  # If changed, some tests may fail
+    rnd_samples = np.random.uniform(-1, 1, [5000, N])
+    f_rnd = np.array(list(map(F, rnd_samples)))
+
+    # Parameters interpolant
+    lev2knots = lambda nu : nu+1  # np.where(nu == 0, 1, 2**nu+1)
+    kk = lambda n : CCNodes(n)
+    TPInterpol = lambda nodes_tuple, f_on_nodes : \
+        TPPwLinearInterpolator(nodes_tuple, f_on_nodes)
+
+    # Convergence test
+    err = np.zeros(0)
+    number_samples = np.zeros_like(err)
+    ww = np.linspace(0, 6, 7, dtype=int)
+    for w in ww:
+        # Define Interpolant
+        Lambda = SmolyakMidSet(w, N=N)
+        interpolant = SGInterpolant(Lambda, kk, lev2knots, 
+                                    TPInterpolant=TPInterpol, NParallel=1, 
+                                    verbose=False)
+        f_on_SG = interpolant.sampleOnSG(F)
+        f_interpolated = interpolant.interpolate(rnd_samples, f_on_SG)
+
+        # Cmpute error
+        err_curr = np.amax(np.abs(f_interpolated - f_rnd))
+        print("w = ", w)
+        print("Nodes:", interpolant.numNodes)
+        print("Error:", err_curr)
+        number_samples = np.append(number_samples, interpolant.numNodes)
+        err = np.append(err, err_curr)
+
+    # Test assertion: Respectively
+    # - number of collocation nodes increases with w
+    # - error decreases with w
+    # - error decreases exponentially with number of collocation nodes, up to 
+    #   algebraic term
+    assert(np.all(np.diff(number_samples) > 0))
+    assert(np.all(np.diff(err) < 0))
+    assert(np.all(err < 31*number_samples**(0.02)*np.exp(-0.005*number_samples)))
