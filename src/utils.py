@@ -1,9 +1,11 @@
 import numpy as np
 from math import exp, floor, log2
+import matplotlib.pyplot as plt
 
+"""A collection of functions that carry out efficiently various basic tasks
+needed in the core functions.
+"""
 
-
-################################ LC expansion #################################
 # TODO move to repo SLLG
 def compute_level_LC(i):
     '''Compte level and index in LC expansion given linear index
@@ -23,16 +25,14 @@ def compute_level_LC(i):
     return l, j
 
 
-################################ Multi-indices ################################
+# Treating multi-indices
 def coordUnitVector(dim, entry):
     en = np.zeros(dim, dtype=int)
     en[entry]=1
     return en
 
-
 def lexicSort(I):
     return I[np.lexsort(np.rot90(I))]
-
 
 # TODO the functions findMid, find_idx_in_margin, checkIfElement all do similar
 # tasks. Refactor and keep only one. 
@@ -69,15 +69,6 @@ def find_idx_in_margin(margin, mid):
     return idx
 
 def checkIfElement(mid, midSet):
-    """_summary_
-
-    Args:
-        mid (_type_): _description_
-        midSet (_type_): _description_
-
-    Returns:
-        _type_: _description_
-    """
     assert (mid.size == midSet.shape[1])
     assert (len(mid.shape) == 1)
     assert (len(midSet.shape) == 2)
@@ -106,3 +97,42 @@ def midIsInReducedMargin(mid, mid_set):
     return np.all(condition)
 
 
+# TODO: implement
+def is_downward(Lambda):
+    """Check if the multi-index set is downward-closed. This means that:
+        for all nu in Lambda and for all n in N, either nu_n = 0 or 
+        nu - e_n in Lambda.
+        Here, e_n is the n-th unit vector.
+
+    Returns:
+        bool: True if the multi-index set is downward-closed, False otherwise.
+    """
+
+    Warning("is_downward not yet implemented yet")
+    condition = False
+    if condition:
+        return True
+    else:
+        return False
+
+
+# Basic plotting functions for convergence plots, midsets
+
+def rate(err, nDofs):
+    err = np.array(err)
+    nDofs = np.array(nDofs)
+    return -np.log(err[1::]/err[:-1:])/np.log(nDofs[1::]/nDofs[:-1:])
+
+def LSFitLoglog(x, y):
+    X = np.log(x)
+    Y = np.log(y)
+    A = np.vstack([X, np.ones(len(X))]).T
+    alpha, gamma = np.linalg.lstsq(A, Y, rcond=None)[0]
+    return alpha, exp(gamma)
+
+def plot_2D_midset(midset):
+    assert midset.shape[1] <= 2
+    if midset.shape[1] == 1:
+        plt.plot(midset, np.zeros(midset.shape[0]), 's')
+    else:
+        plt.plot(midset[:,0], midset[:,1], 's')
