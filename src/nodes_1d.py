@@ -80,9 +80,9 @@ def unboundedNodesOptimal(n, p=2):
     Args:
         n (int): number of nodes
         p (int, optional): Piecewise polynomial interpolant degree + 1 (=number
-        of needed nodes to detemrine piecewise poly in each interval). Defaults
-        to 2.
-        NB n must be odd because one node is 0 and nodes are symmetric around 0
+        of needed nodes to determine piecewise polynomial in each interval). 
+        Defaults to 2. n must be odd because nodes are symmetric around 0 and
+        one node is 0
     Returns:
         array: n interpolation nodes
     """
