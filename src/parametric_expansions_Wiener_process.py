@@ -1,6 +1,7 @@
 import warnings
 import numpy as np
-from math import floor, ceil, log, sqrt, pi, exp
+from math import ceil, log, sqrt, pi
+
 
 """ A Collection of parametric expanisons of the Wiener process and related
     random fields."""
@@ -48,4 +49,23 @@ def param_LC_Brownian_motion(tt, yy, T):
             eta_n_i[ran2] = - tt[ran2] + (2 * j) / 2 ** l
             W = W + yy[2 ** (l - 1) + j - 1] * 2 ** ((l - 1) / 2) * eta_n_i
     W = W*np.sqrt(T)  # NB Revert scaling above to go to times in [0,T] 
+    return W
+
+def param_KL_Brownian_motion(tt, yy):
+    """The Karhunen_Loeve expansion of th WIner process. Can be computed 
+    exactly.
+
+    Args:
+        tt (array float): Discrete times of evaluation in [0,1]
+        yy (2D array float): Each row is a parameter vector of the expansion 
+        Each component is a real numbers that replace i.i.d. standard Gaussians.
+
+    Returns:
+        2D array double: each row gives the samples of the Wiener process on tt 
+            for the corresponding row (parameter vector) in yy
+    """
+
+    W = 0 * tt
+    for n in range(len(yy)):
+        W = W + pi*(n+0.5) * sqrt(2)*np.sin((n+0.5)*pi*tt) * yy[n]
     return W
