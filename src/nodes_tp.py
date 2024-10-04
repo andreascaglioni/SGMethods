@@ -1,6 +1,3 @@
-import numpy as np
-
-
 def TPKnots(ScalarKnots, numKnotsDir):
     """Generate tensor product nodes
 
@@ -15,13 +12,5 @@ def TPKnots(ScalarKnots, numKnotsDir):
     kk = ()
     for i in range(len(numKnotsDir)):
         kk += (ScalarKnots(numKnotsDir[i]),)
-    
-    # TODO: remove
-    # knotsGridmat = np.meshgrid(*kk, indexing='ij')
-    # knotsGrid = knotsGridmat[0].flatten()
-    # for n in range(1, len(kk)):
-    #     tmp = knotsGridmat[n].flatten()
-    #     knotsGrid = np.vstack((knotsGrid, tmp))
-    # knotsGrid = knotsGrid.T
 
     return kk

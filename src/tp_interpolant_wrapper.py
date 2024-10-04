@@ -1,17 +1,15 @@
-from distutils.log import error
-from matplotlib.image import interpolations_names
 import numpy as np
-from scipy.interpolate import RegularGridInterpolator
-from src.tp_lagrange import TPLagrangeInterpolator
-from src.tp_piecewise_quadratic import TPPwQuadraticInterpolator
-from src.tp_piecewise_cubic import TPPwCubicInterpolator
-
 
 class TPInterpolatorWrapper:
-    """ Wrapper for many Tensor Product interpolation methods.
+    """ Wrapper for several tensor product interpolants. 
     If a direction has only 1 colllocation node, it should be 0. In this 
-    directions, the interpolation approximation is a constant extrapolation
-    """    
+    directions, the interpolation approximation is a constant extrapolation.
+    Example of interpolants that can be wrapped are ginev in the module
+    src.tp_interpolants. 
+    The user can define new interplants following the instructions written in 
+    the module src.tp_interpolants.
+    """
+
     def __init__(self, activeNodesTuple, activeDims, fOnNodes, TPInterpolant):
         """Take parameters to define tensor product interpolant
 
@@ -21,15 +19,11 @@ class TPInterpolatorWrapper:
             activeDims (array): Dimensions with more that 1 node
             fOnNodes (array): Values of data to interpolate (each data point may
                 be vector of some lenght)
-            TPInterpolant (function): Function to create the "raw" interpolant
-                opeartor. Resulting interpolant has __call__(nNew) method
-                to sample in new points.
-                Some interpolants are available either in standard packages or 
-                were implemented in this project. For example:
-                - RegularGridInterpolator (Scipy)
-                - TPPwQuadraticInterpolator (SGMethods)
-                - TPPwCubicInterpolator (SGMethods) 
-                - TPLagrangeInterpolator (SGMethods) """
+            TPInterpolant (Class): One of the classes in the module 
+                src.tp_inteprolants. (e.g. TPPwLinearInterpolator). The
+                user can also define their own class following the instructions
+                in the module src.tp_inteprolants. 
+        """
 
         self.fOnNodes = fOnNodes
         self.activeDims = activeDims  # dimensions with more than one node
@@ -50,8 +44,8 @@ class TPInterpolatorWrapper:
         # if xNew has len(shape)=1, reshape it
         if(len(xNew.shape)==1):
             xNew = np.reshape(xNew, (-1,1))
-        # Purge components of x in inactive dimensions
-        # (interpolant is constant in those dimensions)
+        # Purge components of x in inactive dimensions (interpolant is constant 
+        # in those dimensions)
         xNew = xNew[:, self.activeDims]
         
         if xNew.shape[1] == 0: # No active dimensions

@@ -7,10 +7,10 @@ from multiprocessing import Pool
 
 class SGInterpolant:
     """Sparse grid interpolant class. It stores all relevant information to 
-        define it lke multi-index set, 1D notes etc. 
-        It automatically computes the sparse grid and inclusio-exclusion 
-        coefficients upon initialization.
-        It allows to interpolate high dimensinal functions on the sparse grid.
+    define it lke multi-index set, 1D notes etc. 
+    It automatically computes the sparse grid and inclusio-exclusion 
+    coefficients upon initialization.
+    It allows to interpolate high dimensinal functions on the sparse grid.
     """
 
     def __init__(self, midSet, knots, lev2knots, \
@@ -24,18 +24,10 @@ class SGInterpolant:
             knots (function): given nin\mathbb{N}, computes n nodes
             lev2knots (function): given level nuin\mathbb{N}_0, computes 
                 corresponding number of 1D nodes
-            TPInterpolant (class, optional): Class to be used as tensor product
-                interpolant. Defaults to piecewie linear. 
-                The class must have a method __call__ that takes as input a np 
-                array (parameters).
-                Examples are (Piecewise linear (default), quadratic, cubic and 
-                Lagrange (spectral polynomial) interpolation respectively):
-                    RegularGridInterpolator(activeNodesTuple, self.fOnNodes, 
-                        method='linear', bounds_error=False, fill_value=None)
-                    TPPwQuadraticInterpolator(activeNodesTuple, self.fOnNodes)
-                    TPPwCubicInterpolator(activeNodesTuple, self.fOnNodes)
-                    TPLagrangeInterpolator(activeNodesTuple, self.fOnNodes)
-
+            TPInterpolant (class, optional): One of the classes in the module 
+                src.tp_inteprolants. (e.g. TPPwLinearInterpolator). The
+                user can also define their own class following the instructions
+                in the module src.tp_inteprolants.
             NParallel (int, optional): Number of parallel computations. Defaults 
                 to 1.
             verbose (bool, optional): Verbose output. Defaults to True.
@@ -151,9 +143,6 @@ class SGInterpolant:
             oldSamples (array double, optional): Each row is a sample value in 
                 corresponding parameter vector in oldXx. 
                 Defaults to None.
-
-        Raises:
-            ValueError: _description_
 
         Returns:
             2D array fo double: Values of Fun on the sparse grid 9each row is a 
