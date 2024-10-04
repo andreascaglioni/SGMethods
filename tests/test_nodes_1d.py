@@ -15,7 +15,8 @@ def test_equispacedNodes(nNodes, nodes):
     (5, [-0.66666, -0.3333, 0., 0.3333, 0.6666])
 ])
 def test_equispacedInteriorNodes(nNodesInt, nodesInt):
-    assert np.all(np.isclose(equispacedInteriorNodes(nNodesInt), nodesInt, rtol=1.e-4))
+    assert np.all(np.isclose(equispacedInteriorNodes(nNodesInt), nodesInt, 
+                             rtol=1.e-4))
 
 @pytest.mark.parametrize("nNodesInt, nodesInt", [
     (1, 0.),
@@ -36,7 +37,8 @@ def test_HermiteNodes(nNodesInt, nodesInt):
     (5, [-2.16322038, -0.96313552, 0., 0.96313552,   2.16322038])     
 ])
 def test_unboundedNodesOptimal(nNodesInt, nodesInt):
-    assert np.all(np.isclose(unboundedNodesOptimal(nNodesInt), nodesInt, rtol=1.e-4))
+    assert np.all(np.isclose(unboundedNodesOptimal(nNodesInt), nodesInt, 
+                             rtol=1.e-4))
 
 def test_unboundedNodesOptimal():
     with pytest.raises(AssertionError):
