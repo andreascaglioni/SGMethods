@@ -3,7 +3,7 @@ from math import sqrt
 from sgmethods.nodes_1d import equispacedNodes, CCNodes, unboundedNodesOptimal
 from sgmethods.tp_inteprolants import TPPwLinearInterpolator, TPPwCubicInterpolator
 from sgmethods.sparse_grid_interpolant import SGInterpolant
-from sgmethods.multi_index_sets import SmolyakMidSet, computeMidSetFast
+from sgmethods.multi_index_sets import smolyak_mid_set, compute_mid_set_fast
 from sgmethods.parametric_expansions_Wiener_process import param_LC_Brownian_motion
 
 def test_SGInterpolant_exact_polyDegree1():
@@ -75,7 +75,7 @@ def test_SGinterpolant_exp():
     ww = np.linspace(0, 6, 7, dtype=int)
     for w in ww:
         # Define Interpolant
-        Lambda = SmolyakMidSet(w, N=N)
+        Lambda = smolyak_mid_set(w, N=N)
         interpolant = SGInterpolant(Lambda, kk, lev2knots, 
                                     TPInterpolant=TPInterpol, NParallel=1, 
                                     verbose=False)
@@ -129,7 +129,7 @@ def test_SGinterpolant_Gaussian_RF():
     ii = np.linspace(0, 9, 10, dtype=int)
     for iter in ii:
         # Define multi-index set
-        Lambda = computeMidSetFast(Profit, 11.**(-iter), N=N)
+        Lambda = compute_mid_set_fast(Profit, 11.**(-iter), N=N)
 
         # Define Interpolant and sample, interpolate
         interpolant = SGInterpolant(Lambda, kk, lev2knots, 

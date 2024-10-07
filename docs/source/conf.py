@@ -38,4 +38,8 @@ html_theme = 'alabaster'
 html_static_path = ['_static']
 
 # -- Options for intersphinx extension ---------------------------------------
-intersphinx_mapping = {'python': ('https://docs.python.org/3', None)}
+intersphinx_mapping = {'python': ('https://docs.python.org/3', None),
+                       'numpy': ('https://numpy.org/doc/stable/', None),
+                       'matplotlib': ('https://matplotlib.org/stable/', None),
+                       'scipy': ('https://docs.scipy.org/doc/scipy/', None)
+                       }
