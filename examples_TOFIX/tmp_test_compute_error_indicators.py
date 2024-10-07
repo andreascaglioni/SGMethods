@@ -60,7 +60,7 @@ nNodes = np.array([])
 nDims = np.array([])
 err_estimator = np.array([])
 w=0
-I = MidSet(trackReducedMargin=True)
+I = MidSet(track_reduced_margin=True)
 oldSG = None
 uOnSG = None
 oldRM = np.array([])
@@ -69,11 +69,11 @@ while True:
     print("Computing w  = ", w)
 
     # COMPUTE
-    interpolant = SGInterpolant(I.midSet, knots, lev2knots, 
+    interpolant = SGInterpolant(I.mid_set, knots, lev2knots, 
                                 TPPwLinearInterpolator,  NParallel=NParallel)
     if(interpolant.numNodes > maxNumNodes):
         break
-    midSetMaxDim = np.amax(I.midSet, axis=0)
+    midSetMaxDim = np.amax(I.mid_set, axis=0)
     print("# nodes:", interpolant.numNodes, "\nNumber effective dimensions:", I.get_dim(), "\nMax midcomponents:", midSetMaxDim)
     uOnSG = interpolant.sampleOnSG(F, dimF, oldSG, uOnSG)
     oldSG = interpolant.SG  # Save for next iteration
@@ -92,17 +92,17 @@ while True:
                                                    compute_error, uInterp, 
                                                    TP_inteporlant=TPPwLinearInterpolator, 
                                                    NParallel=NParallel)
-    oldRM = I.reducedMargin
+    oldRM = I.reduced_margin
     err_estimator = np.append(err_estimator, np.sum(error_indicators_RM))
     # np.savetxt('sinW_example_linear_adaptive.csv',np.transpose(np.array([nNodes, err, nDims, err_estimator])), delimiter=',')
     print("error indicators reduced margin", np.sum(error_indicators_RM))
 
     # MARK
     # I consider the correspondin profit i.e. I divide the norm of hierarchica surpluses by the number of corresponding added nodes (work)
-    RM = I.reducedMargin
+    RM = I.reduced_margin
     work_RM = np.prod((2**(RM+1)-2)*(p-1)+1, axis=1)  # TODO relate to lev2knots istead of hard-coding
     idMax = np.argmax(error_indicators_RM / work_RM)  # NBB index in REDUCED margin
-    mid = I.reducedMargin[idMax, :]
+    mid = I.reduced_margin[idMax, :]
     idxMargin = np.where(( I.margin==mid).all(axis=1) )[0][0]
     
     # REFINE

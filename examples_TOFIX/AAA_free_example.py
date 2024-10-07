@@ -3,7 +3,7 @@ import numpy as np
 from sgmethods.parametric_expansions_Wiener_process import param_LC_Brownian_motion
 from sgmethods.sparse_grid_interpolant import SGInterpolant
 from sgmethods.tp_inteprolants import TPPwLinearInterpolator
-from sgmethods.multi_index_sets import computeMidSetFast
+from sgmethods.multi_index_sets import compute_mid_set_fast
 from sgmethods.nodes_1d import unboundedNodesOptimal
 import matplotlib.pyplot as plt
 
@@ -36,7 +36,7 @@ number_samples = np.zeros_like(err)
 ii = np.linspace(0, 9, 10, dtype=int)
 for iter in ii:
     # Define multi-index set
-    Lambda = computeMidSetFast(Profit, 11.**(-iter), N=N)
+    Lambda = compute_mid_set_fast(Profit, 11.**(-iter), N=N)
 
     # Define Interpolant and sample, interpolate
     interpolant = SGInterpolant(Lambda, kk, lev2knots, 

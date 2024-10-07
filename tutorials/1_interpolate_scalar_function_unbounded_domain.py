@@ -4,7 +4,7 @@ from scipy.interpolate import RegularGridInterpolator
 import sys, os
 sys.path.insert(1, os.path.join(os.path.expanduser("~"), 'workspace/SGMethods'))
 from sgmethods.nodes_1d import CCNodes
-from sgmethods.multi_index_sets import anisoSmolyakMidSet
+from sgmethods.multi_index_sets import aniso_smolyak_mid_set
 from sgmethods.tp_inteprolants import TPPwLinearInterpolator
 from sgmethods.sparse_grid_interpolant import SGInterpolant
 
@@ -34,7 +34,7 @@ uExa = np.array(list(map(F, yyRnd)))  # Random sample of exact function
 
 # Sparse grid interpolation
 anisoVec = lambda N : 2**(np.linspace(0, N-1, N))
-midSet = anisoSmolyakMidSet(w=5, N=10, a=anisoVec(10))  # Anisotropic Smolyak multi-index set in 10 dimensions
+midSet = aniso_smolyak_mid_set(w=5, N=10, a=anisoVec(10))  # Anisotropic Smolyak multi-index set in 10 dimensions
 interpolant = SGInterpolant(midSet, knots, lev2knots, TPInterpolant=TPInterpolant)
 uOnSG = interpolant.sampleOnSG(F)  # Sample the function on the sparse grid
 uInterp = interpolant.interpolate(yyRnd, uOnSG)  # Compute the interpolated value
