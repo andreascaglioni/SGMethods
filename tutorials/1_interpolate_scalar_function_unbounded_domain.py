@@ -3,10 +3,10 @@ from math import sin, sqrt
 from scipy.interpolate import RegularGridInterpolator
 import sys, os
 sys.path.insert(1, os.path.join(os.path.expanduser("~"), 'workspace/SGMethods'))
-from src.nodes_1d import CCNodes
-from src.multi_index_sets import anisoSmolyakMidSet
-from src.tp_inteprolants import TPPwLinearInterpolator
-from src.sparse_grid_interpolant import SGInterpolant
+from sgmethods.nodes_1d import CCNodes
+from sgmethods.multi_index_sets import anisoSmolyakMidSet
+from sgmethods.tp_inteprolants import TPPwLinearInterpolator
+from sgmethods.sparse_grid_interpolant import SGInterpolant
 
 
 """ SGMethods Tutorial 0: Interpolate a scalar function.

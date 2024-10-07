@@ -1,10 +1,10 @@
 import numpy as np
 from math import sqrt
-from src.nodes_1d import equispacedNodes, CCNodes, unboundedNodesOptimal
-from src.tp_inteprolants import TPPwLinearInterpolator, TPPwCubicInterpolator
-from src.sparse_grid_interpolant import SGInterpolant
-from src.multi_index_sets import SmolyakMidSet, computeMidSetFast
-from src.parametric_expansions_Wiener_process import param_LC_Brownian_motion
+from sgmethods.nodes_1d import equispacedNodes, CCNodes, unboundedNodesOptimal
+from sgmethods.tp_inteprolants import TPPwLinearInterpolator, TPPwCubicInterpolator
+from sgmethods.sparse_grid_interpolant import SGInterpolant
+from sgmethods.multi_index_sets import SmolyakMidSet, computeMidSetFast
+from sgmethods.parametric_expansions_Wiener_process import param_LC_Brownian_motion
 
 def test_SGInterpolant_exact_polyDegree1():
     """Interpolate exactly a polynomial of degree 1"""

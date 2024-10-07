@@ -1,7 +1,7 @@
 import numpy as np
 from math import floor, inf
-from src.utils import coordUnitVector as unitVector
-from src.utils import lexicSort, midIsInReducedMargin, find_idx_in_margin, \
+from sgmethods.utils import coordUnitVector as unitVector
+from sgmethods.utils import lexicSort, midIsInReducedMargin, find_idx_in_margin, \
     findMid, lexicSort
 
 

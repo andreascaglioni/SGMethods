@@ -1,6 +1,7 @@
-src/__pycache__
+sgmethods/__pycache__
 tests/__pycache__
 tutorials/__pycache__
 .vscode
-
-
+docs/build
+docs/make.bat
+docs/Makefile

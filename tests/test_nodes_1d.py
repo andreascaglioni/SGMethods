@@ -1,5 +1,5 @@
 import numpy as np
-from src.nodes_1d import equispacedNodes, equispacedInteriorNodes, CCNodes, HermiteNodes, unboundedNodesOptimal, unboundedKnotsNested
+from sgmethods.nodes_1d import equispacedNodes, equispacedInteriorNodes, CCNodes, HermiteNodes, unboundedNodesOptimal, unboundedKnotsNested
 import pytest
 
 

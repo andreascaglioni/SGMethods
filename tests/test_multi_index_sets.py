@@ -1,6 +1,6 @@
 import pytest
 import numpy as np
-from src.multi_index_sets import TPMidSet, anisoSmolyakMidSet, computeMidSetFast_freeDim
+from sgmethods.multi_index_sets import TPMidSet, anisoSmolyakMidSet, computeMidSetFast_freeDim
 
 @pytest.mark.parametrize("w, N, expected_mid_set", [
     (0, 1, np.array([[0]])),

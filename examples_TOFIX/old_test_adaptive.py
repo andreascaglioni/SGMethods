@@ -3,10 +3,10 @@ from math import sqrt
 import matplotlib.pyplot as plt
 import sys, os
 sys.path.insert(1, os.path.join(os.path.expanduser("~"), 'workspace/SGMethods'))
-from src.nodes_1d import unboundedKnotsNested
-from src.multi_index_sets import midSet
-from src.compute_error_indicators import compute_aposteriori_estimator_reduced_margin
-from src.sparse_grid_interpolant import SGInterpolant
+from sgmethods.nodes_1d import unboundedKnotsNested
+from sgmethods.multi_index_sets import midSet
+from sgmethods.compute_error_indicators import compute_aposteriori_estimator_reduced_margin
+from sgmethods.sparse_grid_interpolant import SGInterpolant
 
 """An example using the [Gerstner-Griebel] adaptivity"""
 

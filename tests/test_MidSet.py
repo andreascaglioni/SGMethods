@@ -1,5 +1,5 @@
 import numpy as np
-from src.MidSet import MidSet
+from sgmethods.MidSet import MidSet
 
 
 def test_MidSet():

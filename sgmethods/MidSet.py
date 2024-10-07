@@ -1,6 +1,6 @@
 import numpy as np
 from numpy import inf
-from src.utils import coordUnitVector, findMid, find_idx_in_margin, lexicSort, midIsInReducedMargin
+from sgmethods.utils import coordUnitVector, findMid, find_idx_in_margin, lexicSort, midIsInReducedMargin
 
 
 class MidSet():
@@ -13,7 +13,7 @@ class MidSet():
        Adding multi-indices to the margin using update() does not grow the 
        dimenisonality.
        Dimension-adaptivity is allowed with method increase_dim(), which adds
-       to the multi-index set the first  coordinate unit vector outside of the
+       to the multi-index set the first coordinate unit vector outside of the
        support of the multi-index set.
        If the maximum dimension maxN is reached, then the dimenison-adaptivity
        is not considered.

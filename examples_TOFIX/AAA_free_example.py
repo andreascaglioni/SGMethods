@@ -1,10 +1,10 @@
 from math import sqrt
 import numpy as np
-from src.parametrci_expansions_Wiener_process import param_LC_Brownian_motion
-from src.sparse_grid_interpolant import SGInterpolant
-from src.tp_piecewise_linear import TPPwLinearInterpolator
-from src.multi_index_sets import computeMidSetFast
-from src.nodes_1d import unboundedNodesOptimal
+from sgmethods.parametric_expansions_Wiener_process import param_LC_Brownian_motion
+from sgmethods.sparse_grid_interpolant import SGInterpolant
+from sgmethods.tp_inteprolants import TPPwLinearInterpolator
+from sgmethods.multi_index_sets import computeMidSetFast
+from sgmethods.nodes_1d import unboundedNodesOptimal
 import matplotlib.pyplot as plt
 
 

@@ -1,7 +1,14 @@
+"""
+sparse_grid_interpolant.py
+====================================
+The core module of SGmethods. It contains the implementtion of sparse grid 
+interpolation in a class.
+"""
+
 import numpy as np
 from scipy.interpolate import RegularGridInterpolator
-from src.nodes_tp import TPKnots
-from src.tp_interpolant_wrapper import TPInterpolatorWrapper
+from sgmethods.nodes_tp import TPKnots
+from sgmethods.tp_interpolant_wrapper import TPInterpolatorWrapper
 from multiprocessing import Pool
 
 

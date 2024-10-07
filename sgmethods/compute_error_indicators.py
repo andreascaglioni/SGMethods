@@ -2,9 +2,9 @@ import numpy as np
 import sys, os
 from multiprocessing import Pool
 sys.path.insert(1, os.path.join(os.path.expanduser("~"), 'workspace/src'))
-from src.sparse_grid_interpolant import SGInterpolant
-from src.utils import findMid, lexicSort
-from src.tp_inteprolants import TPPwLinearInterpolator
+from sgmethods.sparse_grid_interpolant import SGInterpolant
+from sgmethods.utils import findMid, lexicSort
+from sgmethods.tp_inteprolants import TPPwLinearInterpolator
 
 
 # TODO: Write tests

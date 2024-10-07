@@ -5,12 +5,12 @@ import matplotlib.pyplot as plt
 
 import sys, os
 sys.path.insert(1, os.path.join(os.path.expanduser("~"), 'workspace/SGMethods'))
-from src.MidSet import MidSet
-from src.sparse_grid_interpolant import SGInterpolant
-from src.nodes_1d import unboundedKnotsNested
-from src.compute_error_indicators import compute_GG_indicators_RM
-from src.parametrci_expansions_Wiener_process import param_LC_Brownian_motion
-from src.tp_piecewise_linear import TPPwLinearInterpolator
+from sgmethods.MidSet import MidSet
+from sgmethods.sparse_grid_interpolant import SGInterpolant
+from sgmethods.nodes_1d import unboundedKnotsNested
+from sgmethods.compute_error_indicators import compute_GG_indicators_RM
+from sgmethods.parametric_expansions_Wiener_process import param_LC_Brownian_motion
+from sgmethods.tp_inteprolants import TPPwLinearInterpolator
 
 
 # Parameters
