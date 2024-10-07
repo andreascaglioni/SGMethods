@@ -4,18 +4,18 @@ sgmethods package
 Submodules
 ----------
 
-sgmethods.MidSet module
------------------------
-
-.. automodule:: sgmethods.MidSet
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 sgmethods.compute\_error\_indicators module
 -------------------------------------------
 
 .. automodule:: sgmethods.compute_error_indicators
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+sgmethods.mid\_set module
+-------------------------
+
+.. automodule:: sgmethods.mid_set
    :members:
    :undoc-members:
    :show-inheritance:

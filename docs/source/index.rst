@@ -1,5 +1,5 @@
 .. SGMethods documentation master file, created by
-   sphinx-quickstart on Sun Oct  6 22:53:52 2024.
+   sphinx-quickstart on Mon Oct  7 13:33:38 2024.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
@@ -10,7 +10,8 @@ Welcome to SGMethods's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-
+   modules
+   sgmethods
 
 Indices and tables
 ==================
