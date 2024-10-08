@@ -1,5 +1,5 @@
-import numpy as np
 from math import sqrt, factorial, log2, pi
+import numpy as np
 from multiprocessing import Pool
 import matplotlib.pyplot as plt
 
@@ -7,9 +7,9 @@ import sys, os
 sys.path.insert(1, os.path.join(os.path.expanduser("~"), 'workspace/SGMethods'))
 from sgmethods.MidSet import MidSet
 from sgmethods.sparse_grid_interpolant import SGInterpolant
-from sgmethods.nodes_1d import unboundedKnotsNested
+from sgmethods.nodes_1d import unbounded_nodes_nested
 from sgmethods.compute_error_indicators import compute_GG_indicators_RM
-from sgmethods.parametric_expansions_Wiener_process import param_LC_Brownian_motion
+from sgmethods.parametric_expansions_wiener_process import param_LC_Brownian_motion
 from sgmethods.tp_inteprolants import TPPwLinearInterpolator
 
 
@@ -50,7 +50,7 @@ dimF = uExa.shape[1]
 
 # Choose interpolant
 lev2knots = lambda n: 2**(n+1)-1
-knots = lambda n : unboundedKnotsNested(n, p=p)
+knots = lambda n : unbounded_nodes_nested(n, p=p)
 p = 2
 
 

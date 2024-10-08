@@ -1,29 +1,35 @@
-import numpy as np
+"""Tests for the module sparse_grid_interpolant.py"""
+
 from math import sqrt
-from sgmethods.nodes_1d import equispacedNodes, CCNodes, unboundedNodesOptimal
-from sgmethods.tp_inteprolants import TPPwLinearInterpolator, TPPwCubicInterpolator
+import numpy as np
+from sgmethods.nodes_1d import equispaced_nodes, cc_nodes,\
+    optimal_gaussian_nodes
+from sgmethods.tp_inteprolants import TPPwLinearInterpolator,\
+    TPPwCubicInterpolator
 from sgmethods.sparse_grid_interpolant import SGInterpolant
 from sgmethods.multi_index_sets import smolyak_mid_set, compute_mid_set_fast
-from sgmethods.parametric_expansions_Wiener_process import param_LC_Brownian_motion
+from sgmethods.parametric_expansions_wiener_process import\
+    param_LC_Brownian_motion
 
-def test_SGInterpolant_exact_polyDegree1():
+
+def test_sg_interpolant_exact_degree1():
     """Interpolate exactly a polynomial of degree 1"""
 
-    P = lambda x : 2. + x[0] + x[0]*x[1]
+    profit = lambda x : 2. + x[0] + x[0]*x[1]
     Lambda = np.array([[0, 0],
                         [0, 1],
                         [1, 0],
                         [1, 1]])
-    kk = lambda n : equispacedNodes(n)
+    kk = lambda n : equispaced_nodes(n)
     lev2knots = lambda n : n+1
     # default piecewise linear interpolation
-    interpolant = SGInterpolant(Lambda, kk, lev2knots)  
-    samples_SG = interpolant.sampleOnSG(P)
+    interpolant = SGInterpolant(Lambda, kk, lev2knots)
+    samples_sg = interpolant.sampleOnSG(profit)
     xRnd = np.random.uniform(-1, 1, [10, 2])
-    IP_x = interpolant.interpolate(xRnd, samples_SG)
+    IP_x = interpolant.interpolate(xRnd, samples_sg)
     P_x = np.zeros((xRnd.shape[0]))
     for n in range(xRnd.shape[0]):
-        P_x[n] = P(xRnd[n, :])
+        P_x[n] = profit(xRnd[n, :])
     assert np.linalg.norm(IP_x-P_x) < 1.e-4
 
 def test_SGInterpolant_exact_polyDegree3():
@@ -38,7 +44,7 @@ def test_SGInterpolant_exact_polyDegree3():
                         [1, 1],
                         [1, 2],
                         [1, 3]])
-    kk = lambda n : equispacedNodes(n)
+    kk = lambda n : equispaced_nodes(n)
     lev2knots = lambda n : 3*n+1
     interpolant = SGInterpolant(Lambda, kk, lev2knots, \
                                 TPInterpolant=TPPwCubicInterpolator)
@@ -65,7 +71,7 @@ def test_SGinterpolant_exp():
 
     # Parameters interpolant
     lev2knots = lambda nu : nu+1  # np.where(nu == 0, 1, 2**nu+1)
-    kk = lambda n : CCNodes(n)
+    kk = lambda n : cc_nodes(n)
     TPInterpol = lambda nodes_tuple, f_on_nodes : \
         TPPwLinearInterpolator(nodes_tuple, f_on_nodes)
 
@@ -116,7 +122,7 @@ def test_SGinterpolant_Gaussian_RF():
     # Parameters interpolant
     lev2knots = lambda nu : 2**(nu+1)-1
     p = 2  # always equals inteprolant degree + 1
-    kk = lambda n : unboundedNodesOptimal(n, p=p)
+    kk = lambda n : optimal_gaussian_nodes(n, p=p)
     TPInterpol = lambda nodes_tuple, f_on_nodes : \
         TPPwLinearInterpolator(nodes_tuple, f_on_nodes)
     ell = lambda nu: np.where(nu==0, 0, np.floor(np.log2(nu)).astype(int)+1) # level

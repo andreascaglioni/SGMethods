@@ -1,4 +1,4 @@
-"""Module for a class that implements the mmultilevel sparse grid interpolation
+"""Module for a class that implements the multilevel sparse grid interpolation
 from  `[Teckentrup, Jantsch, Webster, Gunzburger (2015)] 
 <https://epubs.siam.org/doi/abs/10.1137/140969002>`_.
 """
@@ -56,8 +56,8 @@ class MLInterpolant:
         which ML samples are given.
 
         Args:
-            yy (numpy.ndarray[float]): Each row is a parameter of any length. The
-                number of rows is also arbitrary.
+            yy (numpy.ndarray[float]): Each row is a parameter of any length. 
+                The number of rows is also arbitrary.
             ml_samples_f (list): List of multilevel samples as computed by the
                 method :py:meth:`sample`.
 

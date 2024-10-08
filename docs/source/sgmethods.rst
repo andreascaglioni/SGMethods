@@ -52,10 +52,10 @@ sgmethods.nodes\_tp module
    :undoc-members:
    :show-inheritance:
 
-sgmethods.parametric\_expansions\_Wiener\_process module
+sgmethods.parametric\_expansions\_wiener\_process module
 --------------------------------------------------------
 
-.. automodule:: sgmethods.parametric_expansions_Wiener_process
+.. automodule:: sgmethods.parametric_expansions_wiener_process
    :members:
    :undoc-members:
    :show-inheritance:

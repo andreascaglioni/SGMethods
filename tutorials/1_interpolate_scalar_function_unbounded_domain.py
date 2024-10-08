@@ -3,7 +3,7 @@ from math import sin, sqrt
 from scipy.interpolate import RegularGridInterpolator
 import sys, os
 sys.path.insert(1, os.path.join(os.path.expanduser("~"), 'workspace/SGMethods'))
-from sgmethods.nodes_1d import CCNodes
+from sgmethods.nodes_1d import cc_nodes
 from sgmethods.multi_index_sets import aniso_smolyak_mid_set
 from sgmethods.tp_inteprolants import TPPwLinearInterpolator
 from sgmethods.sparse_grid_interpolant import SGInterpolant
@@ -23,7 +23,7 @@ def F(y):
 # Sparse grid parameters. 
 p = 2  # Polynomial degree of the interpolant is p-1 ine ach parameter
 lev2knots = lambda nu: np.where(nu==0, 1, 2**(nu-1)+1)  # Level-to-knots function
-knots = lambda n : CCNodes(n)  # Nodes family
+knots = lambda n : cc_nodes(n)  # Nodes family
 
 # Error computation
 def computeL2Error(uExa, Iu):

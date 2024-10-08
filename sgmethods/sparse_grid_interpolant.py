@@ -7,7 +7,7 @@ interpolation in a class.
 
 import numpy as np
 from scipy.interpolate import RegularGridInterpolator
-from sgmethods.nodes_tp import TPKnots
+from sgmethods.nodes_tp import tp_knots
 from sgmethods.tp_interpolant_wrapper import TPInterpolatorWrapper
 from multiprocessing import Pool
 
@@ -97,7 +97,7 @@ class SGInterpolant:
                 if (numNodesActiveDirs.shape[0] == 0):
                     numNodesActiveDirs = np.array([1])
                 self.activeTPNodesList.append(
-                    TPKnots(self.knots, numNodesActiveDirs))
+                    tp_knots(self.knots, numNodesActiveDirs))
                 shp = np.ndarray(tuple(numNodesActiveDirs), dtype=int)
                 self.mapTPtoSG.append(shp)  # to be filled
 

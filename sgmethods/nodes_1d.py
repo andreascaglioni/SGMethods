@@ -1,12 +1,19 @@
-from scipy.stats import norm
-from scipy.special import erfinv
-from math import log, sqrt, log2, exp, pi
+"""
+This module provides various functions to generate nodes for interpolation and 
+numerical integration. The nodes are generated for different types of 
+distributions and polynomial interpolants.
+
+Functions:
+    
+"""
+
+from math import sqrt, log2, pi
 import numpy as np
 from numpy.polynomial.hermite import hermroots
+from scipy.special import erfinv
 
-"""Module for generating 1D interpolation nodes"""
 
-def equispacedNodes(n):
+def equispaced_nodes(n):
     """Gnerate n equispaced nodes on [-1,1] with first and last node on boundary
 
     Args:
@@ -16,55 +23,59 @@ def equispacedNodes(n):
         array of double: n  nodes
     """
 
-    if (n == 1):
-        return 0
+    if n == 1:
+        return 0  # TODO consider np.array([0]) instead, and for other functions
     else:
         return np.linspace(-1, 1, n)
 
 
-def equispacedInteriorNodes(n):
+def equispaced_interior_nodes(n):
     """Generates n equispaced nodes on (-1,1) with the first and last node in 
-    the interior at same distance from -1,1
+    the interior at same distance from -1 and 1.
+    They conicide with the n+2 equispaced nodes on [-1,1] with first and last
+    node left out.
 
     Args:
         n (int): number of nodes
 
     Returns:
-        array of double: n  nodes
+        numpy.ndarray[float]: n nodes
     """
 
-    if (n == 1):
+    if n == 1:
         return 0
-    else:
-        xx = np.linspace(-1, 1, n+2)
-        return xx[1:-1:]
+    xx = np.linspace(-1, 1, n+2)
+    return xx[1:-1:]
 
 
-def CCNodes(n):
-    """Generate n Clenshaw-Curtis nodes, i.e. extrema of (n-1)-th Chebyshev 
-        polynomial
+def cc_nodes(n):
+    r"""Generate n Clenshaw-Curtis nodes, i.e. extrema of (n-1)-th Chebyshev 
+    polynomial on [-1,1]. They read
+
+    .. math::
+
+        x_i = -\cos\left(\frac{i\pi}{n-1}\right), \quad i=0,1,...,n-1
 
     Args:
         n (int): number of nodes >=1
 
     Returns:
-        array of double: n nodes; if n=1, return [0]
+        numpy.ndarray[float]: n nodes; if n=1, return [0]
     """
 
-    if (n == 1):
+    if n == 1:
         return 0
-    else:
-        return -np.cos(pi*(np.linspace(0, n-1, n))/(n-1))
+    return -np.cos(pi*(np.linspace(0, n-1, n))/(n-1))
 
 
-def HermiteNodes(n):
-    """Hermite interpolation nodes (roots of the n-th Hermite polynomial)
+def hermite_nodes(n):
+    """Hermite interpolation nodes (roots of the n-th Hermite polynomial).
 
     Args:
         n (int): number of nodes >=1
 
     Returns:
-        array of double: n nodes; if n=1, return [0]
+        numpy.ndarray[float]: n nodes; if n=1, return [0]
     """
 
     en = np.zeros(n+1)
@@ -72,43 +83,47 @@ def HermiteNodes(n):
     return hermroots(en)
 
 
-def unboundedNodesOptimal(n, p=2):
-    """Generate desired number of nodes that eventually cover R with a 
-    distribution that is optimal for L2_mu (mu=gaussian density) error of degree
-    p piecewise polynomial interpolant
+def optimal_gaussian_nodes(n, p=2):
+    """Generate ``n`` interpolation nodes that eventually cover 
+    :math:`\mathbb{R}` and give optimal degree ``p+1`` piecewise poynomial 
+    interpolation in the :math:`L^2_{\mu}(\mathbb{R})` norm, where :math:`\mu`
+    denote the Gaussian density.
 
     Args:
         n (int): number of nodes
-        p (int, optional): Piecewise polynomial interpolant degree + 1 (=number
-        of needed nodes to determine piecewise polynomial in each interval). 
-        Defaults to 2. n must be odd because nodes are symmetric around 0 and
-        one node is 0
+        p (int, optional): Piecewise polynomial interpolant degree + 1 (i.e. the
+            number of nodes needed to determine a piecewise polynomial of degree
+            p in each interval). Defaults to 2. n must be odd because nodes are 
+            symmetric around 0 and one node is 0.
     Returns:
-        array: n interpolation nodes
+        numpy.ndarray[float]: n interpolation nodes.
     """
 
-    assert (n % 2 == 1)
+    assert n % 2 == 1
     m = int((n-1)/2)
     xx = np.linspace(-m, m, n)/(m+1)
     c = sqrt(2*(2*p+1))
     return c * erfinv(xx)
 
 
-def unboundedKnotsNested(n, p=2):
-    """Use previous function to generated NESTED nodes that eventually conver R 
-    and are optimal for L^2_mu (mu = normal density) error of degree p piecewise
-    polynomial interpolant
+def unbounded_nodes_nested(n, p=2):
+    """Use :py:func:`optimal_gaussian_nodes` to generated ``n`` *nested* nodes
+    that eventually conver :math:`\mathbb{R}` and give optimal degree ``p+1`` 
+    piecewise poynomial interpolation in the :math:`L^2_{\mu}(\mathbb{R})` norm,
+    where :math:`\mu` denote the Gaussian density. 
+    ``n`` must be odd because one
+    node is 0 and nodes are symmetric around 0. 
+    ``n`` must have the right value for the sequence of ndoes to be nested, i.e. 
+    :math:`n = 2^{i+1}-1` for some :math:`i\in\mathbb{N}_0`.
 
     Args:
         n (int): number of nodes
-        p (int, optional): Piecewise polynomial interpolant degree + 1 (=number 
-        of needed nodes to detemrine piecewise poly in each interval). Defaults 
-        to 2.
-        NB n must be odd because one node is 0 and nodes are symmetric around 0
-        NB n must have right value for nestedness: n = 2^(i+1)-1 for i=0,1,...
+        p (int, optional): Piecewise polynomial interpolant degree + 1 (i.e. the
+            number of nodes needed to determine a piecewise polynomial of degree
+            p in each interval). Defaults to 2.
 
     Returns:
-        _type_: _description_
+        numpy.ndarray[float]: n interpolation nodes.
     """
     assert (log2(n+1)-1 >= 0 & (abs(log2(n+1) - int(log2(n+1)) < 1.e-10)))
-    return unboundedNodesOptimal(n, p)
+    return optimal_gaussian_nodes(n, p)
