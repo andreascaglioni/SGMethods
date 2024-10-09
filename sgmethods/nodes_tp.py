@@ -1,8 +1,6 @@
 """
-This module provides functions to generate tensor product nodes.
-
-Functions:
-    TPKnots: Generate tensor product nodes from scalar knots.
+This module provides the function to generate tensor product nodes from 1D 
+nodes.
 """
 
 def tp_knots(scalar_knots, num_knots_dir):
@@ -11,11 +9,12 @@ def tp_knots(scalar_knots, num_knots_dir):
 
     Args:
         scalar_knots (Callable[[int], numpy.ndarray[float]]): scalar_knots(n) 
-            generates set pf n 1D nodes 
-        num_knots_dir (numpy.ndarray[int]): Number of nodes in each direction
+            generates set of n 1D nodes.
+        num_knots_dir (numpy.ndarray[int]): Number of nodes in each direction.
 
     Returns:
-        tuple[numpy.ndarray[float]]: Tensor product nodes along each direction.
+        tuple[numpy.ndarray[float]]: Tensor product nodes. Each tuple entry 
+        contains the nodes in in direction.
     """
 
     kk = ()

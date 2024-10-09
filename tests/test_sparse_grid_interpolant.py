@@ -24,7 +24,7 @@ def test_sg_interpolant_exact_degree1():
     lev2knots = lambda n : n+1
     # default piecewise linear interpolation
     interpolant = SGInterpolant(Lambda, kk, lev2knots)
-    samples_sg = interpolant.sampleOnSG(profit)
+    samples_sg = interpolant.sample_on_SG(profit)
     xRnd = np.random.uniform(-1, 1, [10, 2])
     IP_x = interpolant.interpolate(xRnd, samples_sg)
     P_x = np.zeros((xRnd.shape[0]))
@@ -47,8 +47,8 @@ def test_SGInterpolant_exact_polyDegree3():
     kk = lambda n : equispaced_nodes(n)
     lev2knots = lambda n : 3*n+1
     interpolant = SGInterpolant(Lambda, kk, lev2knots, \
-                                TPInterpolant=TPPwCubicInterpolator)
-    samples_SG = interpolant.sampleOnSG(P)
+                                tp_interpolant=TPPwCubicInterpolator)
+    samples_SG = interpolant.sample_on_SG(P)
     xRnd = np.random.uniform(-1, 1, [10, 2])
     IP_x = interpolant.interpolate(xRnd, samples_SG)
     P_x = np.zeros((xRnd.shape[0]))
@@ -83,17 +83,17 @@ def test_SGinterpolant_exp():
         # Define Interpolant
         Lambda = smolyak_mid_set(w, N=N)
         interpolant = SGInterpolant(Lambda, kk, lev2knots, 
-                                    TPInterpolant=TPInterpol, NParallel=1, 
+                                    tp_interpolant=TPInterpol, n_parallel=1, 
                                     verbose=False)
-        f_on_SG = interpolant.sampleOnSG(F)
+        f_on_SG = interpolant.sample_on_SG(F)
         f_interpolated = interpolant.interpolate(rnd_samples, f_on_SG)
 
         # Cmpute error
         err_curr = np.amax(np.abs(f_interpolated - f_rnd))
         print("w = ", w)
-        print("Nodes:", interpolant.numNodes)
+        print("Nodes:", interpolant.num_nodes)
         print("Error:", err_curr)
-        number_samples = np.append(number_samples, interpolant.numNodes)
+        number_samples = np.append(number_samples, interpolant.num_nodes)
         err = np.append(err, err_curr)
 
     # Test assertion: Respectively
@@ -139,18 +139,18 @@ def test_SGinterpolant_Gaussian_RF():
 
         # Define Interpolant and sample, interpolate
         interpolant = SGInterpolant(Lambda, kk, lev2knots, 
-                                    TPInterpolant=TPInterpol, NParallel=1, 
+                                    tp_interpolant=TPInterpol, n_parallel=1, 
                                     verbose=False)
-        f_on_SG = interpolant.sampleOnSG(F)
+        f_on_SG = interpolant.sample_on_SG(F)
         f_interpolated = interpolant.interpolate(rnd_samples, f_on_SG)
 
         # Cmpute error and print result current iteration
         errSamples = np.linalg.norm(f_rnd - f_interpolated, 2, axis=1) * sqrt(1/nt)
         err_curr = sqrt(np.mean(np.square(errSamples)))
         print("iter = ", iter)
-        print("Nodes:", interpolant.numNodes)
+        print("Nodes:", interpolant.num_nodes)
         print("Error:", err_curr)
-        number_samples = np.append(number_samples, interpolant.numNodes)
+        number_samples = np.append(number_samples, interpolant.num_nodes)
         err = np.append(err, err_curr)
 
     # Test assertion: Respectively

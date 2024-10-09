@@ -2,9 +2,6 @@
 This module provides various functions to generate nodes for interpolation and 
 numerical integration. The nodes are generated for different types of 
 distributions and polynomial interpolants.
-
-Functions:
-    
 """
 
 from math import sqrt, log2, pi
@@ -14,13 +11,14 @@ from scipy.special import erfinv
 
 
 def equispaced_nodes(n):
-    """Gnerate n equispaced nodes on [-1,1] with first and last node on boundary
+    """Gnerate n equispaced nodes on [-1,1] with first and last node on
+    boundary.
 
     Args:
-        n (int): number of nodes
+        n (int): number of nodes.
 
     Returns:
-        array of double: n  nodes
+        numpy.ndarray[float]: n  nodes.
     """
 
     if n == 1:
@@ -36,10 +34,10 @@ def equispaced_interior_nodes(n):
     node left out.
 
     Args:
-        n (int): number of nodes
+        n (int): number of nodes.
 
     Returns:
-        numpy.ndarray[float]: n nodes
+        numpy.ndarray[float]: n nodes.
     """
 
     if n == 1:
@@ -54,13 +52,13 @@ def cc_nodes(n):
 
     .. math::
 
-        x_i = -\cos\left(\frac{i\pi}{n-1}\right), \quad i=0,1,...,n-1
+        x_i = -\cos\left(\frac{i\pi}{n-1}\right), \quad i=0,1,...,n-1.
 
     Args:
-        n (int): number of nodes >=1
+        n (int): number of nodes >=1.
 
     Returns:
-        numpy.ndarray[float]: n nodes; if n=1, return [0]
+        numpy.ndarray[float]: n nodes; if n=1, return 0.
     """
 
     if n == 1:
@@ -72,10 +70,10 @@ def hermite_nodes(n):
     """Hermite interpolation nodes (roots of the n-th Hermite polynomial).
 
     Args:
-        n (int): number of nodes >=1
+        n (int): number of nodes >=1.
 
     Returns:
-        numpy.ndarray[float]: n nodes; if n=1, return [0]
+        numpy.ndarray[float]: n nodes; if n=1, return 0.
     """
 
     en = np.zeros(n+1)
@@ -95,6 +93,7 @@ def optimal_gaussian_nodes(n, p=2):
             number of nodes needed to determine a piecewise polynomial of degree
             p in each interval). Defaults to 2. n must be odd because nodes are 
             symmetric around 0 and one node is 0.
+    
     Returns:
         numpy.ndarray[float]: n interpolation nodes.
     """
@@ -111,13 +110,12 @@ def unbounded_nodes_nested(n, p=2):
     that eventually conver :math:`\mathbb{R}` and give optimal degree ``p+1`` 
     piecewise poynomial interpolation in the :math:`L^2_{\mu}(\mathbb{R})` norm,
     where :math:`\mu` denote the Gaussian density. 
-    ``n`` must be odd because one
-    node is 0 and nodes are symmetric around 0. 
+    ``n`` must be odd because one node is 0 and nodes are symmetric around 0. 
     ``n`` must have the right value for the sequence of ndoes to be nested, i.e. 
     :math:`n = 2^{i+1}-1` for some :math:`i\in\mathbb{N}_0`.
 
     Args:
-        n (int): number of nodes
+        n (int): number of nodes.
         p (int, optional): Piecewise polynomial interpolant degree + 1 (i.e. the
             number of nodes needed to determine a piecewise polynomial of degree
             p in each interval). Defaults to 2.

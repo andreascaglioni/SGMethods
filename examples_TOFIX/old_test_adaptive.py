@@ -35,11 +35,11 @@ uOnSG = None
 w=0
 while True:
     # COMPUTE
-    interpolant = SGInterpolant(I.midSet, knots, lev2knots, interpolationType=interpolationType, NParallel=NParallel)
-    if(interpolant.numNodes > maxNumNodes):
+    interpolant = SGInterpolant(I.midSet, knots, lev2knots, interpolationType=interpolationType, n_parallel=NParallel)
+    if(interpolant.num_nodes > maxNumNodes):
         break
-    print("# nodes:", interpolant.numNodes, "\nNumber effective dimensions:", I.N)
-    uOnSG = interpolant.sampleOnSG(F, dimF, oldSG, uOnSG)
+    print("# nodes:", interpolant.num_nodes, "\nNumber effective dimensions:", I.N)
+    uOnSG = interpolant.sample_on_SG(F, dimF, oldSG, uOnSG)
     uInterp = interpolant.interpolate(yyRnd, uOnSG)
     # ESTIMATE: 
     estimator_reduced_margin = compute_aposteriori_estimator_reduced_margin(I, knots, lev2knots, F, dimF, interpolant.SG, uOnSG, yyRnd, physicalNorm, NRNDSamples, uInterp, interpolationType=interpolationType, NParallel=NParallel)

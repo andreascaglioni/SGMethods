@@ -2,8 +2,8 @@
 
 import numpy as np
 from numpy import inf
-from sgmethods.utils import coordUnitVector, findMid, find_idx_in_margin, \
-    lexicSort, midIsInReducedMargin
+from sgmethods.utils import coord_unit_vector, find_mid, find_idx_in_margin, \
+    lexic_sort, midIsInReducedMargin
 
 
 class MidSet():
@@ -110,8 +110,8 @@ class MidSet():
         # Check if mid is in reduced margin. If not, recursively add mids from
         # backward margin. Check one dim at a time.
         for n in range(self.get_dim()):
-            en = coordUnitVector(self.get_dim(), n)
-            check_member, _ = findMid(mid-en, self.mid_set)
+            en = coord_unit_vector(self.get_dim(), n)
+            check_member, _ = find_mid(mid-en, self.mid_set)
             if not (mid[n] == 0 or check_member): # check admissibility
                 mid_tmp = mid - en
                 idx_mid_tmp = find_idx_in_margin(self.margin, mid_tmp)
@@ -122,7 +122,7 @@ class MidSet():
 
         # Update midSet
         self.mid_set = np.row_stack((self.mid_set, mid))
-        self.mid_set = lexicSort(self.mid_set)
+        self.mid_set = lexic_sort(self.mid_set)
 
         # Update margin (recall that it is also of dimensions N)
         self.margin = np.delete(self.margin, idx_margin,  0)  # remove added mid
@@ -132,25 +132,25 @@ class MidSet():
             )
         # mids just added may already have been in midset
         self.margin = np.unique(self.margin, axis=0)  # keep unique elements
-        self.margin = lexicSort(self.margin)
+        self.margin = lexic_sort(self.margin)
 
         # Update reduced margin
         if self.track_reduced_margin:
             # Delete the multi-index mid we just added to the multi-index set.
             # Because of the recursion, we know it was in the reduced margin.
-            check_member, idx_rm = findMid(mid, self.reduced_margin)
+            check_member, idx_rm = find_mid(mid, self.reduced_margin)
             assert check_member, "mid not in reduced margin, error and exit"
             self.reduced_margin = np.delete(self.reduced_margin, idx_rm,  0)
 
             # add reduced margin elements among forward margin of mid
             for n in range(self.get_dim()):
-                fw_mid = mid + coordUnitVector(self.get_dim(), n)
+                fw_mid = mid + coord_unit_vector(self.get_dim(), n)
                 if midIsInReducedMargin(fw_mid, self.mid_set):
                     self.reduced_margin = np.vstack(
                         (self.reduced_margin, np.reshape(fw_mid, (1, -1)))
                         )
             self.reduced_margin = np.unique(self.reduced_margin, axis=0)
-            self.reduced_margin = lexicSort(self.reduced_margin)
+            self.reduced_margin = lexic_sort(self.reduced_margin)
 
     def increase_dim(self):
         """Increase the dimensionality of the multi-index set by adding the 
@@ -172,7 +172,7 @@ class MidSet():
 
         # Update multi-index set:
         # First define the multi-index to add...
-        e_new_dim = coordUnitVector(self.get_dim()+1, self.get_dim())
+        e_new_dim = coord_unit_vector(self.get_dim()+1, self.get_dim())
         # ... then increase dimensionality existing midSet...
         self.mid_set = np.column_stack(
             (self.mid_set, \
@@ -180,7 +180,7 @@ class MidSet():
             )
         # ... and finally merge and sort
         self.mid_set = np.row_stack((self.mid_set, e_new_dim))
-        self.mid_set = lexicSort(self.mid_set)
+        self.mid_set = lexic_sort(self.mid_set)
 
         # Update margin:
         # First add new dimension to pre-existitng margin...
@@ -195,7 +195,7 @@ class MidSet():
         margin_new_dim[:, -1] += 1
         # ... and finally merge and sort
         self.margin = np.row_stack((self.margin, margin_new_dim))  # merge
-        self.margin = lexicSort(self.margin)
+        self.margin = lexic_sort(self.margin)
 
         # Update reduced margin, if tracked
         if self.track_reduced_margin:
@@ -211,4 +211,4 @@ class MidSet():
             self.reduced_margin = np.row_stack(
                 (self.reduced_margin, rm_new_dim)
                 )
-            self.reduced_margin = lexicSort(self.reduced_margin)
+            self.reduced_margin = lexic_sort(self.reduced_margin)

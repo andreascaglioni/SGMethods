@@ -70,19 +70,19 @@ while True:
 
     # COMPUTE
     interpolant = SGInterpolant(I.mid_set, knots, lev2knots, 
-                                TPPwLinearInterpolator,  NParallel=NParallel)
-    if(interpolant.numNodes > maxNumNodes):
+                                TPPwLinearInterpolator,  n_parallel=NParallel)
+    if(interpolant.num_nodes > maxNumNodes):
         break
     midSetMaxDim = np.amax(I.mid_set, axis=0)
-    print("# nodes:", interpolant.numNodes, "\nNumber effective dimensions:", I.get_dim(), "\nMax midcomponents:", midSetMaxDim)
-    uOnSG = interpolant.sampleOnSG(F, dimF, oldSG, uOnSG)
+    print("# nodes:", interpolant.num_nodes, "\nNumber effective dimensions:", I.get_dim(), "\nMax midcomponents:", midSetMaxDim)
+    uOnSG = interpolant.sample_on_SG(F, dimF, oldSG, uOnSG)
     oldSG = interpolant.SG  # Save for next iteration
     uInterp = interpolant.interpolate(yyRnd, uOnSG)
 
     # Compute reference error
     err = np.append(err, compute_error(uExa, uInterp))
     print("Error:", err[-1])
-    nNodes = np.append(nNodes, interpolant.numNodes)
+    nNodes = np.append(nNodes, interpolant.num_nodes)
     nDims = np.append(nDims, I.get_dim())
 
     # ESTIMATE
@@ -91,7 +91,7 @@ while True:
                                                    interpolant.SG, uOnSG, yyRnd,
                                                    compute_error, uInterp, 
                                                    TP_inteporlant=TPPwLinearInterpolator, 
-                                                   NParallel=NParallel)
+                                                   n_parallel=NParallel)
     oldRM = I.reduced_margin
     err_estimator = np.append(err_estimator, np.sum(error_indicators_RM))
     # np.savetxt('sinW_example_linear_adaptive.csv',np.transpose(np.array([nNodes, err, nDims, err_estimator])), delimiter=',')

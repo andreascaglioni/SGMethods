@@ -35,7 +35,7 @@ uExa = np.array(list(map(F, yyRnd)))  # Random sample of exact function
 # Sparse grid interpolation
 anisoVec = lambda N : 2**(np.linspace(0, N-1, N))
 midSet = aniso_smolyak_mid_set(w=5, N=10, a=anisoVec(10))  # Anisotropic Smolyak multi-index set in 10 dimensions
-interpolant = SGInterpolant(midSet, knots, lev2knots, TPInterpolant=TPInterpolant)
-uOnSG = interpolant.sampleOnSG(F)  # Sample the function on the sparse grid
+interpolant = SGInterpolant(midSet, knots, lev2knots, tp_interpolant=TPInterpolant)
+uOnSG = interpolant.sample_on_SG(F)  # Sample the function on the sparse grid
 uInterp = interpolant.interpolate(yyRnd, uOnSG)  # Compute the interpolated value
 error = computeL2Error(uExa, uInterp)

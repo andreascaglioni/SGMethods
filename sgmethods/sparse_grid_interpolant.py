@@ -5,12 +5,11 @@ The core module of SGmethods. It contains the implementtion of sparse grid
 interpolation in a class.
 """
 
+from multiprocessing import Pool
 import numpy as np
-from scipy.interpolate import RegularGridInterpolator
+from sgmethods.tp_inteprolants import TPPwLinearInterpolator
 from sgmethods.nodes_tp import tp_knots
 from sgmethods.tp_interpolant_wrapper import TPInterpolatorWrapper
-from multiprocessing import Pool
-
 
 class SGInterpolant:
     """Sparse grid interpolant class. It stores all relevant information to 
@@ -20,120 +19,128 @@ class SGInterpolant:
     It allows to interpolate high dimensinal functions on the sparse grid.
     """
 
-    def __init__(self, midSet, knots, lev2knots, \
-                 TPInterpolant=RegularGridInterpolator, NParallel=1, \
+    def __init__(self, mid_set, knots, lev2knots, \
+                 tp_interpolant=TPPwLinearInterpolator, n_parallel=1, \
                     verbose=True):
         """Initialize data, compute inclusion-exclusion coeff.s, sparse grid
 
         Args:
-            midSet (2D array int): Multi-index set 
+            mid_set (numpy.ndarray[int]): Multi-index set 
                 NB downward closed!! 
-            knots (function): given nin\mathbb{N}, computes n nodes
-            lev2knots (function): given level nuin\mathbb{N}_0, computes 
-                corresponding number of 1D nodes
-            TPInterpolant (class, optional): One of the classes in the module 
-                src.tp_inteprolants. (e.g. TPPwLinearInterpolator). The
+            knots (Callable[[int], numpy.ndarray[double]]): Returns back the
+                nodes vector with the given number of nodes.
+            lev2knots (Callable[[int], int]): Given a level >=0, returns the
+                corresponding number of nodes >0. 
+            tp_interpolant (Class, optional): One of the classes in the module 
+                tp_inteprolants. (e.g. TPPwLinearInterpolator). The
                 user can also define their own class following the instructions
-                in the module src.tp_inteprolants.
-            NParallel (int, optional): Number of parallel computations. Defaults 
-                to 1.
+                in the same module. Defaults to a piecewise-linear inteprolant.
+            n_parallel (int, optional): Number of parallel computations. 
+                Defaults to 1.
             verbose (bool, optional): Verbose output. Defaults to True.
         """
         self.verbose = verbose
-        self.midSet = midSet  # np array of shape (#mids, N)
-        self.cardMidSet = midSet.shape[0]
-        self.N = midSet.shape[1]
+        self.mid_set = mid_set  # np array of shape (#mids, N)
+        self.card_mid_set = mid_set.shape[0]
+        self.N = mid_set.shape[1]
         # NBB need knots[1] = 0 to increase number of dimensions
         self.knots = knots
         # NBB need lev2knots(0)=1 to increase number of dimensions
         self.lev2knots = lev2knots
-        self.TPInterpolant = TPInterpolant
+        self.tp_interpolant = tp_interpolant
 
-        self.combinationCoeffs = []  # list of int
-        self.activeMIds = []  # list of np arrays
-        self.activeTPNodesList = []  # list of tuples
+        self.combination_coeffs = []  # list of int
+        self.active_mids = []  # list of np arrays
+        self.active_tp_nodes_list = []  # list of tuples
         # which dimensions of currcent TP interpolant (in inclusion-exclusion
         # formula) are active (more than 1 node)
-        self.activeTPDims = []
-        self.mapTPtoSG = []  # list of np arrays of shape ()
-        self.setupInterpolant()
+        self.active_tp_dims = []
+        self.map_tp_to_SG = []  # list of np arrays of shape ()
+        self.setup_interpolant()
 
         self.SG = []  # np array of shape (#colloc. pts, N)
-        self.numNodes = 0
-        self.setupSG()
+        self.num_nodes = 0
+        self.setup_SG()
 
-        self.NParallel = NParallel
+        self.n_parallel = n_parallel
 
-    def setupInterpolant(self):
+    def setup_interpolant(self):
         """ Computes and saves in class attributes some important quantities:
-        combinCoeff, activeMIds, activeTPDims, activeTPNodesList, mapTPtoSG 
-        based on: midSet, knots, lev2knots
+        combination coefficients, active multi-indicies, active TP dimensions,
+        active TP nodes, map TP to SG nodes based on the multi-index set, the 
+        nodes and the level-to-knot function.
+
+        Args:
+            None
+        
+        Returns:
+            None
         """
-        bookmarks = np.unique(self.midSet[:, 0], return_index=True)[1]
+        bookmarks = np.unique(self.mid_set[:, 0], return_index=True)[1]
         bk = np.hstack((bookmarks[2:], np.array(
-            [self.cardMidSet, self.cardMidSet])))
-        for n in range(self.cardMidSet):
-            currentMid = self.midSet[n, :]
-            combinCoeff = 1
+            [self.card_mid_set, self.card_mid_set])))
+        for n in range(self.card_mid_set):
+            current_mid = self.mid_set[n, :]
+            combin_coeff = 1
             # index of the 1st mid with 1st components = currentMid[0]+2 (dont
             # need to itertate over it or any following one)
-            rangeIds = bk[currentMid[0]]
+            range_ids = bk[current_mid[0]]
             # NB in np slice start:stop, stop is NOT included!!
-            midsDifference = self.midSet[(n+1):(rangeIds), :] - currentMid
-            isBinaryVector = np.all(np.logical_and(
-                midsDifference >= 0, midsDifference <= 1), axis=1)
-            binaryRows = midsDifference[isBinaryVector]
-            compiELementary = np.power(-1, np.sum(binaryRows, axis=1))
-            combinCoeff += np.sum(compiELementary)
+            mids_difference = self.mid_set[(n+1):(range_ids), :] - current_mid
+            is_binary_vector = np.all(np.logical_and(
+                mids_difference >= 0, mids_difference <= 1), axis=1)
+            binary_rows = mids_difference[is_binary_vector]
+            combi_elementary = np.power(-1, np.sum(binary_rows, axis=1))
+            combin_coeff += np.sum(combi_elementary)
 
-            if combinCoeff != 0:
-                self.combinationCoeffs.append(combinCoeff)
-                self.activeMIds.append(currentMid)
-                numNodesDir = self.lev2knots(currentMid).astype(int)
-                activeTPDims = np.where(numNodesDir > 1)
-                self.activeTPDims.append(activeTPDims[0])
-                numNodesActiveDirs = numNodesDir[activeTPDims]
+            if combin_coeff != 0:
+                self.combination_coeffs.append(combin_coeff)
+                self.active_mids.append(current_mid)
+                num_nodes_dir = self.lev2knots(current_mid).astype(int)
+                active_tp_dims = np.where(num_nodes_dir > 1)
+                self.active_tp_dims.append(active_tp_dims[0])
+                num_nodes_active_dirs = num_nodes_dir[active_tp_dims]
                 # If no dimension is active, i.e. 1 cp, 1 need a length 1 array!
-                if (numNodesActiveDirs.shape[0] == 0):
-                    numNodesActiveDirs = np.array([1])
-                self.activeTPNodesList.append(
-                    tp_knots(self.knots, numNodesActiveDirs))
-                shp = np.ndarray(tuple(numNodesActiveDirs), dtype=int)
-                self.mapTPtoSG.append(shp)  # to be filled
+                if num_nodes_active_dirs.shape[0] == 0:
+                    num_nodes_active_dirs = np.array([1])
+                self.active_tp_nodes_list.append(
+                    tp_knots(self.knots, num_nodes_active_dirs))
+                shp = np.ndarray(tuple(num_nodes_active_dirs), dtype=int)
+                self.map_tp_to_SG.append(shp)  # to be filled
 
-    def setupSG(self):
+    def setup_SG(self):
         """Computes and saves in class attributes some important quantities:
         SG (sparse grid), numNodes, mapTPtoSG
         based on: self.activeTPNodesList
         """
 
         SG = np.array([]).reshape((0, self.N))
-        for n, currActiveTPNodes in enumerate(self.activeTPNodesList):
-            currActiveDims = self.activeTPDims[n]
+        for n, curr_active_tp_nodes in enumerate(self.active_tp_nodes_list):
+            curr_active_dims = self.active_tp_dims[n]
             # NB "*" is "unpacking" operator (return comma-separated list)
-            meshGrid = np.meshgrid(*currActiveTPNodes, indexing='ij')
-            it = np.nditer(meshGrid[0], flags=['multi_index'])
+            mesh_grid = np.meshgrid(*curr_active_tp_nodes, indexing='ij')
+            it = np.nditer(mesh_grid[0], flags=['multi_index'])
             for x in it:
-                currNodeActiveDims = [meshGrid[j][it.multi_index]
-                                      for j in range(len(meshGrid))]
+                curr_node_active_dims = [mesh_grid[j][it.multi_index]
+                                      for j in range(len(mesh_grid))]
                 # complete it with 0s in inactive dimensions
-                currNode = np.zeros(self.N)
-                currNode[currActiveDims] = currNodeActiveDims
+                curr_node = np.zeros(self.N)
+                curr_node[curr_active_dims] = curr_node_active_dims
                 # check = np.where(~(SG-currNode).any(axis=1))[0]
                 check = np.where(
-                    np.sum(np.abs(SG-currNode), axis=1) < 1.e-10)[0]
+                    np.sum(np.abs(SG-curr_node), axis=1) < 1.e-10)[0]
                 found = check.shape[0]
                 # if currNode was in the SG more than once, something wrong
-                assert (found <= 1)
+                assert found <= 1
                 if found:  # if found, add the index to mapTPtoSG[n]
-                    self.mapTPtoSG[n][it.multi_index] = check[0]
+                    self.map_tp_to_SG[n][it.multi_index] = check[0]
                 else:  # if not found, add it to sparse grid, add to mapTPtoSG
-                    SG = np.vstack((SG, np.array(currNode)))
-                    self.mapTPtoSG[n][it.multi_index] = SG.shape[0]-1
+                    SG = np.vstack((SG, np.array(curr_node)))
+                    self.map_tp_to_SG[n][it.multi_index] = SG.shape[0]-1
         self.SG = SG
-        self.numNodes = SG.shape[0]
+        self.num_nodes = SG.shape[0]
 
-    def sampleOnSG(self, Fun, dimF=None, oldXx=None, oldSamples=None):
+    def sample_on_SG(self, f, dim_f=None, old_xx=None, old_samples=None):
         """Sample a given function on the sparse grid. Optionally recycle 
             previous samples. Also takes care automatically of the case in which
             in the meainwhile the sparse grid has increased dimension. First 
@@ -142,118 +149,125 @@ class SGInterpolant:
             output are the relevant values
 
         Args:
-            Fun (function): given array of parameters (double), return array in
-                in codomain
-            dimF (int, optional): dimension codomain F. Defaults to None
-            oldXx (2D array double, optional): each row is a parameter vector. 
-                Defaults to None.
-            oldSamples (array double, optional): Each row is a sample value in 
-                corresponding parameter vector in oldXx. 
-                Defaults to None.
+            f (Callable[[numpy.ndarray[float]], numpy.ndarray[float]]): The
+                function to interpolate.
+            dim_f (int, optional): dimension codomain of f. Defaults to None.
+            old_xx (numpy.ndarray[float], optional): Each row is a parameter
+                vector. Defaults to None.
+            old_samples (numpy.ndarray[float], optional): 2D array. Each row
+                correspnds to a row of old_xx. Defaults to None.
 
         Returns:
-            2D array fo double: Values of Fun on the sparse grid 9each row is a 
+            numpy.ndarray[float]: Values of f on the sparse grid each row is a 
             value correspondin to a paramter vector)
         """
 
-        dimF = -1  # TODO remove dimF from signature; check all other scripts
+        dim_f = -1  # TODO remove dimF from signature; check all other scripts
 
         # Find dimF (dimension of output of F). First try oldSamples; if empty,
         # sample on first SG node and add to oldSamples and oldXx
-        assert (self.SG.shape[0] > 0)
-        if (not (oldSamples is None)):
-            oldSamples = np.atleast_1d(oldSamples)
-            dimF = oldSamples.shape[1]
-            assert (dimF >= 1)
+        assert  self.SG.shape[0] > 0
+        if not old_samples is None:
+            old_samples = np.atleast_1d(old_samples)
+            dim_f = old_samples.shape[1]
+            assert dim_f >= 1
         else:  # Sample on first SG node
             node0 = self.SG[0]
-            fOnSG0 = np.atleast_1d(Fun(node0))  # turn in array if scalar
-            dimF = fOnSG0.size
+            f_on_SG0 = np.atleast_1d(f(node0))  # turn in array if scalar
+            dim_f = f_on_SG0.size
 
-        fOnSG = np.zeros((self.numNodes, dimF))  # the return array
-        # TODO change, if previou else needed, one sample is forgotten
+        f_on_SG = np.zeros((self.num_nodes, dim_f))  # the return array
+        # TODO change, if previou else needed, one sample is re-samples
 
         # Sanity checks dimensions oldXx, oldSamples
-        if ((oldXx is None) or (oldSamples is None)):
-            oldXx = np.zeros((0, self.N))
-            oldSamples = np.zeros((0, dimF))
-        assert (oldXx.shape[0] == oldSamples.shape[0])
-        assert (oldSamples.shape[1] == dimF)
+        if ((old_xx is None) or (old_samples is None)):
+            old_xx = np.zeros((0, self.N))
+            old_samples = np.zeros((0, dim_f))
+        assert old_xx.shape[0] == old_samples.shape[0]
+        assert old_samples.shape[1] == dim_f
 
         # Case 1: Cuurrent parameter space has larger dimension that oldXx.
         # Embed oldXx in space of self.SG by extending by 0
-        if (oldXx.shape[1] < self.SG.shape[1]):
-            filler = np.zeros((oldXx.shape[0], self.SG.shape[1]-oldXx.shape[1]))
-            oldXx = np.hstack((oldXx, filler))
+        if old_xx.shape[1] < self.SG.shape[1]:
+            filler = np.zeros(\
+                (old_xx.shape[0], self.SG.shape[1]-old_xx.shape[1])\
+                    )
+            old_xx = np.hstack((old_xx, filler))
 
         # Case 2: Current parameter space is smaller than that of oldXx.
         # Remove from oldXx parameters out of subspace, also adapt oldSamples
-        elif (oldXx.shape[1] > self.SG.shape[1]):
-            currDim = self.N
-            tailNorm = np.linalg.norm(
-                oldXx[:, currDim::], ord=1, axis=1).astype(int)
+        elif old_xx.shape[1] > self.SG.shape[1]:
+            curr_dim = self.N
+            tail_norm = np.linalg.norm(
+                old_xx[:, curr_dim::], ord=1, axis=1).astype(int)
             # last [0] so the result is np array
-            validEntries = np.where(tailNorm == 0)[0]
-            oldXx = oldXx[validEntries, 0:self.N]
-            oldSamples = oldSamples[validEntries]
+            valid_entries = np.where(tail_norm == 0)[0]
+            old_xx = old_xx[valid_entries, 0:self.N]
+            old_samples = old_samples[valid_entries]
 
         # Find parametric points to sample now
-        nRecycle = 0
-        toCompute = []
-        yyToCompute = []
-        for n in range(self.numNodes):
-            currNode = self.SG[n, :]
+        n_recycle = 0
+        to_compute = []
+        yy_to_compute = []
+        for n in range(self.num_nodes):
+            curr_node = self.SG[n, :]
             check = np.where(np.linalg.norm(
-                oldXx-currNode, 1, axis=1) < 1.e-10)[0]
-            if (check.size > 1):
+                old_xx-curr_node, 1, axis=1) < 1.e-10)[0]
+            if check.size > 1:
                 print(check)
-            assert (check.size <= 1)
+            assert check.size <= 1
             found = len(check)
             if found:
-                fOnSG[n, :] = oldSamples[check[0], :]
-                nRecycle += 1
+                f_on_SG[n, :] = old_samples[check[0], :]
+                n_recycle += 1
             else:
-                toCompute.append(n)
-                yyToCompute.append(currNode)
+                to_compute.append(n)
+                yy_to_compute.append(curr_node)
 
         # Sample (possibily in parallel) on points found just above
-        if (len(toCompute) > 0):
-            if (self.NParallel == 1):
-                for i in range(len(toCompute)):
-                    fOnSG[toCompute[i], :] = Fun(yyToCompute[i])
-            elif (self.NParallel > 1):
-                pool = Pool(self.NParallel)
-                tmp = np.array(pool.map(Fun, yyToCompute))
-                if (len(tmp.shape) == 1):
+        if len(to_compute) > 0:
+            if self.n_parallel == 1:
+                for i, idx in range(len(to_compute)):
+                    f_on_SG[idx, :] = f(yy_to_compute[i])
+            elif self.n_parallel > 1:
+                pool = Pool(self.n_parallel)
+                tmp = np.array(pool.map(f, yy_to_compute))
+                if len(tmp.shape) == 1:
                     tmp = tmp.reshape((-1, 1))
-                fOnSG[toCompute, :] = tmp
+                f_on_SG[to_compute, :] = tmp
             else:
                 raise ValueError('self.NParallel not int >= 1"')
         if self.verbose:
-            print("Recycled", nRecycle, \
-                  "; Discarted", oldXx.shape[0]-nRecycle, \
-                    "; Sampled", self.SG.shape[0]-nRecycle)
-        return fOnSG
+            print("Recycled", n_recycle, \
+                  "; Discarted", old_xx.shape[0]-n_recycle, \
+                    "; Sampled", self.SG.shape[0]-n_recycle)
+        return f_on_SG
 
-    def interpolate(self, xNew, fOnSG):
+    def interpolate(self, x_new, f_on_SG):
         """Interpolate the function values on new points
 
         Args:
-            xNew (array double): THe new parametric points where to interpolate
-            fOnSG (array double): Values of function on the sparse grid
+            x_new (numpy.ndarray[float]): 2D array. New parametric points where
+                to interpolate. Each row is a point.
+            f_on_SG (numpy.ndarray[float]): 2D array. Values of function on the
+                sparse grid. Each row is a value corresponding to a parametric
+                point in the sparse grid self.SG.
 
         Returns:
-            arrray double: Values of the interpolated function on xNew
+            numpy.ndarray[float]: 2D array. Values of the interpolant of f on
+                x_new. Each row is a value corresponds to the same row in x_new.
         """
-        out = np.zeros((xNew.shape[0], fOnSG.shape[1]))
-        for n, MId in enumerate(self.activeMIds):
-            currentActiveNodesTuple = self.activeTPNodesList[n]
-            currentActiveDims = self.activeTPDims[n]
-            mapCurrTPtoSG = self.mapTPtoSG[n]
+
+        out = np.zeros((x_new.shape[0], f_on_SG.shape[1]))
+        for n in self.active_mids:
+            curr_active_nodes_tuple = self.active_tp_nodes_list[n]
+            curr_active_dims = self.active_tp_dims[n]
+            map_curr_tp_to_SG = self.map_tp_to_SG[n]
             # output is a matrix of shape = shape(mapCurrTPtoSG) + (dimF,)
-            fOnCurrentTPGrid = fOnSG[mapCurrTPtoSG, :]
-            L = TPInterpolatorWrapper(currentActiveNodesTuple, \
-                                      currentActiveDims, \
-                                      fOnCurrentTPGrid, self.TPInterpolant)
-            out = out + self.combinationCoeffs[n] * L(xNew)
+            f_on_curr_tp_grid = f_on_SG[map_curr_tp_to_SG, :]
+            tp_inteprolant = TPInterpolatorWrapper(curr_active_nodes_tuple, \
+                                      curr_active_dims, \
+                                      f_on_curr_tp_grid, self.tp_interpolant)
+            out = out + self.combination_coeffs[n] * tp_inteprolant(x_new)
         return np.squeeze(out)  # remove dimensions of length 1
+    

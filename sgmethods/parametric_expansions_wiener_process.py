@@ -30,8 +30,8 @@ def param_LC_Brownian_motion(tt, yy, T):
     Args:
         tt (numpy.ndarray[float]): Discret times of evaluation in :math:`[0,T]`.
         yy (numpy.ndarray[float]): The parameter vectors of the expansion. 
-            Each row consts of the scalar components (each in R) of a parameteir
-            vector.
+            Each row consts of the scalar components (each in :math:`R`) of a
+            parameteir vector.
         T (float): Final (positive) time of approximation.
 
     Returns:
@@ -75,8 +75,8 @@ def param_KL_Brownian_motion(tt, yy):
 
     Args:
         tt (numpy.ndarray[float]): Discrete times of evaluation in [0,1].
-        yy (numpy.ndarray[float]): Each row is a parameter vector of the 
-            expansion. Each component is a real numbers that replace i.i.d.
+        yy (numpy.ndarray[float]): 2D array. Each row is a parameter vector of 
+            the expansion. Each component is a real numbers that replace i.i.d.
             standard Gaussians.
 
     Returns:
