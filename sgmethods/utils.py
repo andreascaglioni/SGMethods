@@ -1,6 +1,6 @@
 """A collection of functions that carry out efficiently various basic tasks
-needed in the core functions or that may come in handy when using SGMethods for
-applications.
+needed in the core functions or that may come in handy when using SGMethods in
+numerical aexperiments and applications.
 """
 
 from math import exp, floor, log2
@@ -9,9 +9,9 @@ import matplotlib.pyplot as plt
 
 # TODO move to module LC.
 def compute_level_lc(i):
-    r"""Converts from linear to hiearchical indices for a wavelet explansion 
-    like the Levy-Ciesielski expansion of the Browninan motion. The change of
-    indices is:
+    r"""Converts from linear to hierarchical indices for a wavelet expansion 
+    like the Levy-Ciesielski expansion of the Brownian motion. The change of
+    indices is, for a linear index :math:`i\in\mathbb{N}_0`:
 
     .. math::
 
@@ -19,11 +19,11 @@ def compute_level_lc(i):
         j &= i - 2^{l-1}
 
     Args:
-        i (int): Linear index. The fist basis function (identity) corresponds 
-            to i=0.
+        i (int): Linear index. The fist basis function corresponds to i=0.
 
     Returns:
-        tuple[int, int]: Pair of hiearahical indices (level, index in level). 
+        tuple[int, int]: Pair of hierarchical indices (level :math:`l`, index 
+        in level :math:`j`). 
         The levels start from 0, the index in level from 1.
             
     """
@@ -42,15 +42,15 @@ def compute_level_lc(i):
 
 # Functions for working with multi-indices.
 def coord_unit_vector(dim, entry):
-    """Shortcut to make a coordinate unit vector. It automacally neglects all
-    the trailin zeros after the given dimension.
+    """Returns a coordinate unit vector, i.e. one with all zeros except for one
+    entry equal to one.
 
     Args:
-        dim (int): Dimension of the vector.
+        dim (int): Length of the vector.
         entry (int): The unique entry equal to one.
 
     Returns:
-        numpy.ndarray[int]: The deisred coordinate unit vector.
+        numpy.ndarray[int]: The desired coordinate unit vector.
     """
 
     en = np.zeros(dim, dtype=int)
@@ -58,7 +58,7 @@ def coord_unit_vector(dim, entry):
     return en
 
 def lexic_sort(mid_set):
-    """Sort given mutli-index set in lexicographic order. This means that one
+    """Sort given multi-index set in lexicographic order. This means that one
     vector comes before another if the first non-equal entry (from the left) is
     smaller.
 
@@ -67,27 +67,25 @@ def lexic_sort(mid_set):
             array, each row is a multi-index.
 
     Returns:
-        bool: The sorted mutli-index set.
+        bool: The sorted multi-index set.
     """
     return mid_set[np.lexsort(np.rot90(mid_set))]
 
-# TODO the functions findMid, find_idx_in_margin, checkIfElement all do similar
-# tasks. Refactor and keep only one.
 # TODO make one version that exploits lexicographic order for afster search in
 # O(log(number mids)*dim) by useing binary search for each component
 # TODO make findMid independent of trailing 0s in either margin or midSet
 def find_mid(mid, mid_set):
     """Find out whether a given multi-index appears in a multi index set and 
-    determine the position of its first occurance.
+    determine the position of its first occurrence.
 
     Args:
         mid (numpy.ndarray[int]): The multi-index to search for.
-        midSet (2D array int): The multi-index set. Must be a 2D array, each row
+        mid_set (numpy.ndarray[int]): The multi-index set. Must be a 2D array, each row
             is a multi-index.
 
     Returns:
-        tuple(bool,int): First value tells whether mid was found inside mid_set.
-            Second value is the position (-1 if not found).
+        tuple(bool,int): First value tells whether ``mid`` was found inside 
+        ``mid_set``. Second value is the position (-1 if not found).
     """
 
     # TODO make faster exploiting lexicographic order
@@ -103,56 +101,71 @@ def find_mid(mid, mid_set):
         return True, pos[0]
 
 def find_idx_in_margin(margin, mid):
+    """DEPRECATED. To be removed soon and substitute with 
+    :py:func:`find_mid`."""
     idx = np.all(margin == mid, axis=1)
     idx = np.where(idx == True)
     idx = idx[0][0]
     return idx
 
-def checkIfElement(mid, midSet):
-    assert (mid.size == midSet.shape[1])
+def checkIfElement(mid, mid_set):
+    """DEPRECATED. To be removed soon and substitute with 
+    :py:func:`find_mid`."""
+
+    assert (mid.size == mid_set.shape[1])
     assert (len(mid.shape) == 1)
-    assert (len(midSet.shape) == 2)
-    return (midSet == mid).all(axis=1).any()
+    assert (len(mid_set.shape) == 2)
+    return (mid_set == mid).all(axis=1).any()
 
 # TODO substittue checkIfElement with findMid
-def midIsInReducedMargin(mid, mid_set):
-    """
-    Check if a given multi-index mid belongs to the reduced margin of a 
-    multi-index set mid_set. This is the case if and only if
-    forall n = 1,...,N : mid_n = 0 or mid - e_n in mid_set
+def mid_is_in_reduced_margin(mid, mid_set):
+    r"""
+    Check if ``mid`` belongs to the reduced margin of ``mid_set``. This is the 
+    case if and only if 
     
+    .. math::
+        
+        \forall n = 1,...,N, \ \nu_n = 0 
+        \textrm{ or } \nu - e_n \in \Lambda,
+
+    where we denoted ``mid_set`` and ``mid`` by :math:`\Lambda` and :math:`\nu`
+    respectively. Here :math:`e_n` is the n-th coordinate unit vector,
+    :math:`N` is the dimension of ``mid_set`` and ``mid``.
+
     Args:
-        mid (np.ndarray): A 1D numpy array representing the multi-index.
-        mid_set (np.ndarray): A 2D numpy array representing the multi-index set.
+        mid (numpy.ndarray[float]): 1D array for the mutli-index.
+        mid_set (numpy.ndarray[float]): A 2D numpy array for the multi-index
+            set. Each wor is a multi-index. 
     Returns:
-        bool: True if the midpoint is in the reduced margin, False otherwise.
+        bool: True if ``mid`` is in the reduced margin of ``mid_set``, False 
+        otherwise.
     """
 
-    dimMids = mid_set.shape[1]
-    assert (dimMids == mid.size)
-    condition = np.zeros(dimMids, dtype=bool)
-    for n in range(dimMids):
-        en = coord_unit_vector(dimMids, n)
+    dim_mids = mid_set.shape[1]
+    assert dim_mids == mid.size
+    condition = np.zeros(dim_mids, dtype=bool)
+    for n in range(dim_mids):
+        en = coord_unit_vector(dim_mids, n)
         condition[n] = ((mid[n] == 0) or (checkIfElement(mid-en, mid_set)))
     return np.all(condition)
 
 
 # TODO: implement
 def is_downward(mid_set):
-    """Check if the multi-index set is downward-closed. This means that:
+    r"""Check if the multi-index set is downward-closed. This means that:
 
         .. math::
 
             \forall\nu\in\Lambda, \forall n\in\mathbb{N},\nu_n=0\text{ or }
-            \nu-e_n\in\Lambda
+            \nu-e_n\in\Lambda,
 
-        where :math:`e_n` is the n-th coordinate unit vecotr.
+        where :math:`e_n` is the n-th coordinate unit vector.
 
     Returns:
         bool: True if the multi-index set is downward-closed, False otherwise.
     """
 
-    Warning("is_downward not yet implemented yet")
+    Warning("Function is_downward not implemented yet! Returning False.")
     condition = False
     if condition:
         return True
@@ -166,9 +179,9 @@ def rate(err, n_dofs):
     r"""Compute the rate of logarithmic convergence of a sequence.
 
     Args:
-        err (numpy.ndarray[float]): 1D array of errors (positive floats).
-        n_nofs (numpy.ndarray[float]): Number of degrees of freedom that give 
-            the corresponding error in the array err.
+        err (numpy.ndarray[float]): 1D array of errors (positive).
+        n_nofs (numpy.ndarray[int]): Number of degrees of freedom that give 
+            the corresponding error in ``err``.
 
     Returns:
         numpy.ndarray[float]: 1D array containing rates of convergence computed
@@ -193,7 +206,7 @@ def ls_fit_loglog(x, y):
 
     Returns:
         tuple[float, float]: The slope and offset of the linear fit in the log-
-    log scale.
+        log scale.
     """
     X = np.log(x)
     Y = np.log(y)

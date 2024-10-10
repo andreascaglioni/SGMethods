@@ -9,8 +9,7 @@ Welcome to SGMethods's documentation!
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-
-   modules
+   
    sgmethods
 
 Indices and tables

@@ -92,10 +92,10 @@ sgmethods.utils module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
+.. Module contents
+.. ---------------
 
-.. automodule:: sgmethods
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. .. automodule:: sgmethods
+..    :members:
+..    :undoc-members:
+..    :show-inheritance:

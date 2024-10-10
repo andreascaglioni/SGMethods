@@ -15,7 +15,7 @@ import numpy as np
 
 
 def param_LC_Brownian_motion(tt, yy, T):
-    """The classical Lèvy-Cielsielsky constuction of the Wiener process is used 
+    """The classical Lèvy-Ciesielsky construction of the Wiener process is used 
     as a parametric expansion as follows:
 
     .. math::
@@ -30,13 +30,14 @@ def param_LC_Brownian_motion(tt, yy, T):
     Args:
         tt (numpy.ndarray[float]): Discret times of evaluation in :math:`[0,T]`.
         yy (numpy.ndarray[float]): The parameter vectors of the expansion. 
-            Each row consts of the scalar components (each in :math:`R`) of a
-            parameteir vector.
+            Each row consists of the scalar components (each in 
+            :math:`\mathbb{R}`) of a parametric vector.
         T (float): Final (positive) time of approximation.
 
     Returns:
-        numpy.ndarray[float]: Each row gives the samples on tt for the 
-        corresponding row (parameter vector) in ``yy``.
+        numpy.ndarray[float]: Each row gives the approximation of the function
+        in one parametric poin in ``yy`` through its values at the discrete
+        sample times in ``tt``.
     """
 
     # Check input

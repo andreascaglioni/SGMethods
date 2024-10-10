@@ -23,7 +23,8 @@ author = 'Andrea Scaglioni'
 extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.napoleon',
-    'sphinx.ext.mathjax'
+    'sphinx.ext.mathjax',
+    'sphinxcontrib.spelling'
 ]
 
 templates_path = ['_templates']

@@ -7,15 +7,20 @@ import numpy as np
 
 class TPInterpolatorWrapper:
     """ Wrapper for several tensor product interpolants. 
-    If a direction has only 1 colllocation node, it should be 0. In this 
-    directions, the interpolation approximation is a constant extrapolation.
-    The user can define new interplants following the instructions written in 
-    the module tp_interpolants and look at the examples given there.
+
+    If a direction has only 1 collocation node, it should be 0 and the 
+    1-node approximation is constant in that direction. This is the case of any
+    of the directions in which the multi-index does not have its support (no
+    non-zero index).
+
+    The user can define new tensor prodcut interplants following the
+    instructions written in the module tp_interpolants and look at the examples
+    given there.
     """
 
     def __init__(self, active_nodes_tuple, active_dims, f_on_nodes, \
                  tp_interpolant):
-        """Import data on nodes, function to interpolate, and interpolation
+        r"""Import data on nodes, function to interpolate, and interpolation
         method.
 
         Args:

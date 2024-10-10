@@ -1,7 +1,7 @@
 """Examples of tenosr products interpolatio operators. They will be wrapped
-in the interponat wrapper class and used for sparse grid interpolation through
+in the interpolant wrapper class and used for sparse grid interpolation through
 the inclusion-exclusion formula.
-The user can implement new interpolation operators ina alalgogous classes.
+The user can implement new interpolation operators ina analogous classes.
 IMPORTANT: The input and output must be compatible with the wrapper, so same
 as the examples in this file! In particular the following methods are needed:
 - __init__(self, nodes_tuple, f_on_nodes);

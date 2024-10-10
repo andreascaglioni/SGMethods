@@ -1,4 +1,4 @@
-"""A collection of functions to generate dowward-closed multi-index sets."""
+"""A collection of functions to generate downward-closed multi-index sets."""
 
 from math import floor
 import numpy as np
@@ -17,7 +17,7 @@ def tensor_product_mid_set(w, N):
     input ``w``, ``N``.
 
     Args:
-        w (float): Sizing parameter fo the multi-index set.
+        w (float): Sizing parameter of the multi-index set.
         N (int): Number of dimensions.
 
     Returns:
@@ -51,17 +51,21 @@ def aniso_smolyak_mid_set_free_N(w, a):
 
         \Lambda = \{\nu\in\mathbb{N}_0^N : \sum_{i=1}^N a_i\nu_i \leq w\},
 
-    where we denoted :math:`\Lambda` the multi-index set, and :math:`w, N` the 
-    input ``w``, ``N``. 
-    The dimensionality is determined as: 
+    where we denoted :math:`\Lambda` the multi-index set, and :math:`w, a` the 
+    input ``w``, ``a``. 
+    :math:`a=(a_i)_{i\in\mathbb{N}}` is a sequence of positive real numbers
+    that determines the anisotropy of the multi-index set. The number of 
+    dimensions of the multi-index set is determined as: 
 
     .. math::
 
         N = \min \{ N\in\mathbb{N} : 
         \forall \nu\in\Lambda,\ \sum_{n=1}^N a_n\nu_n \leq w \}.
 
+    Thus, the user must ensure that this quantity is finite!
+
     Args:
-        w (float): Sizing parameter fo the multi-index set.
+        w (float): Sizing parameter of the multi-index set.
         a (Callable[[int], numpy.ndarray[float]]): a(N) gives the anisotropy 
             vector of length :math:`N`. The anisotropy vector is a vector of
             positive floats.
@@ -84,13 +88,15 @@ def aniso_smolyak_mid_set(w, N, a):
     
         \Lambda = \{\nu \in \mathbb{N}_0^N : \sum_{i=1}^N a_i\nu_i \leq w \}.
 
-    where we denoted :math:`\Lambda` the multi-index set, and :math:`w, N` the 
-    input ``w``, ``N``.
+    where we denoted :math:`\Lambda` the multi-index set, and :math:`w, N, a`
+    the input ``w``, ``N``, ``a``. 
+    :math:`a=(a_i)_{i\in\mathbb{N}}` is a sequence of positive real numbers
+    that determines the anisotropy of the multi-index set.
     
     Args:
-        w (float): Sizing parameter fo the multi-index set.
+        w (float): Sizing parameter of the multi-index set.
         N (int): Number of dimensions.
-        a (Callable[[int], numpy.array[float]]): The resuting :math:`a(N)` gives
+        a (Callable[[int], numpy.array[float]]): The resulting :math:`a(N)` gives
             the anisotropy vector of length :math:`N`. The anisotropy vector is
             a vector of positive floats.
 
@@ -133,7 +139,7 @@ def smolyak_mid_set(w, N):
     input ``w``, ``N``.
     
     Args:
-        w (float): Sizing parameter fo the multi-index set.
+        w (float): Sizing parameter of the multi-index set.
         N (int): Number of dimensions.
         
     Returns:
@@ -146,8 +152,8 @@ def smolyak_mid_set(w, N):
     return aniso_smolyak_mid_set(w, N, a)
 
 def mid_set_profit_free_dim(profit_fun, minimum_profit):
-    r"""Compute a midset based on a profit function ``profit_fun`` and a minimum 
-    profit threshold ``profit_fun`` as:
+    r"""Compute a multi-index set based on a profit function ``profit_fun`` and
+    a minimum profit threshold ``profit_fun`` as:
     
     .. math:: 
     
@@ -156,11 +162,11 @@ def mid_set_profit_free_dim(profit_fun, minimum_profit):
     
     where we denoted
     :math:`\Lambda` the multi-index set,
-    :math:`\mathcal{P}_{\nu}` the profit functiona pploed to a multi-index, and
-    :math:`P_{\textrm{min}}` the minimum profit threshold.
-    The profit should be monotone (decreasing) wrt to the dimensions (otherwise
-    it is not possible to determine it) and the multi-indices (to obtain a 
-    downward-closed multi-index set). 
+    :math:`\mathcal{P}_{\nu}` the profit function applied to a multi-index, and
+    :math:`P_{\textrm{min}}>0` the minimum profit threshold.
+    The profit should be monotone (decreasing) with respect to to the dimensions
+    (otherwise it is not possible to determine it) and the multi-indices (to 
+    obtain a downward-closed multi-index set). 
     This condition cannot be checked by the library, the user must ensure it.
     The present function also determines the maximum dimension possible, then 
     calls the :py:func:`compute_mid_set_fast` with fixed dimension.
@@ -189,7 +195,7 @@ def mid_set_profit_free_dim(profit_fun, minimum_profit):
     return compute_mid_set_fast(profit_fun, minimum_profit, d_max)
 
 def compute_mid_set_fast(profit_fun, minimum_profit, N):
-    r""" Computes recrursively over ``N`` dimensions the multi-index set such 
+    r""" Computes recursively over ``N`` dimensions the multi-index set such 
     that the profit ``profit_fun`` is above the threshold ``minimum_profit`` for
     all its multi-indices. The multi-index set is defined as:
 
@@ -200,16 +206,18 @@ def compute_mid_set_fast(profit_fun, minimum_profit, N):
         
     where we denoted
     :math:`\Lambda` the multi-index set,
-    :math:`\mathcal{P}_{\nu}` the profit functiona pploed to a multi-index, and
-    :math:`P_{\textrm{min}}` the minimum profit threshold.
-    The profit function should be monotone (decreasing) wrt to the multi-indices
-    to obtain a downward-closed multi-index set.
+    :math:`\mathcal{P}_{\nu}` the profit function to apply to the multi-indices,
+    and
+    :math:`P_{\textrm{min}}>0` the minimum profit threshold.
+    The profit function should be monotone (decreasing) with respect to to the 
+    multi-indices to obtain a downward-closed multi-index set.
 
     Args:
         profit_fun (Callable[[numpy.ndarray[int]], float]): Compute profit 
             (positive float) for a multi-index.
         minimum_profit (float): minimum profit threshold for multi-index to be
-            included N (int): number of dimensions.
+            included (int): number of dimensions.
+        N (int): Number of dimensions.
 
     Returns:
         numpy.ndarray[int]: Multi-index set (each row is a multi-index of length

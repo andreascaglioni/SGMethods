@@ -1,7 +1,5 @@
 """
-sparse_grid_interpolant.py
-====================================
-The core module of SGmethods. It contains the implementtion of sparse grid 
+The core module of SGmethods. It contains the implementation of sparse grid 
 interpolation in a class.
 """
 
@@ -13,8 +11,8 @@ from sgmethods.tp_interpolant_wrapper import TPInterpolatorWrapper
 
 class SGInterpolant:
     """Sparse grid interpolant class. It stores all relevant information to 
-    define it lke multi-index set, 1D notes etc. 
-    It automatically computes the sparse grid and inclusio-exclusion 
+    define it like multi-index set, 1D notes etc. 
+    It automatically computes the sparse grid and inclusion-exclusion 
     coefficients upon initialization.
     It allows to interpolate high dimensinal functions on the sparse grid.
     """
@@ -110,8 +108,8 @@ class SGInterpolant:
 
     def setup_SG(self):
         """Computes and saves in class attributes some important quantities:
-        SG (sparse grid), numNodes, mapTPtoSG
-        based on: self.activeTPNodesList
+        SG (sparse grid), num_nodes, map_tp_to_SG
+        based on active_tp_nodes_list.
         """
 
         SG = np.array([]).reshape((0, self.N))
@@ -141,25 +139,33 @@ class SGInterpolant:
         self.num_nodes = SG.shape[0]
 
     def sample_on_SG(self, f, dim_f=None, old_xx=None, old_samples=None):
-        """Sample a given function on the sparse grid. Optionally recycle 
-            previous samples. Also takes care automatically of the case in which
-            in the meainwhile the sparse grid has increased dimension. First 
-            check if there is anything to recycle, then sample new values
-            NBB assume F takes as input an np array of parameters and the 1st 
-            output are the relevant values
+        """Sample a given function on the sparse grid. 
+        
+        Optionally recycle previous samples stored e.g. from a previous 
+        interpolation. The class also takes care automatically of the case in
+        which the sparse grid has increased dimension (number of approcimated 
+        scaar parameters). 
+        The class first checks whether or not there is anything to recycle, then
+        it sample new values.
+
+        NB The class assumes ``f`` takes as input a numpy.ndarray[float] of
+        parameters. The 1st output is assumed to be a numpy.ndarray[float] or a
+        float (in this case, it is transformed into a 1-entry 
+        numpy.ndarray[float]).
 
         Args:
             f (Callable[[numpy.ndarray[float]], numpy.ndarray[float]]): The
                 function to interpolate.
-            dim_f (int, optional): dimension codomain of f. Defaults to None.
-            old_xx (numpy.ndarray[float], optional): Each row is a parameter
-                vector. Defaults to None.
+            dim_f (int, optional): Dimensinoality codomain of ``f``. Defaults to
+                None.
+            old_xx (numpy.ndarray[float], optional): 2D array.  Each row is a 
+                parametric point Defaults to None.
             old_samples (numpy.ndarray[float], optional): 2D array. Each row
-                correspnds to a row of old_xx. Defaults to None.
+                corresponds to a row of old_xx. Defaults to None.
 
         Returns:
-            numpy.ndarray[float]: Values of f on the sparse grid each row is a 
-            value correspondin to a paramter vector)
+            numpy.ndarray[float]: 2D array. Each row
+            is the value of ``f`` on a sparse grid (``self.SG``) point.
         """
 
         dim_f = -1  # TODO remove dimF from signature; check all other scripts
@@ -244,18 +250,19 @@ class SGInterpolant:
         return f_on_SG
 
     def interpolate(self, x_new, f_on_SG):
-        """Interpolate the function values on new points
+        """Evaluate the interpolant on new parametric points.
 
         Args:
             x_new (numpy.ndarray[float]): 2D array. New parametric points where
                 to interpolate. Each row is a point.
             f_on_SG (numpy.ndarray[float]): 2D array. Values of function on the
                 sparse grid. Each row is a value corresponding to a parametric
-                point in the sparse grid self.SG.
+                point in the sparse grid ``self.SG``.
 
         Returns:
             numpy.ndarray[float]: 2D array. Values of the interpolant of f on
-                x_new. Each row is a value corresponds to the same row in x_new.
+            ``x_new``. Each row is a value corresponds to the parameter stored
+            in the same row of ``x_new``.
         """
 
         out = np.zeros((x_new.shape[0], f_on_SG.shape[1]))

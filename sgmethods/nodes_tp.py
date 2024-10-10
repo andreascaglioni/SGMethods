@@ -14,7 +14,7 @@ def tp_knots(scalar_knots, num_knots_dir):
 
     Returns:
         tuple[numpy.ndarray[float]]: Tensor product nodes. Each tuple entry 
-        contains the nodes in in direction.
+        contains the nodes in one direction.
     """
 
     kk = ()

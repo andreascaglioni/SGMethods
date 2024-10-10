@@ -1,10 +1,41 @@
-"""Module for a class that implements the multilevel sparse grid interpolation
-from  `[Teckentrup, Jantsch, Webster, Gunzburger (2015)] 
-<https://epubs.siam.org/doi/abs/10.1137/140969002>`_.
+"""Module for a class that implements multilevel sparse grid interpolation.
+Multilevel methods combine a parametric and physical approximation method in a
+"smart" way in order to prodice a smaller error for the same number of degrees\
+of freedom.
+
+For a general introduction, see the classical paper on Mulilevel Monte Carlo:
+
+*Giles MB. Multilevel Monte Carlo methods. Acta Numerica. 2015;24:259-328. 
+doi:10.1017/S096249291500001X*, 
+https://www.cambridge.org/core/journals/acta-numerica/article/abs/multilevel-monte-carlo-methods/C5AF9A57ED8FF8FDF08074C1071C5511
 """
 
 class MLInterpolant:
-    """Class for multilevel sparse grid interpolant.
+    r"""Class for multilevel sparse grid interpolant as in 
+
+
+    *Teckentrup, Jantsch, Webster, Gunzburger. A Multilevel Stochastic 
+    Collocation Method for Partial Differential Equations with Random Input 
+    Data, SIAM JUQ, 2015* https://epubs.siam.org/doi/abs/10.1137/140969002.
+
+    We aim at approximating a function 
+    :math:`u:\Gamma\times D\rightarrow \mathbb{R}`,
+    where :math:`\Gamma\subset\mathbb{R}^N` is the parameter domain,
+    :math:`D\subset\mathbb{R}^3` is the physical domain (a time variable can 
+    also be included),
+    and the codomain can be sobstituted by any Hilbert space.
+
+    The multilevel interpolant with :math:`K+1` levels reads:
+
+    .. math::
+
+        u_{\text{ML}}^K = \sum_{k=0}^{K} (I_{K-k}-I_{K-k-1}) u_k,
+
+    where :math:`I_{k}:\Gamma\rightarrow\mathbb{R}` is a sparse grid interpolat
+    of "resolution" :math:`k=0,\dots, K`, and
+    :math:`u_k:\Gamma\times D\rightarrow\mathbb{R}` is a space approximation 
+    (e.g. finite elements)
+    with "resolution" :math:`k=0,\dots, K`.
     """
 
     def __init__(self, interpolants_sequence):
@@ -12,8 +43,8 @@ class MLInterpolant:
         :Class:`SGInterpolant`).
 
         Args:
-            interpolants_sequence (list): List of sparse grid interpolants with
-            appropriate multi-index sets.
+            interpolants_sequence (list[:py:class:`sgmethods.sparse_grid_interpolant.SGInterpolant`]):
+            List of sparse grid interpolants with appropriate multi-index sets.
 
         Returns:
             None
@@ -23,20 +54,24 @@ class MLInterpolant:
         self.interp_seq = interpolants_sequence
 
     def sample(self, f_approx):
-        """Sample ``f_approx`` on the collocation nodes needed to compute the
-        multileve interpolant.
+        """Compute multilevel samples of the function ``f`` on appopriate sparse
+        grids noeed to compute the multilevel interpolant.
 
         Args:
             ``f_approx`` (Callable[[numpy.ndarray[float], int], float]):
-                Function with 2 inputs: A parameter (1D double array of any 
-                length), and a level ``k`` (int >=0) that gives approximation 
-                accuracy level.
+                Function with 2 inputs: Parameters (2D numpy.ndarray[float], 
+                where each row is a parameter vector), and the finite element
+                accuracy indexed by :math:`k=0,\dots, K`.
 
         Returns:
-            list: List of the same length as ``interpolants_sequence`` used to
-            construct the object. Each list element is a 2D numpy.ndarray. Each
-            row is a sample from ``f_approx`` for a parameter in the 
-            corresponding sparse grid.
+            list[numpy.ndarray[float]]: List of the same length as
+            ``self.interp_seq`` used to interpolate with :py:meth:`interpolate`.
+            The k-th list element is a 2D numpy.ndarray[float] containing the 
+            values of ``f_approx[k]`` (the level k finite element approximation)
+            on the sparse grid of resolution K-k-1.
+            Within this 2D array, each row corresponds to a point in the sparse
+            grid at level K-k and consists of the coorodinates of the finite
+            element approximation in that parameter.
         """
 
         # TODO: FApprox is only allowed to return values that are 1D arrays of
@@ -56,14 +91,13 @@ class MLInterpolant:
         which ML samples are given.
 
         Args:
-            yy (numpy.ndarray[float]): Each row is a parameter of any length. 
-                The number of rows is also arbitrary.
-            ml_samples_f (list): List of multilevel samples as computed by the
-                method :py:meth:`sample`.
+            yy (numpy.ndarray[float]): 2D array. Each row is a parametric point.
+            ml_samples_f (list[numpy.ndarray[float]]): Approrpiate list of 
+                multilevel samples as computed by the method :py:meth:`sample`.
 
         Returns:
-            numpy.ndarray[double]: Each row is the approximation of ``f`` in the 
-            parameter given by the correspondg row of `yy`.
+            numpy.ndarray[double]: 2D array. Each row is the approximation of
+            ``f`` in the parameter given by the corresponding row of ``yy``.
         """
 
         interpolant_on_yy = self.interp_seq[0].interpolate(
@@ -80,17 +114,22 @@ class MLInterpolant:
         return interpolant_on_yy
 
     def get_ml_terms(self, yy, ml_samples_f):
-        r"""Get terms of multi-level expansion split based on FE spaces.
+        r"""Get the terms of the multi-level expansion split based on FE 
+        approximation.
 
         Args:
-            yy (numpy.array[float]): each row is a parameter vector toe valuate
-                MLSamplesF (list of 2D arrays double). The k-th entry is a 2D 
-                array with shape `nY` x kth physical space size representing 
+            yy (numpy.array[float]): Each row is a parametric point where to 
+                evaluate each of the multilevel terms.
+            ml_samples_f (list[numpy.ndarray[float]]). List of 2D arrays.
+                The k-th list entry contais data on 
                 :math:`(I_{K-k}-I_{K-k-1})[u_k]`.
+                Each row contains the finite element coordinates ina  point in 
+                the level K-k sparse grid. 
 
         Returns:
-            [list]: k-th term is 2D array. Each row corresponds to a parameter 
-            in `yy`. Each colum gives the finite element corrdinates.
+            [list[numpy.ndarray[float]]]: List of 2D array. The k-th list entry
+            contains the result for :math:`(I_{K-k}-I_{K-k-1})[u_k]`.
+            Each row contains the finite element coordinates ina  point of `yy`.
         """
 
         ml_terms = []
@@ -111,7 +150,7 @@ class MLInterpolant:
         return ml_terms
 
     def total_cost(self, cost_kk):
-        """Compute cost of computing this ML appeoximation.
+        """Compute the cost of computing the multilevel interpolant.
 
         Args:
             cost_kk (numpy.ndarray[float]): The k-th entry is the cost of 

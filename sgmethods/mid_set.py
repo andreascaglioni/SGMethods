@@ -3,11 +3,12 @@
 import numpy as np
 from numpy import inf
 from sgmethods.utils import coord_unit_vector, find_mid, find_idx_in_margin, \
-    lexic_sort, midIsInReducedMargin
+    lexic_sort, mid_is_in_reduced_margin
 
 
 class MidSet():
-    """Multi-index set that can be grown by adding mids in the margin.
+    """Multi-index set that can be grown by adding multi-indices from the 
+    margin.
     Can be used for adaptivity, where one does not know a-priori the next best 
     multi-index set, or for a priori profit-based approximation when the 
     definition of the profit is not monotonic. 
@@ -19,7 +20,7 @@ class MidSet():
     does not increasing the dimensionality, or :py:meth:`increase_dim`, 
     which adds the first coordinate unit vector outside of the support of the 
     multi-index set. If the maximum dimension :py:attr:`maxN` is reached, then 
-    the dimenison-adaptivity is ignored.
+    the dimension-adaptivity is ignored.
     """
 
     def __init__(self, max_n=inf, track_reduced_margin=False):
@@ -43,23 +44,24 @@ class MidSet():
         self.reduced_margin = np.identity(1, dtype=int)
 
     def get_dim(self):
-        """Returns the dimensions fo the multi-index set.
+        """Returns the dimension (i.e. number of coordinates with a nonzero 
+        index) of the multi-index set.
 
         Returns:
-            int: Dimension (or support size) of the multi index set
+            int: Dimension of the multi index set.
         """
         if self.mid_set.size == 1:
             return 0
         return self.mid_set.shape[1]
 
     def get_cardinality_mid_set(self):
-        """Returns the number of multi_indices in the multi-index set.
+        """Returns the number of multi-indices in the multi-index set.
         
         Args:
             None
 
         Returns:
-            int: Number of multi-indices in the mutli-index set
+            int: Number of multi-indices in the multi-index set.
         """
         return self.mid_set.shape[0]
 
@@ -145,7 +147,7 @@ class MidSet():
             # add reduced margin elements among forward margin of mid
             for n in range(self.get_dim()):
                 fw_mid = mid + coord_unit_vector(self.get_dim(), n)
-                if midIsInReducedMargin(fw_mid, self.mid_set):
+                if mid_is_in_reduced_margin(fw_mid, self.mid_set):
                     self.reduced_margin = np.vstack(
                         (self.reduced_margin, np.reshape(fw_mid, (1, -1)))
                         )
@@ -155,14 +157,14 @@ class MidSet():
     def increase_dim(self):
         """Increase the dimensionality of the multi-index set by adding the 
         first coordinate unit vector outside of the support of the multi-index 
-        set. If the maximum dimension maxN is reached, then the 
-        dimenison-adaptivity is not considered.
+        set. If the maximum dimension ``maxN`` is reached, then the 
+        dimension-adaptivity is not considered.
 
         Args:
             None
 
         Returns:
-            None
+            None.
         """
         # Stop if reached max dimension
         if self.get_dim() >= self.max_n:

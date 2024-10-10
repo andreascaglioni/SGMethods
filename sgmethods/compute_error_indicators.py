@@ -1,5 +1,9 @@
-"""Module with the function to compute the a-posteiori error indicators as in
-[Gerstner, Griebel (2003)] for adaptive sparse grid interpolation.
+"""Module with functions to compute the a-posteriori error *indicators* for
+adaptive enlargement of the multi-index set (equivalently, enlargement of the
+sparse grid or enrichment of the polynomial approximation space).
+
+Coming soon: A-posteriori error estimator from *Guignard, Nobile, SIAM JNA 
+(2018)*.
 """
 
 import numpy as np
@@ -15,19 +19,24 @@ def compute_GG_indicators_RM(old_RM, old_estimators, mid_set, knots, lev2knots,\
                             n_parallel=1):
 
     r"""Compute refinement error indicators for adaptive sparse grid 
-    interpolation as in [Gerstner, Griebel (2003)]. The error indicators 
-    corresponding to :math:`\nu\in\mathcal{R}\mathcal{M}_{\Lambda}` is given by:
+    interpolation as in 
+    
+    *Gerstner, T., Griebel, M. Dimension-Adaptive Tensor-Product Quadrature. 
+    Computing 71, 65-87 (2003). https://doi.org/10.1007/s00607-003-0015-5*
+
+    The error indicator corresponding to
+    :math:`\nu\in\mathcal{R}\mathcal{M}_{\Lambda}` is given by:
 
     .. math::
 
         \left\vert \Delta_{\nu} u\right\vert_{L^2_{\mu}(\Gamma)},
     
-    where :math:`\Delta_{\nu} u` is the hieararchical surplus oeprator, 
+    where :math:`\Delta_{\nu} u` is the hierarchical surplus operator, 
     :math:`u:\Gamma\rightarrow V` is the function we are interpolating, and 
     :math:`\mu` is the Gaussian measure.    
     We compute the indicators only on the reduced margin of the current 
     multi-index set. 
-    NB Recall that their sum (even on the whole maring) is NOT an error 
+    NB Recall that their sum (even on the whole margin) is NOT an error 
     estimator.
     This function recycles the previously computed values if the margin did not
     change in a neighbourhood.
@@ -37,11 +46,12 @@ def compute_GG_indicators_RM(old_RM, old_estimators, mid_set, knots, lev2knots,\
             where each row is a multi-index.
         old_estimators (numpy.ndarray[float]): Error indicators computed on the
             old reduced margin.
-        mid_set (Class MidSet): Current multi-index set.
+        mid_set (:py:class:`~sgmethods.mid_set.MidSet`): Current multi-index 
+            set.
         knots (Callable[[int], numpy.ndarray[float]]): Returns the nodes vector
             of input length.
         lev2knots (Callable[[int], int]): Given a level >=0, returns a
-            correspondingnumber number >0 of nodes.
+            corresponding number number >0 of nodes.
         f (Callable[[numpy.ndarray[float]], numpy.ndarray[float]): Function to
             interpolate.
         SG (numpy.ndarray[float]): Current sparse grid. A 2D array.
@@ -54,13 +64,13 @@ def compute_GG_indicators_RM(old_RM, old_estimators, mid_set, knots, lev2knots,\
             Compute the :math:`L^2(\Gamma)` distance of the given
             functions using Monte Carlo quadrature.
             The functions are given through their value on the same random
-            points in :math:`\Gamma'.
+            points in :math:`\Gamma`.
         u_interp (numpy.ndarray[float]): Values of the function to interpolate
             on the current sparse grid. 2D array, each row is the value in the
             corresponding row of SG.
-        TP_inteporlant (Object TPInterpolatorWrapper, optional): Desired
-            interpolation method as in tp_interpolants. Defaults to piecewise
-            linear.
+        TP_inteporlant (Appropriate tensor product interpolant class, optional):
+            Desired interpolation method as in tp_interpolants. Defaults to 
+            piecewise linear.
         n_parallel (int, optional): Number of parallel computations. Default 1.
 
     Returns:
