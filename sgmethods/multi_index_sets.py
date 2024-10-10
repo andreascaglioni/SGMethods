@@ -101,7 +101,7 @@ def aniso_smolyak_mid_set(w, N, a):
 
     assert N >= 1
     assert w>=0
-    if a.isinstance(list):
+    if type(a) == list:
         a = np.array(a)
     assert a.size == N
     assert np.all(a > 0)

@@ -227,7 +227,7 @@ class SGInterpolant:
         # Sample (possibily in parallel) on points found just above
         if len(to_compute) > 0:
             if self.n_parallel == 1:
-                for i, idx in range(len(to_compute)):
+                for i, idx in enumerate(to_compute):
                     f_on_SG[idx, :] = f(yy_to_compute[i])
             elif self.n_parallel > 1:
                 pool = Pool(self.n_parallel)
@@ -259,7 +259,7 @@ class SGInterpolant:
         """
 
         out = np.zeros((x_new.shape[0], f_on_SG.shape[1]))
-        for n in self.active_mids:
+        for n, mid in enumerate(self.active_mids):
             curr_active_nodes_tuple = self.active_tp_nodes_list[n]
             curr_active_dims = self.active_tp_dims[n]
             map_curr_tp_to_SG = self.map_tp_to_SG[n]
