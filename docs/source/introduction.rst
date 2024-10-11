@@ -35,7 +35,9 @@ or::
 
 Usage
 -----
-See the Tutorials for examples on how to use the code.
+See the examples in the omonymous directory.
+
+Documentation for all the modules is also provided below.
 
 Contributing
 ------------
