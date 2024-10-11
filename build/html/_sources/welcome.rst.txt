@@ -1,6 +1,0 @@
-Welcome to SGMethods!
-======================
-
-blablabla
-
-:py:func:`io.open`

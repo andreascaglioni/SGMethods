@@ -1,7 +1,0 @@
-Installing SGMethods
-====================
-
-
-
-From
-`README.md on GitHub <https://github.com/andreascaglioni/SGMethods>`_ .
