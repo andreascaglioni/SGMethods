@@ -37,7 +37,7 @@ pytest tests/test_*.py
 ```
 
 ## Usage
-See the Tutorials for examples on how to use the code.
+See the examples in the omonymous directory.
 
 Read the documentation at: 
 https://andreascaglioni.github.io/SGMethods/
