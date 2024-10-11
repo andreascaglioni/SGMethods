@@ -8,7 +8,7 @@ from sgmethods.tp_inteprolants import TPPwLinearInterpolator,\
     TPPwCubicInterpolator
 from sgmethods.sparse_grid_interpolant import SGInterpolant
 from sgmethods.multi_index_sets import smolyak_mid_set, compute_mid_set_fast
-from sgmethods.parametric_expansions_wiener_process import\
+from sgmethods.parametric_expansions_brownian_motion import\
     param_LC_Brownian_motion
 
 

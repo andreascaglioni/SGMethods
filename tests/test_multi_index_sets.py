@@ -1,6 +1,7 @@
 import pytest
 import numpy as np
-from sgmethods.multi_index_sets import tensor_product_mid_set, aniso_smolyak_mid_set, mid_set_profit_free_dim
+from sgmethods.multi_index_sets import \
+    tensor_product_mid_set, aniso_smolyak_mid_set, mid_set_profit_free_dim
 
 @pytest.mark.parametrize("w, N, expected_mid_set", [
     (0, 1, np.array([[0]])),
