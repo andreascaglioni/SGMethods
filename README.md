@@ -26,9 +26,14 @@ or
 git clone https://github.com/andreascaglioni/SGMethods.git
 ```
 
-2. Install dependencies
+2. Install the dependencies
 ```sh
 pip install -r requirements.txt
+```
+
+3. Run the tests (from the project root directory):
+```sh
+pytest tests/test_*.py
 ```
 
 ## Usage
