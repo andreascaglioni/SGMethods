@@ -1,8 +1,9 @@
-sgmethods package
+SGMethods package
 =================
 
-Submodules
-----------
+In tis section, we document the SGMethods package.
+We give documentation for all (or most of) the modules, classes, and functions
+in the package.
 
 sgmethods.compute\_error\_indicators module
 -------------------------------------------

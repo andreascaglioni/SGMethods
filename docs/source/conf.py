@@ -23,7 +23,8 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.napoleon',
     'sphinx.ext.mathjax',
-    'sphinxcontrib.spelling'
+    'sphinxcontrib.spelling',
+    'sphinxcontrib.bibtex'
 ]
 
 templates_path = ['_templates']
@@ -43,3 +44,6 @@ intersphinx_mapping = {'python': ('https://docs.python.org/3', None),
                        'matplotlib': ('https://matplotlib.org/stable/', None),
                        'scipy': ('https://docs.scipy.org/doc/scipy/', None)
                        }
+
+# -- Options for bibtex extension ------------------------------------------
+bibtex_bibfiles = ['references.bib']
