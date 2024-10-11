@@ -9,7 +9,7 @@ from sgmethods.MidSet import MidSet
 from sgmethods.sparse_grid_interpolant import SGInterpolant
 from sgmethods.nodes_1d import unbounded_nodes_nested
 from sgmethods.compute_error_indicators import compute_GG_indicators_RM
-from sgmethods.parametric_expansions_wiener_process import param_LC_Brownian_motion
+from sgmethods.parametric_expansions_brownian_motion import param_LC_Brownian_motion
 from sgmethods.tp_inteprolants import TPPwLinearInterpolator
 
 

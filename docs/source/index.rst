@@ -10,6 +10,10 @@ Welcome to SGMethods's documentation!
    :maxdepth: 2
    :caption: Contents:
    
+   theory
+
+   installation
+
    sgmethods
 
 Indices and tables

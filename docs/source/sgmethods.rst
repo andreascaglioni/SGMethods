@@ -52,10 +52,10 @@ sgmethods.nodes\_tp module
    :undoc-members:
    :show-inheritance:
 
-sgmethods.parametric\_expansions\_wiener\_process module
---------------------------------------------------------
+sgmethods.parametric\_expansions\_brownian\_motion module
+---------------------------------------------------------
 
-.. automodule:: sgmethods.parametric_expansions_wiener_process
+.. automodule:: sgmethods.parametric_expansions_brownian_motion
    :members:
    :undoc-members:
    :show-inheritance:
@@ -92,10 +92,10 @@ sgmethods.utils module
    :undoc-members:
    :show-inheritance:
 
-.. Module contents
-.. ---------------
+Module contents
+---------------
 
-.. .. automodule:: sgmethods
-..    :members:
-..    :undoc-members:
-..    :show-inheritance:
+.. automodule:: sgmethods
+   :members:
+   :undoc-members:
+   :show-inheritance:
