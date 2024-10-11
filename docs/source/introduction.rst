@@ -1,5 +1,5 @@
-Introduction
-============
+Introduction to SGMethods
+==========================
 SGMethods is a Python object-oriented code for sparse grid interpolation (also
 called stochastic collocation) with a focus on parametric coefficient PDEs.
 
