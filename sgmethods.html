@@ -1,0 +1,1339 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SGMethods package &mdash; SGMethods  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=b3ba4146"></script>
+      <script src="_static/doctools.js?v=888ff710"></script>
+      <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Theory of sparse grid interpolation" href="theory.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            SGMethods
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Table of Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="theory.html">Theory of sparse grid interpolation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">SGMethods package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-sgmethods.compute_error_indicators">sgmethods.compute_error_indicators module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#sgmethods.compute_error_indicators.compute_GG_indicators_RM"><code class="docutils literal notranslate"><span class="pre">compute_GG_indicators_RM()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-sgmethods.mid_set">sgmethods.mid_set module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#sgmethods.mid_set.MidSet"><code class="docutils literal notranslate"><span class="pre">MidSet</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#sgmethods.mid_set.MidSet.enlarge_from_margin"><code class="docutils literal notranslate"><span class="pre">MidSet.enlarge_from_margin()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sgmethods.mid_set.MidSet.get_cardinality_margin"><code class="docutils literal notranslate"><span class="pre">MidSet.get_cardinality_margin()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sgmethods.mid_set.MidSet.get_cardinality_mid_set"><code class="docutils literal notranslate"><span class="pre">MidSet.get_cardinality_mid_set()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sgmethods.mid_set.MidSet.get_cardinality_reduced_margin"><code class="docutils literal notranslate"><span class="pre">MidSet.get_cardinality_reduced_margin()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sgmethods.mid_set.MidSet.get_dim"><code class="docutils literal notranslate"><span class="pre">MidSet.get_dim()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sgmethods.mid_set.MidSet.increase_dim"><code class="docutils literal notranslate"><span class="pre">MidSet.increase_dim()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-sgmethods.multi_index_sets">sgmethods.multi_index_sets module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#sgmethods.multi_index_sets.aniso_smolyak_mid_set"><code class="docutils literal notranslate"><span class="pre">aniso_smolyak_mid_set()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sgmethods.multi_index_sets.aniso_smolyak_mid_set_free_N"><code class="docutils literal notranslate"><span class="pre">aniso_smolyak_mid_set_free_N()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sgmethods.multi_index_sets.compute_mid_set_fast"><code class="docutils literal notranslate"><span class="pre">compute_mid_set_fast()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sgmethods.multi_index_sets.mid_set_profit_free_dim"><code class="docutils literal notranslate"><span class="pre">mid_set_profit_free_dim()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sgmethods.multi_index_sets.smolyak_mid_set"><code class="docutils literal notranslate"><span class="pre">smolyak_mid_set()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sgmethods.multi_index_sets.tensor_product_mid_set"><code class="docutils literal notranslate"><span class="pre">tensor_product_mid_set()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-sgmethods.multilevel_interpolant">sgmethods.multilevel_interpolant module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#sgmethods.multilevel_interpolant.MLInterpolant"><code class="docutils literal notranslate"><span class="pre">MLInterpolant</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#sgmethods.multilevel_interpolant.MLInterpolant.get_ml_terms"><code class="docutils literal notranslate"><span class="pre">MLInterpolant.get_ml_terms()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sgmethods.multilevel_interpolant.MLInterpolant.interpolate"><code class="docutils literal notranslate"><span class="pre">MLInterpolant.interpolate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sgmethods.multilevel_interpolant.MLInterpolant.sample"><code class="docutils literal notranslate"><span class="pre">MLInterpolant.sample()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sgmethods.multilevel_interpolant.MLInterpolant.total_cost"><code class="docutils literal notranslate"><span class="pre">MLInterpolant.total_cost()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-sgmethods.nodes_1d">sgmethods.nodes_1d module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#sgmethods.nodes_1d.cc_nodes"><code class="docutils literal notranslate"><span class="pre">cc_nodes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sgmethods.nodes_1d.equispaced_interior_nodes"><code class="docutils literal notranslate"><span class="pre">equispaced_interior_nodes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sgmethods.nodes_1d.equispaced_nodes"><code class="docutils literal notranslate"><span class="pre">equispaced_nodes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sgmethods.nodes_1d.hermite_nodes"><code class="docutils literal notranslate"><span class="pre">hermite_nodes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sgmethods.nodes_1d.optimal_gaussian_nodes"><code class="docutils literal notranslate"><span class="pre">optimal_gaussian_nodes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sgmethods.nodes_1d.unbounded_nodes_nested"><code class="docutils literal notranslate"><span class="pre">unbounded_nodes_nested()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-sgmethods.nodes_tp">sgmethods.nodes_tp module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#sgmethods.nodes_tp.tp_knots"><code class="docutils literal notranslate"><span class="pre">tp_knots()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-sgmethods.parametric_expansions_brownian_motion">sgmethods.parametric_expansions_brownian_motion module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#sgmethods.parametric_expansions_brownian_motion.param_KL_Brownian_motion"><code class="docutils literal notranslate"><span class="pre">param_KL_Brownian_motion()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sgmethods.parametric_expansions_brownian_motion.param_LC_Brownian_motion"><code class="docutils literal notranslate"><span class="pre">param_LC_Brownian_motion()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-sgmethods.sparse_grid_interpolant">sgmethods.sparse_grid_interpolant module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#sgmethods.sparse_grid_interpolant.SGInterpolant"><code class="docutils literal notranslate"><span class="pre">SGInterpolant</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#sgmethods.sparse_grid_interpolant.SGInterpolant.interpolate"><code class="docutils literal notranslate"><span class="pre">SGInterpolant.interpolate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sgmethods.sparse_grid_interpolant.SGInterpolant.sample_on_SG"><code class="docutils literal notranslate"><span class="pre">SGInterpolant.sample_on_SG()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sgmethods.sparse_grid_interpolant.SGInterpolant.setup_SG"><code class="docutils literal notranslate"><span class="pre">SGInterpolant.setup_SG()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sgmethods.sparse_grid_interpolant.SGInterpolant.setup_interpolant"><code class="docutils literal notranslate"><span class="pre">SGInterpolant.setup_interpolant()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-sgmethods.tp_inteprolants">sgmethods.tp_inteprolants module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#sgmethods.tp_inteprolants.TPLagrangeInterpolator"><code class="docutils literal notranslate"><span class="pre">TPLagrangeInterpolator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sgmethods.tp_inteprolants.TPPwCubicInterpolator"><code class="docutils literal notranslate"><span class="pre">TPPwCubicInterpolator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sgmethods.tp_inteprolants.TPPwLinearInterpolator"><code class="docutils literal notranslate"><span class="pre">TPPwLinearInterpolator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sgmethods.tp_inteprolants.TPPwQuadraticInterpolator"><code class="docutils literal notranslate"><span class="pre">TPPwQuadraticInterpolator</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-sgmethods.tp_interpolant_wrapper">sgmethods.tp_interpolant_wrapper module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#sgmethods.tp_interpolant_wrapper.TPInterpolatorWrapper"><code class="docutils literal notranslate"><span class="pre">TPInterpolatorWrapper</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-sgmethods.utils">sgmethods.utils module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#sgmethods.utils.checkIfElement"><code class="docutils literal notranslate"><span class="pre">checkIfElement()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sgmethods.utils.compute_level_lc"><code class="docutils literal notranslate"><span class="pre">compute_level_lc()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sgmethods.utils.coord_unit_vector"><code class="docutils literal notranslate"><span class="pre">coord_unit_vector()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sgmethods.utils.find_idx_in_margin"><code class="docutils literal notranslate"><span class="pre">find_idx_in_margin()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sgmethods.utils.find_mid"><code class="docutils literal notranslate"><span class="pre">find_mid()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sgmethods.utils.is_downward"><code class="docutils literal notranslate"><span class="pre">is_downward()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sgmethods.utils.lexic_sort"><code class="docutils literal notranslate"><span class="pre">lexic_sort()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sgmethods.utils.ls_fit_loglog"><code class="docutils literal notranslate"><span class="pre">ls_fit_loglog()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sgmethods.utils.mid_is_in_reduced_margin"><code class="docutils literal notranslate"><span class="pre">mid_is_in_reduced_margin()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sgmethods.utils.plot_2d_midset"><code class="docutils literal notranslate"><span class="pre">plot_2d_midset()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sgmethods.utils.rate"><code class="docutils literal notranslate"><span class="pre">rate()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SGMethods</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">SGMethods package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/sgmethods.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="sgmethods-package">
+<h1>SGMethods package<a class="headerlink" href="#sgmethods-package" title="Permalink to this heading"></a></h1>
+<p>In tis section, we document the SGMethods package.
+We give documentation for all (or most of) the modules, classes, and functions
+in the package.</p>
+<section id="module-sgmethods.compute_error_indicators">
+<span id="sgmethods-compute-error-indicators-module"></span><h2>sgmethods.compute_error_indicators module<a class="headerlink" href="#module-sgmethods.compute_error_indicators" title="Permalink to this heading"></a></h2>
+<p>Module with functions to compute the a-posteriori error <em>indicators</em> for
+adaptive enlargement of the multi-index set (equivalently, enlargement of the
+sparse grid or enrichment of the polynomial approximation space).</p>
+<p>Coming soon: A-posteriori error estimator from <em>Guignard, Nobile, SIAM JNA
+(2018)</em>.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="sgmethods.compute_error_indicators.compute_GG_indicators_RM">
+<span class="sig-prename descclassname"><span class="pre">sgmethods.compute_error_indicators.</span></span><span class="sig-name descname"><span class="pre">compute_GG_indicators_RM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">old_RM</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">old_estimators</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mid_set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">knots</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lev2knots</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SG</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u_on_SG</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yy_rnd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">L2_err_param</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u_interp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">TP_inteporlant=&lt;class</span> <span class="pre">'sgmethods.tp_inteprolants.TPPwLinearInterpolator'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_parallel=1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.compute_error_indicators.compute_GG_indicators_RM" title="Permalink to this definition"></a></dt>
+<dd><p>Compute refinement error indicators for adaptive sparse grid
+interpolation as in</p>
+<p><em>Gerstner, T., Griebel, M. Dimension-Adaptive Tensor-Product Quadrature.
+Computing 71, 65-87 (2003). https://doi.org/10.1007/s00607-003-0015-5</em></p>
+<p>The error indicator corresponding to
+<span class="math notranslate nohighlight">\(\nu\in\mathcal{R}\mathcal{M}_{\Lambda}\)</span> is given by:</p>
+<div class="math notranslate nohighlight">
+\[\left\vert \Delta_{\nu} u\right\vert_{L^2_{\mu}(\Gamma)},\]</div>
+<p>where <span class="math notranslate nohighlight">\(\Delta_{\nu} u\)</span> is the hierarchical surplus operator,
+<span class="math notranslate nohighlight">\(u:\Gamma\rightarrow V\)</span> is the function we are interpolating, and
+<span class="math notranslate nohighlight">\(\mu\)</span> is the Gaussian measure.
+We compute the indicators only on the reduced margin of the current
+multi-index set.
+NB Recall that their sum (even on the whole margin) is NOT an error
+estimator.
+This function recycles the previously computed values if the margin did not
+change in a neighbourhood.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>old_RM</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em>) – Old reduced margin. It is a 2D array
+where each row is a multi-index.</p></li>
+<li><p><strong>old_estimators</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em>) – Error indicators computed on the
+old reduced margin.</p></li>
+<li><p><strong>mid_set</strong> (<a class="reference internal" href="#sgmethods.mid_set.MidSet" title="sgmethods.mid_set.MidSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">MidSet</span></code></a>) – Current multi-index
+set.</p></li>
+<li><p><strong>knots</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em><em>, </em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em><em>]</em>) – Returns the nodes vector
+of input length.</p></li>
+<li><p><strong>lev2knots</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em>) – Given a level &gt;=0, returns a
+corresponding number number &gt;0 of nodes.</p></li>
+<li><p><strong>f</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em><em>]</em><em>, </em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em>) – Function to
+interpolate.</p></li>
+<li><p><strong>SG</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em>) – Current sparse grid. A 2D array.</p></li>
+<li><p><strong>u_on_SG</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em>) – Values F on current sparse grid. 2D
+array, each row is a value of F on a sparse grid node.</p></li>
+<li><p><strong>yy_rnd</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em>) – Random parameters in parametric domain.
+A N+1-dimensional array where each row is a parameter vector
+(dimension N).</p></li>
+<li><p><strong>L2_err_param</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em><em>, </em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em>) – Compute the <span class="math notranslate nohighlight">\(L^2(\Gamma)\)</span> distance of the given
+functions using Monte Carlo quadrature.
+The functions are given through their value on the same random
+points in <span class="math notranslate nohighlight">\(\Gamma\)</span>.</p></li>
+<li><p><strong>u_interp</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em>) – Values of the function to interpolate
+on the current sparse grid. 2D array, each row is the value in the
+corresponding row of SG.</p></li>
+<li><p><strong>TP_inteporlant</strong> (<em>Appropriate tensor product interpolant class</em><em>, </em><em>optional</em>) – Desired interpolation method as in tp_interpolants. Defaults to
+piecewise linear.</p></li>
+<li><p><strong>n_parallel</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – Number of parallel computations. Default 1.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>1D array. Each entry is the error indicator
+corresponding to a multi-index in the reduced margin.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)">numpy.ndarray</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-sgmethods.mid_set">
+<span id="sgmethods-mid-set-module"></span><h2>sgmethods.mid_set module<a class="headerlink" href="#module-sgmethods.mid_set" title="Permalink to this heading"></a></h2>
+<p>Module with a class for adaptive multi-index sets.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="sgmethods.mid_set.MidSet">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sgmethods.mid_set.</span></span><span class="sig-name descname"><span class="pre">MidSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_reduced_margin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.mid_set.MidSet" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Multi-index set that can be grown by adding multi-indices from the
+margin.
+Can be used for adaptivity, where one does not know a-priori the next best
+multi-index set, or for a priori profit-based approximation when the
+definition of the profit is not monotonic.</p>
+<p>The multi-index set is initialized to <span class="math notranslate nohighlight">\(\{0\}\)</span>.</p>
+<p>We can add multi-indices using either
+<a class="reference internal" href="#sgmethods.mid_set.MidSet.enlarge_from_margin" title="sgmethods.mid_set.MidSet.enlarge_from_margin"><code class="xref py py-meth docutils literal notranslate"><span class="pre">enlarge_from_margin()</span></code></a>, which adds a multi-index from the margin and
+does not increasing the dimensionality, or <a class="reference internal" href="#sgmethods.mid_set.MidSet.increase_dim" title="sgmethods.mid_set.MidSet.increase_dim"><code class="xref py py-meth docutils literal notranslate"><span class="pre">increase_dim()</span></code></a>,
+which adds the first coordinate unit vector outside of the support of the
+multi-index set. If the maximum dimension <code class="xref py py-attr docutils literal notranslate"><span class="pre">maxN</span></code> is reached, then
+the dimension-adaptivity is ignored.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sgmethods.mid_set.MidSet.enlarge_from_margin">
+<span class="sig-name descname"><span class="pre">enlarge_from_margin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx_margin</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.mid_set.MidSet.enlarge_from_margin" title="Permalink to this definition"></a></dt>
+<dd><p>Add the margin multi-index in position <code class="docutils literal notranslate"><span class="pre">idx_margin</span></code> to the
+multi-index set.
+A recursive function keeps the multi-index set downward-closed.
+This function does not increase the dimensionality of the multi-index
+(see <a class="reference internal" href="#sgmethods.mid_set.MidSet.increase_dim" title="sgmethods.mid_set.MidSet.increase_dim"><code class="xref py py-meth docutils literal notranslate"><span class="pre">increase_dim()</span></code></a> for that).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>idx_margin</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Index inside margin of the multi-index to be added
+to the multi-index set.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sgmethods.mid_set.MidSet.get_cardinality_margin">
+<span class="sig-name descname"><span class="pre">get_cardinality_margin</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.mid_set.MidSet.get_cardinality_margin" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the number of multi_indices in the margin of the multi-index
+set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>None</strong> – </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Number of multi-indices in the margin</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sgmethods.mid_set.MidSet.get_cardinality_mid_set">
+<span class="sig-name descname"><span class="pre">get_cardinality_mid_set</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.mid_set.MidSet.get_cardinality_mid_set" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the number of multi-indices in the multi-index set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>None</strong> – </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Number of multi-indices in the multi-index set.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sgmethods.mid_set.MidSet.get_cardinality_reduced_margin">
+<span class="sig-name descname"><span class="pre">get_cardinality_reduced_margin</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.mid_set.MidSet.get_cardinality_reduced_margin" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the number of multi_indices in the reduced margin of the
+multi-index set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>None</strong> – </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Number of multi-indices in the reduced margin</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sgmethods.mid_set.MidSet.get_dim">
+<span class="sig-name descname"><span class="pre">get_dim</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.mid_set.MidSet.get_dim" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the dimension (i.e. number of coordinates with a nonzero
+index) of the multi-index set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dimension of the multi index set.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sgmethods.mid_set.MidSet.increase_dim">
+<span class="sig-name descname"><span class="pre">increase_dim</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.mid_set.MidSet.increase_dim" title="Permalink to this definition"></a></dt>
+<dd><p>Increase the dimensionality of the multi-index set by adding the
+first coordinate unit vector outside of the support of the multi-index
+set. If the maximum dimension <code class="docutils literal notranslate"><span class="pre">maxN</span></code> is reached, then the
+dimension-adaptivity is not considered.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>None</strong> – </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-sgmethods.multi_index_sets">
+<span id="sgmethods-multi-index-sets-module"></span><h2>sgmethods.multi_index_sets module<a class="headerlink" href="#module-sgmethods.multi_index_sets" title="Permalink to this heading"></a></h2>
+<p>A collection of functions to generate downward-closed multi-index sets.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="sgmethods.multi_index_sets.aniso_smolyak_mid_set">
+<span class="sig-prename descclassname"><span class="pre">sgmethods.multi_index_sets.</span></span><span class="sig-name descname"><span class="pre">aniso_smolyak_mid_set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">w</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.multi_index_sets.aniso_smolyak_mid_set" title="Permalink to this definition"></a></dt>
+<dd><p>Generate the anisotropic Smolyak multi-index set:</p>
+<div class="math notranslate nohighlight">
+\[\Lambda = \{\nu \in \mathbb{N}_0^N : \sum_{i=1}^N a_i\nu_i \leq w \}.\]</div>
+<p>where we denoted <span class="math notranslate nohighlight">\(\Lambda\)</span> the multi-index set, and <span class="math notranslate nohighlight">\(w, N, a\)</span>
+the input <code class="docutils literal notranslate"><span class="pre">w</span></code>, <code class="docutils literal notranslate"><span class="pre">N</span></code>, <code class="docutils literal notranslate"><span class="pre">a</span></code>.
+<span class="math notranslate nohighlight">\(a=(a_i)_{i\in\mathbb{N}}\)</span> is a sequence of positive real numbers
+that determines the anisotropy of the multi-index set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>w</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Sizing parameter of the multi-index set.</p></li>
+<li><p><strong>N</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Number of dimensions.</p></li>
+<li><p><strong>a</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em><em>, </em><em>numpy.array</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em><em>]</em>) – The resulting <span class="math notranslate nohighlight">\(a(N)\)</span> gives
+the anisotropy vector of length <span class="math notranslate nohighlight">\(N\)</span>. The anisotropy vector is
+a vector of positive floats.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Multi-index set (each row is a multi-index of length
+<code class="docutils literal notranslate"><span class="pre">N</span></code>).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)">numpy.ndarray</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sgmethods.multi_index_sets.aniso_smolyak_mid_set_free_N">
+<span class="sig-prename descclassname"><span class="pre">sgmethods.multi_index_sets.</span></span><span class="sig-name descname"><span class="pre">aniso_smolyak_mid_set_free_N</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">w</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.multi_index_sets.aniso_smolyak_mid_set_free_N" title="Permalink to this definition"></a></dt>
+<dd><p>Generate the anisotropic Smolyak multi-index set:</p>
+<div class="math notranslate nohighlight">
+\[\Lambda = \{\nu\in\mathbb{N}_0^N : \sum_{i=1}^N a_i\nu_i \leq w\},\]</div>
+<p>where we denoted <span class="math notranslate nohighlight">\(\Lambda\)</span> the multi-index set, and <span class="math notranslate nohighlight">\(w, a\)</span> the
+input <code class="docutils literal notranslate"><span class="pre">w</span></code>, <code class="docutils literal notranslate"><span class="pre">a</span></code>.
+<span class="math notranslate nohighlight">\(a=(a_i)_{i\in\mathbb{N}}\)</span> is a sequence of positive real numbers
+that determines the anisotropy of the multi-index set. The number of
+dimensions of the multi-index set is determined as:</p>
+<div class="math notranslate nohighlight">
+\[N = \min \{ N\in\mathbb{N} :
+\forall \nu\in\Lambda,\ \sum_{n=1}^N a_n\nu_n \leq w \}.\]</div>
+<p>Thus, the user must ensure that this quantity is finite!</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>w</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Sizing parameter of the multi-index set.</p></li>
+<li><p><strong>a</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em><em>, </em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em><em>]</em>) – a(N) gives the anisotropy
+vector of length <span class="math notranslate nohighlight">\(N\)</span>. The anisotropy vector is a vector of
+positive floats.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Multi-index set (each row is a multi-index).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)">numpy.ndarray</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sgmethods.multi_index_sets.compute_mid_set_fast">
+<span class="sig-prename descclassname"><span class="pre">sgmethods.multi_index_sets.</span></span><span class="sig-name descname"><span class="pre">compute_mid_set_fast</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">profit_fun</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minimum_profit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.multi_index_sets.compute_mid_set_fast" title="Permalink to this definition"></a></dt>
+<dd><p>Computes recursively over <code class="docutils literal notranslate"><span class="pre">N</span></code> dimensions the multi-index set such
+that the profit <code class="docutils literal notranslate"><span class="pre">profit_fun</span></code> is above the threshold <code class="docutils literal notranslate"><span class="pre">minimum_profit</span></code> for
+all its multi-indices. The multi-index set is defined as:</p>
+<div class="math notranslate nohighlight">
+\[\Lambda
+= \{\nu\in\mathbb{N}_0^{N}:\mathcal{P}_{\nu}\geq P_{\textrm{min}}\}\]</div>
+<p>where we denoted
+<span class="math notranslate nohighlight">\(\Lambda\)</span> the multi-index set,
+<span class="math notranslate nohighlight">\(\mathcal{P}_{\nu}\)</span> the profit function to apply to the multi-indices,
+and
+<span class="math notranslate nohighlight">\(P_{\textrm{min}}&gt;0\)</span> the minimum profit threshold.
+The profit function should be monotone (decreasing) with respect to to the
+multi-indices to obtain a downward-closed multi-index set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>profit_fun</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em>) – Compute profit
+(positive float) for a multi-index.</p></li>
+<li><p><strong>minimum_profit</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – minimum profit threshold for multi-index to be
+included (int): number of dimensions.</p></li>
+<li><p><strong>N</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Number of dimensions.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Multi-index set (each row is a multi-index of length
+<code class="docutils literal notranslate"><span class="pre">N</span></code>).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)">numpy.ndarray</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sgmethods.multi_index_sets.mid_set_profit_free_dim">
+<span class="sig-prename descclassname"><span class="pre">sgmethods.multi_index_sets.</span></span><span class="sig-name descname"><span class="pre">mid_set_profit_free_dim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">profit_fun</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minimum_profit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.multi_index_sets.mid_set_profit_free_dim" title="Permalink to this definition"></a></dt>
+<dd><p>Compute a multi-index set based on a profit function <code class="docutils literal notranslate"><span class="pre">profit_fun</span></code> and
+a minimum profit threshold <code class="docutils literal notranslate"><span class="pre">profit_fun</span></code> as:</p>
+<div class="math notranslate nohighlight">
+\[\Lambda = \{\nu\in\mathbb{N}_0^{\infty}:
+\mathcal{P}_{\nu}\geq P_{\textrm{min}}\},\]</div>
+<p>where we denoted
+<span class="math notranslate nohighlight">\(\Lambda\)</span> the multi-index set,
+<span class="math notranslate nohighlight">\(\mathcal{P}_{\nu}\)</span> the profit function applied to a multi-index, and
+<span class="math notranslate nohighlight">\(P_{\textrm{min}}&gt;0\)</span> the minimum profit threshold.
+The profit should be monotone (decreasing) with respect to to the dimensions
+(otherwise it is not possible to determine it) and the multi-indices (to
+obtain a downward-closed multi-index set).
+This condition cannot be checked by the library, the user must ensure it.
+The present function also determines the maximum dimension possible, then
+calls the <a class="reference internal" href="#sgmethods.multi_index_sets.compute_mid_set_fast" title="sgmethods.multi_index_sets.compute_mid_set_fast"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute_mid_set_fast()</span></code></a> with fixed dimension.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>profit_fun</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em>) – Get profit
+(positive) for a multi-index.
+This function is required to vanish for increasing dimensions:
+<span class="math notranslate nohighlight">\(\mathcal{P}_{\mathbf{e}_n} \rightarrow 0\)</span> as
+<span class="math notranslate nohighlight">\(n \rightarrow \infty\)</span>. Otherwise, the algorithm cannot
+terminate. This condition cannot be verified by the library and the
+user must ensure it.</p></li>
+<li><p><strong>minimum_profit</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – minimum profit threshold for multi-index to be
+included</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Multi-index set (each row is a multi-index).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)">numpy.ndarray</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sgmethods.multi_index_sets.smolyak_mid_set">
+<span class="sig-prename descclassname"><span class="pre">sgmethods.multi_index_sets.</span></span><span class="sig-name descname"><span class="pre">smolyak_mid_set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">w</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.multi_index_sets.smolyak_mid_set" title="Permalink to this definition"></a></dt>
+<dd><p>Generate the (isotropic) Smolyak multi-index set, i.e.</p>
+<div class="math notranslate nohighlight">
+\[\Lambda = \{\nu \in \mathbb{N}_0^N : \sum_{i=1}^N \nu_i \leq w\},\]</div>
+<p>where we denoted <span class="math notranslate nohighlight">\(\Lambda\)</span> the multi-index set, and <span class="math notranslate nohighlight">\(w, N\)</span> the
+input <code class="docutils literal notranslate"><span class="pre">w</span></code>, <code class="docutils literal notranslate"><span class="pre">N</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>w</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Sizing parameter of the multi-index set.</p></li>
+<li><p><strong>N</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Number of dimensions.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Multi-index set (each row is a multi-index of length
+<code class="docutils literal notranslate"><span class="pre">N</span></code>).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)">numpy.ndarray</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sgmethods.multi_index_sets.tensor_product_mid_set">
+<span class="sig-prename descclassname"><span class="pre">sgmethods.multi_index_sets.</span></span><span class="sig-name descname"><span class="pre">tensor_product_mid_set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">w</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.multi_index_sets.tensor_product_mid_set" title="Permalink to this definition"></a></dt>
+<dd><p>Generate a tensor product multi-index set, i.e.</p>
+<div class="math notranslate nohighlight">
+\[\Lambda = \{\nu\in\mathbb{N}_0^N : \sum_{n=1}^N \nu_n \leq w\},\]</div>
+<p>where we denoted <span class="math notranslate nohighlight">\(\Lambda\)</span> the multi-index set, and <span class="math notranslate nohighlight">\(w, N\)</span> the
+input <code class="docutils literal notranslate"><span class="pre">w</span></code>, <code class="docutils literal notranslate"><span class="pre">N</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>w</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Sizing parameter of the multi-index set.</p></li>
+<li><p><strong>N</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Number of dimensions.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Multi-index set (each row is a multi-index of length
+<code class="docutils literal notranslate"><span class="pre">N</span></code>).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)">numpy.ndarray</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-sgmethods.multilevel_interpolant">
+<span id="sgmethods-multilevel-interpolant-module"></span><h2>sgmethods.multilevel_interpolant module<a class="headerlink" href="#module-sgmethods.multilevel_interpolant" title="Permalink to this heading"></a></h2>
+<p>Module for a class that implements multilevel sparse grid interpolation.
+Multilevel methods combine a parametric and physical approximation method in a
+“smart” way in order to prodice a smaller error for the same number of degreesof freedom.</p>
+<p>For a general introduction, see the classical paper on Mulilevel Monte Carlo:</p>
+<p><em>Giles MB. Multilevel Monte Carlo methods. Acta Numerica. 2015;24:259-328.
+doi:10.1017/S096249291500001X</em>,
+<a class="reference external" href="https://www.cambridge.org/core/journals/acta-numerica/article/abs/multilevel-monte-carlo-methods/C5AF9A57ED8FF8FDF08074C1071C5511">https://www.cambridge.org/core/journals/acta-numerica/article/abs/multilevel-monte-carlo-methods/C5AF9A57ED8FF8FDF08074C1071C5511</a></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="sgmethods.multilevel_interpolant.MLInterpolant">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sgmethods.multilevel_interpolant.</span></span><span class="sig-name descname"><span class="pre">MLInterpolant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interpolants_sequence</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.multilevel_interpolant.MLInterpolant" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Class for multilevel sparse grid interpolant as in</p>
+<p><em>Teckentrup, Jantsch, Webster, Gunzburger. A Multilevel Stochastic
+Collocation Method for Partial Differential Equations with Random Input
+Data, SIAM JUQ, 2015</em> <a class="reference external" href="https://epubs.siam.org/doi/abs/10.1137/140969002">https://epubs.siam.org/doi/abs/10.1137/140969002</a>.</p>
+<p>We aim at approximating a function
+<span class="math notranslate nohighlight">\(u:\Gamma\times D\rightarrow \mathbb{R}\)</span>,
+where <span class="math notranslate nohighlight">\(\Gamma\subset\mathbb{R}^N\)</span> is the parameter domain,
+<span class="math notranslate nohighlight">\(D\subset\mathbb{R}^3\)</span> is the physical domain (a time variable can
+also be included),
+and the codomain can be sobstituted by any Hilbert space.</p>
+<p>The multilevel interpolant with <span class="math notranslate nohighlight">\(K+1\)</span> levels reads:</p>
+<div class="math notranslate nohighlight">
+\[u_{\text{ML}}^K = \sum_{k=0}^{K} (I_{K-k}-I_{K-k-1}) u_k,\]</div>
+<p>where <span class="math notranslate nohighlight">\(I_{k}:\Gamma\rightarrow\mathbb{R}\)</span> is a sparse grid interpolat
+of “resolution” <span class="math notranslate nohighlight">\(k=0,\dots, K\)</span>, and
+<span class="math notranslate nohighlight">\(u_k:\Gamma\times D\rightarrow\mathbb{R}\)</span> is a space approximation
+(e.g. finite elements)
+with “resolution” <span class="math notranslate nohighlight">\(k=0,\dots, K\)</span>.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sgmethods.multilevel_interpolant.MLInterpolant.get_ml_terms">
+<span class="sig-name descname"><span class="pre">get_ml_terms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">yy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ml_samples_f</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.multilevel_interpolant.MLInterpolant.get_ml_terms" title="Permalink to this definition"></a></dt>
+<dd><p>Get the terms of the multi-level expansion split based on FE
+approximation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>yy</strong> (<em>numpy.array</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em>) – Each row is a parametric point where to
+evaluate each of the multilevel terms.</p></li>
+<li><p><strong>ml_samples_f</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em><em>]</em>) – The k-th list entry contais data on
+<span class="math notranslate nohighlight">\((I_{K-k}-I_{K-k-1})[u_k]\)</span>.
+Each row contains the finite element coordinates ina  point in
+the level K-k sparse grid.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of 2D array. The k-th list entry
+contains the result for <span class="math notranslate nohighlight">\((I_{K-k}-I_{K-k-1})[u_k]\)</span>.
+Each row contains the finite element coordinates ina  point of <cite>yy</cite>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)">numpy.ndarray</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a>]]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sgmethods.multilevel_interpolant.MLInterpolant.interpolate">
+<span class="sig-name descname"><span class="pre">interpolate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">yy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ml_samples_f</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.multilevel_interpolant.MLInterpolant.interpolate" title="Permalink to this definition"></a></dt>
+<dd><p>Use the interpolation operator to approximate the function <code class="docutils literal notranslate"><span class="pre">f</span></code> of
+which ML samples are given.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>yy</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em>) – 2D array. Each row is a parametric point.</p></li>
+<li><p><strong>ml_samples_f</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em><em>]</em>) – Approrpiate list of
+multilevel samples as computed by the method <a class="reference internal" href="#sgmethods.multilevel_interpolant.MLInterpolant.sample" title="sgmethods.multilevel_interpolant.MLInterpolant.sample"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sample()</span></code></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>2D array. Each row is the approximation of
+<code class="docutils literal notranslate"><span class="pre">f</span></code> in the parameter given by the corresponding row of <code class="docutils literal notranslate"><span class="pre">yy</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)">numpy.ndarray</a>[double]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sgmethods.multilevel_interpolant.MLInterpolant.sample">
+<span class="sig-name descname"><span class="pre">sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f_approx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.multilevel_interpolant.MLInterpolant.sample" title="Permalink to this definition"></a></dt>
+<dd><p>Compute multilevel samples of the function <code class="docutils literal notranslate"><span class="pre">f</span></code> on appopriate sparse
+grids noeed to compute the multilevel interpolant.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>f_approx</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em>) – Function with 2 inputs: Parameters (2D numpy.ndarray[float],
+where each row is a parameter vector), and the finite element
+accuracy indexed by <span class="math notranslate nohighlight">\(k=0,\dots, K\)</span>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of the same length as
+<code class="docutils literal notranslate"><span class="pre">self.interp_seq</span></code> used to interpolate with <a class="reference internal" href="#sgmethods.multilevel_interpolant.MLInterpolant.interpolate" title="sgmethods.multilevel_interpolant.MLInterpolant.interpolate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">interpolate()</span></code></a>.
+The k-th list element is a 2D numpy.ndarray[float] containing the
+values of <code class="docutils literal notranslate"><span class="pre">f_approx[k]</span></code> (the level k finite element approximation)
+on the sparse grid of resolution K-k-1.
+Within this 2D array, each row corresponds to a point in the sparse
+grid at level K-k and consists of the coorodinates of the finite
+element approximation in that parameter.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)">numpy.ndarray</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sgmethods.multilevel_interpolant.MLInterpolant.total_cost">
+<span class="sig-name descname"><span class="pre">total_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cost_kk</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.multilevel_interpolant.MLInterpolant.total_cost" title="Permalink to this definition"></a></dt>
+<dd><p>Compute the cost of computing the multilevel interpolant.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cost_kk</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em>) – The k-th entry is the cost of
+computing 1 finite element sample at level k.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Total cost based on number of sparse grid nodes, levels, and
+finite element computations.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-sgmethods.nodes_1d">
+<span id="sgmethods-nodes-1d-module"></span><h2>sgmethods.nodes_1d module<a class="headerlink" href="#module-sgmethods.nodes_1d" title="Permalink to this heading"></a></h2>
+<p>This module provides various functions to generate 1D nodes for interpolation
+and numerical integration. Dofferent nodes are usually suited to different
+collocation approximations.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="sgmethods.nodes_1d.cc_nodes">
+<span class="sig-prename descclassname"><span class="pre">sgmethods.nodes_1d.</span></span><span class="sig-name descname"><span class="pre">cc_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.nodes_1d.cc_nodes" title="Permalink to this definition"></a></dt>
+<dd><p>Generate n Clenshaw-Curtis nodes, i.e. extrema of (n-1)-th Chebyshev
+polynomial on [-1,1]. They read</p>
+<div class="math notranslate nohighlight">
+\[x_i = -\cos\left(\frac{i\pi}{n-1}\right), \quad i=0,1,...,n-1.\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – number of nodes &gt;=1.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>n nodes; if n=1, return 0.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)">numpy.ndarray</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sgmethods.nodes_1d.equispaced_interior_nodes">
+<span class="sig-prename descclassname"><span class="pre">sgmethods.nodes_1d.</span></span><span class="sig-name descname"><span class="pre">equispaced_interior_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.nodes_1d.equispaced_interior_nodes" title="Permalink to this definition"></a></dt>
+<dd><p>Generates n equispaced nodes on (-1,1) with the first and last node in
+the interior at same distance from -1 and 1.
+They coincide with the n+2 equispaced nodes on [-1,1] with first and last
+node left out.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – number of nodes.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>n nodes.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)">numpy.ndarray</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sgmethods.nodes_1d.equispaced_nodes">
+<span class="sig-prename descclassname"><span class="pre">sgmethods.nodes_1d.</span></span><span class="sig-name descname"><span class="pre">equispaced_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.nodes_1d.equispaced_nodes" title="Permalink to this definition"></a></dt>
+<dd><p>Gnerate n equispaced nodes on [-1,1] with first and last node on
+boundary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – number of nodes.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>n  nodes.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)">numpy.ndarray</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sgmethods.nodes_1d.hermite_nodes">
+<span class="sig-prename descclassname"><span class="pre">sgmethods.nodes_1d.</span></span><span class="sig-name descname"><span class="pre">hermite_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.nodes_1d.hermite_nodes" title="Permalink to this definition"></a></dt>
+<dd><p>Hermite interpolation nodes (roots of the n-th Hermite polynomial).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – number of nodes &gt;=1.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>n nodes; if n=1, return 0.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)">numpy.ndarray</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sgmethods.nodes_1d.optimal_gaussian_nodes">
+<span class="sig-prename descclassname"><span class="pre">sgmethods.nodes_1d.</span></span><span class="sig-name descname"><span class="pre">optimal_gaussian_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.nodes_1d.optimal_gaussian_nodes" title="Permalink to this definition"></a></dt>
+<dd><p>Generate <code class="docutils literal notranslate"><span class="pre">n</span></code> interpolation nodes that eventually cover
+<span class="math notranslate nohighlight">\(\mathbb{R}\)</span> and give optimal degree <code class="docutils literal notranslate"><span class="pre">p+1</span></code> piecewise poynomial
+interpolation in the <span class="math notranslate nohighlight">\(L^2_{\mu}(\mathbb{R})\)</span> norm, where <span class="math notranslate nohighlight">\(\mu\)</span>
+denote the Gaussian density.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – number of nodes.</p></li>
+<li><p><strong>p</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – Piecewise polynomial interpolant degree + 1 (i.e. the
+number of nodes needed to determine a piecewise polynomial of degree
+p in each interval). Defaults to 2. n must be odd because nodes are
+symmetric around 0 and one node is 0.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>n interpolation nodes.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)">numpy.ndarray</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sgmethods.nodes_1d.unbounded_nodes_nested">
+<span class="sig-prename descclassname"><span class="pre">sgmethods.nodes_1d.</span></span><span class="sig-name descname"><span class="pre">unbounded_nodes_nested</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.nodes_1d.unbounded_nodes_nested" title="Permalink to this definition"></a></dt>
+<dd><p>Use <a class="reference internal" href="#sgmethods.nodes_1d.optimal_gaussian_nodes" title="sgmethods.nodes_1d.optimal_gaussian_nodes"><code class="xref py py-func docutils literal notranslate"><span class="pre">optimal_gaussian_nodes()</span></code></a> to generated <code class="docutils literal notranslate"><span class="pre">n</span></code> <em>nested</em> nodes
+that are, in the limit, dense in <span class="math notranslate nohighlight">\(\mathbb{R}\)</span> and give optimal degree
+<code class="docutils literal notranslate"><span class="pre">p+1</span></code> piecewise poynomial interpolation in the
+<span class="math notranslate nohighlight">\(L^2_{\mu}(\mathbb{R})\)</span> norm, where <span class="math notranslate nohighlight">\(\mu\)</span> denote the Gaussian
+density.
+<code class="docutils literal notranslate"><span class="pre">n</span></code> must be odd because one node is 0 and nodes are symmetric around 0.
+<code class="docutils literal notranslate"><span class="pre">n</span></code> must have the right value for the sequence of nodes to be nested, i.e.
+<span class="math notranslate nohighlight">\(n = 2^{i+1}-1\)</span> for some <span class="math notranslate nohighlight">\(i\in\mathbb{N}_0\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – number of nodes.</p></li>
+<li><p><strong>p</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – Piecewise polynomial interpolant degree + 1 (i.e. the
+number of nodes needed to determine a piecewise polynomial of degree
+p in each interval). Defaults to 2.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>n interpolation nodes.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)">numpy.ndarray</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-sgmethods.nodes_tp">
+<span id="sgmethods-nodes-tp-module"></span><h2>sgmethods.nodes_tp module<a class="headerlink" href="#module-sgmethods.nodes_tp" title="Permalink to this heading"></a></h2>
+<p>This module provides the function to generate tensor product nodes from 1D
+nodes.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="sgmethods.nodes_tp.tp_knots">
+<span class="sig-prename descclassname"><span class="pre">sgmethods.nodes_tp.</span></span><span class="sig-name descname"><span class="pre">tp_knots</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scalar_knots</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_knots_dir</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.nodes_tp.tp_knots" title="Permalink to this definition"></a></dt>
+<dd><p>Generate tensor product nodes given 1D nodes family and number of nodes
+in each direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scalar_knots</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em><em>, </em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em><em>]</em>) – scalar_knots(n)
+generates set of n 1D nodes.</p></li>
+<li><p><strong>num_knots_dir</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em>) – Number of nodes in each direction.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Tensor product nodes. Each tuple entry
+contains the nodes in one direction.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a>[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)">numpy.ndarray</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-sgmethods.parametric_expansions_brownian_motion">
+<span id="sgmethods-parametric-expansions-brownian-motion-module"></span><h2>sgmethods.parametric_expansions_brownian_motion module<a class="headerlink" href="#module-sgmethods.parametric_expansions_brownian_motion" title="Permalink to this heading"></a></h2>
+<p>This module provides functions for parametric expansions of the Wiener process.</p>
+<dl class="simple">
+<dt>Functions:</dt><dd><dl class="simple">
+<dt>param_LC_Brownian_motion(tt, yy, T):</dt><dd><p>Constructs the Wiener process using the classical Levy-Ciesielski
+construction.</p>
+</dd>
+<dt>param_KL_Brownian_motion(tt, yy):</dt><dd><p>Constructs the Wiener process using the Karhunen-Loeve expansion.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="sgmethods.parametric_expansions_brownian_motion.param_KL_Brownian_motion">
+<span class="sig-prename descclassname"><span class="pre">sgmethods.parametric_expansions_brownian_motion.</span></span><span class="sig-name descname"><span class="pre">param_KL_Brownian_motion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yy</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.parametric_expansions_brownian_motion.param_KL_Brownian_motion" title="Permalink to this definition"></a></dt>
+<dd><p>The Karhunen_Loeve expansion of th Brownian motion. Can be computed
+exactly.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tt</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em>) – Discrete times of evaluation in [0,1].</p></li>
+<li><p><strong>yy</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em>) – 2D array. Each row is a parameter vector of
+the expansion. Each component is a real numbers that replace i.i.d.
+standard Gaussians.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Each row gives the samples of the Wiener process
+on <code class="docutils literal notranslate"><span class="pre">tt</span></code> for the corresponding row (parameter vector) in <code class="docutils literal notranslate"><span class="pre">yy</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)">numpy.ndarray</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sgmethods.parametric_expansions_brownian_motion.param_LC_Brownian_motion">
+<span class="sig-prename descclassname"><span class="pre">sgmethods.parametric_expansions_brownian_motion.</span></span><span class="sig-name descname"><span class="pre">param_LC_Brownian_motion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.parametric_expansions_brownian_motion.param_LC_Brownian_motion" title="Permalink to this definition"></a></dt>
+<dd><p>The classical Lèvy-Ciesielsky construction of the Wiener process is used
+as a parametric expansion as follows:</p>
+<div class="math notranslate nohighlight">
+\[W(y, t) = y_0 \eta_{0,1}(t) +
+\sum_{l=1}^L \sum_{j=1}^{2^{l-1}} y_{l,j} \eta_{l,j}(t),\]</div>
+<p>where <span class="math notranslate nohighlight">\(\eta_{l,j}\)</span> is the Faber-Schauder basis on <span class="math notranslate nohighlight">\([0,T]\)</span> (i.e.
+a wavelet basis of hat functions) and <span class="math notranslate nohighlight">\(y = (y_{l,j})_{l,j}\)</span> is a
+sequence of real numbers that replace i.i.d. standard Gaussians.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tt</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em>) – Discret times of evaluation in <span class="math notranslate nohighlight">\([0,T]\)</span>.</p></li>
+<li><p><strong>yy</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em>) – The parameter vectors of the expansion.
+Each row consists of the scalar components (each in
+<span class="math notranslate nohighlight">\(\mathbb{R}\)</span>) of a parametric vector.</p></li>
+<li><p><strong>T</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Final (positive) time of approximation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Each row gives the approximation of the function
+in one parametric poin in <code class="docutils literal notranslate"><span class="pre">yy</span></code> through its values at the discrete
+sample times in <code class="docutils literal notranslate"><span class="pre">tt</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)">numpy.ndarray</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-sgmethods.sparse_grid_interpolant">
+<span id="sgmethods-sparse-grid-interpolant-module"></span><h2>sgmethods.sparse_grid_interpolant module<a class="headerlink" href="#module-sgmethods.sparse_grid_interpolant" title="Permalink to this heading"></a></h2>
+<p>The core module of SGmethods. It contains the implementation of sparse grid
+interpolation in a class.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="sgmethods.sparse_grid_interpolant.SGInterpolant">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sgmethods.sparse_grid_interpolant.</span></span><span class="sig-name descname"><span class="pre">SGInterpolant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mid_set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">knots</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lev2knots</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tp_interpolant=&lt;class</span> <span class="pre">'sgmethods.tp_inteprolants.TPPwLinearInterpolator'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_parallel=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose=True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.sparse_grid_interpolant.SGInterpolant" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Sparse grid interpolant class. It stores all relevant information to
+define it like multi-index set, 1D notes etc.
+It automatically computes the sparse grid and inclusion-exclusion
+coefficients upon initialization.
+It allows to interpolate high dimensinal functions on the sparse grid.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sgmethods.sparse_grid_interpolant.SGInterpolant.interpolate">
+<span class="sig-name descname"><span class="pre">interpolate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_on_SG</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.sparse_grid_interpolant.SGInterpolant.interpolate" title="Permalink to this definition"></a></dt>
+<dd><p>Evaluate the interpolant on new parametric points.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x_new</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em>) – 2D array. New parametric points where
+to interpolate. Each row is a point.</p></li>
+<li><p><strong>f_on_SG</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em>) – 2D array. Values of function on the
+sparse grid. Each row is a value corresponding to a parametric
+point in the sparse grid <code class="docutils literal notranslate"><span class="pre">self.SG</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>2D array. Values of the interpolant of f on
+<code class="docutils literal notranslate"><span class="pre">x_new</span></code>. Each row is a value corresponds to the parameter stored
+in the same row of <code class="docutils literal notranslate"><span class="pre">x_new</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)">numpy.ndarray</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sgmethods.sparse_grid_interpolant.SGInterpolant.sample_on_SG">
+<span class="sig-name descname"><span class="pre">sample_on_SG</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim_f</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">old_xx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">old_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.sparse_grid_interpolant.SGInterpolant.sample_on_SG" title="Permalink to this definition"></a></dt>
+<dd><p>Sample a given function on the sparse grid.</p>
+<p>Optionally recycle previous samples stored e.g. from a previous
+interpolation. The class also takes care automatically of the case in
+which the sparse grid has increased dimension (number of approcimated
+scaar parameters).
+The class first checks whether or not there is anything to recycle, then
+it sample new values.</p>
+<p>NB The class assumes <code class="docutils literal notranslate"><span class="pre">f</span></code> takes as input a numpy.ndarray[float] of
+parameters. The 1st output is assumed to be a numpy.ndarray[float] or a
+float (in this case, it is transformed into a 1-entry
+numpy.ndarray[float]).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>f</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em><em>]</em><em>, </em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em><em>]</em>) – The
+function to interpolate.</p></li>
+<li><p><strong>dim_f</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – Dimensinoality codomain of <code class="docutils literal notranslate"><span class="pre">f</span></code>. Defaults to
+None.</p></li>
+<li><p><strong>old_xx</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em><em>, </em><em>optional</em>) – 2D array.  Each row is a
+parametric point Defaults to None.</p></li>
+<li><p><strong>old_samples</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em><em>, </em><em>optional</em>) – 2D array. Each row
+corresponds to a row of old_xx. Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>2D array. Each row
+is the value of <code class="docutils literal notranslate"><span class="pre">f</span></code> on a sparse grid (<code class="docutils literal notranslate"><span class="pre">self.SG</span></code>) point.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)">numpy.ndarray</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sgmethods.sparse_grid_interpolant.SGInterpolant.setup_SG">
+<span class="sig-name descname"><span class="pre">setup_SG</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.sparse_grid_interpolant.SGInterpolant.setup_SG" title="Permalink to this definition"></a></dt>
+<dd><p>Computes and saves in class attributes some important quantities:
+SG (sparse grid), num_nodes, map_tp_to_SG
+based on active_tp_nodes_list.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sgmethods.sparse_grid_interpolant.SGInterpolant.setup_interpolant">
+<span class="sig-name descname"><span class="pre">setup_interpolant</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.sparse_grid_interpolant.SGInterpolant.setup_interpolant" title="Permalink to this definition"></a></dt>
+<dd><p>Computes and saves in class attributes some important quantities:
+combination coefficients, active multi-indicies, active TP dimensions,
+active TP nodes, map TP to SG nodes based on the multi-index set, the
+nodes and the level-to-knot function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>None</strong> – </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-sgmethods.tp_inteprolants">
+<span id="sgmethods-tp-inteprolants-module"></span><h2>sgmethods.tp_inteprolants module<a class="headerlink" href="#module-sgmethods.tp_inteprolants" title="Permalink to this heading"></a></h2>
+<p>Examples of tenosr products interpolatio operators. They will be wrapped
+in the interpolant wrapper class and used for sparse grid interpolation through
+the inclusion-exclusion formula.
+The user can implement new interpolation operators ina analogous classes.
+IMPORTANT: The input and output must be compatible with the wrapper, so same
+as the examples in this file! In particular the following methods are needed:
+- __init__(self, nodes_tuple, f_on_nodes);
+- __call__(self, x_new): Input is numpy.ndarray[float] (each row is a parameter
+vector on which to interpolate), output is numpy.ndarray[float] (each row is
+the value of the interpolant on the corresponding parameter in x_new).</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="sgmethods.tp_inteprolants.TPLagrangeInterpolator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sgmethods.tp_inteprolants.</span></span><span class="sig-name descname"><span class="pre">TPLagrangeInterpolator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes_tuple</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.tp_inteprolants.TPLagrangeInterpolator" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Given function samples on tensor product nodes, interpolates with tensor
+product Lagrange interpolation computed with barycentric interpolation
+formula, see
+Trefetten-<em>Approximation Theory and Approximation Practice</em> (2019)</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sgmethods.tp_inteprolants.TPPwCubicInterpolator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sgmethods.tp_inteprolants.</span></span><span class="sig-name descname"><span class="pre">TPPwCubicInterpolator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes_tuple</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.tp_inteprolants.TPPwCubicInterpolator" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Given function samples on tensor product nodes, interpolates with tensor
+product piecewise cubic interpolation.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sgmethods.tp_inteprolants.TPPwLinearInterpolator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sgmethods.tp_inteprolants.</span></span><span class="sig-name descname"><span class="pre">TPPwLinearInterpolator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes_tuple</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_on_nodes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.tp_inteprolants.TPPwLinearInterpolator" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Given function samples on tensor product nodes, interpolates with tensor
+product piecewise linear interpolation.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sgmethods.tp_inteprolants.TPPwQuadraticInterpolator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sgmethods.tp_inteprolants.</span></span><span class="sig-name descname"><span class="pre">TPPwQuadraticInterpolator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes_tuple</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.tp_inteprolants.TPPwQuadraticInterpolator" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Given function samples on tensor product nodes, interpolates with tensor
+product piecewise quadratic interpolation.</p>
+</dd></dl>
+
+</section>
+<section id="module-sgmethods.tp_interpolant_wrapper">
+<span id="sgmethods-tp-interpolant-wrapper-module"></span><h2>sgmethods.tp_interpolant_wrapper module<a class="headerlink" href="#module-sgmethods.tp_interpolant_wrapper" title="Permalink to this heading"></a></h2>
+<p>Module with the implementation of the wrapper class of tensor product
+interpolants. Important to enforce the compatibility of user-defined
+interpolants.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="sgmethods.tp_interpolant_wrapper.TPInterpolatorWrapper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sgmethods.tp_interpolant_wrapper.</span></span><span class="sig-name descname"><span class="pre">TPInterpolatorWrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">active_nodes_tuple</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_dims</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_on_nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tp_interpolant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.tp_interpolant_wrapper.TPInterpolatorWrapper" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Wrapper for several tensor product interpolants.</p>
+<p>If a direction has only 1 collocation node, it should be 0 and the
+1-node approximation is constant in that direction. This is the case of any
+of the directions in which the multi-index does not have its support (no
+non-zero index).</p>
+<p>The user can define new tensor prodcut interplants following the
+instructions written in the module tp_interpolants and look at the examples
+given there.</p>
+</dd></dl>
+
+</section>
+<section id="module-sgmethods.utils">
+<span id="sgmethods-utils-module"></span><h2>sgmethods.utils module<a class="headerlink" href="#module-sgmethods.utils" title="Permalink to this heading"></a></h2>
+<p>A collection of functions that carry out efficiently various basic tasks
+needed in the core functions or that may come in handy when using SGMethods in
+numerical aexperiments and applications.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="sgmethods.utils.checkIfElement">
+<span class="sig-prename descclassname"><span class="pre">sgmethods.utils.</span></span><span class="sig-name descname"><span class="pre">checkIfElement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mid_set</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.utils.checkIfElement" title="Permalink to this definition"></a></dt>
+<dd><p>DEPRECATED. To be removed soon and substitute with
+<a class="reference internal" href="#sgmethods.utils.find_mid" title="sgmethods.utils.find_mid"><code class="xref py py-func docutils literal notranslate"><span class="pre">find_mid()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sgmethods.utils.compute_level_lc">
+<span class="sig-prename descclassname"><span class="pre">sgmethods.utils.</span></span><span class="sig-name descname"><span class="pre">compute_level_lc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.utils.compute_level_lc" title="Permalink to this definition"></a></dt>
+<dd><p>Converts from linear to hierarchical indices for a wavelet expansion
+like the Levy-Ciesielski expansion of the Brownian motion. The change of
+indices is, for a linear index <span class="math notranslate nohighlight">\(i\in\mathbb{N}_0\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}l &amp;= \left\lfloor \log_2(i+1) \right\rfloor + 1 \\
+j &amp;= i - 2^{l-1}\end{split}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>i</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Linear index. The fist basis function corresponds to i=0.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Pair of hierarchical indices (level <span class="math notranslate nohighlight">\(l\)</span>, index
+in level <span class="math notranslate nohighlight">\(j\)</span>).
+The levels start from 0, the index in level from 1.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sgmethods.utils.coord_unit_vector">
+<span class="sig-prename descclassname"><span class="pre">sgmethods.utils.</span></span><span class="sig-name descname"><span class="pre">coord_unit_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entry</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.utils.coord_unit_vector" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a coordinate unit vector, i.e. one with all zeros except for one
+entry equal to one.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Length of the vector.</p></li>
+<li><p><strong>entry</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The unique entry equal to one.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The desired coordinate unit vector.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)">numpy.ndarray</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sgmethods.utils.find_idx_in_margin">
+<span class="sig-prename descclassname"><span class="pre">sgmethods.utils.</span></span><span class="sig-name descname"><span class="pre">find_idx_in_margin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">margin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.utils.find_idx_in_margin" title="Permalink to this definition"></a></dt>
+<dd><p>DEPRECATED. To be removed soon and substitute with
+<a class="reference internal" href="#sgmethods.utils.find_mid" title="sgmethods.utils.find_mid"><code class="xref py py-func docutils literal notranslate"><span class="pre">find_mid()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sgmethods.utils.find_mid">
+<span class="sig-prename descclassname"><span class="pre">sgmethods.utils.</span></span><span class="sig-name descname"><span class="pre">find_mid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mid_set</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.utils.find_mid" title="Permalink to this definition"></a></dt>
+<dd><p>Find out whether a given multi-index appears in a multi index set and
+determine the position of its first occurrence.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mid</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em>) – The multi-index to search for.</p></li>
+<li><p><strong>mid_set</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em>) – The multi-index set. Must be a 2D array, each row
+is a multi-index.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>First value tells whether <code class="docutils literal notranslate"><span class="pre">mid</span></code> was found inside
+<code class="docutils literal notranslate"><span class="pre">mid_set</span></code>. Second value is the position (-1 if not found).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a>(<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a>,<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sgmethods.utils.is_downward">
+<span class="sig-prename descclassname"><span class="pre">sgmethods.utils.</span></span><span class="sig-name descname"><span class="pre">is_downward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mid_set</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.utils.is_downward" title="Permalink to this definition"></a></dt>
+<dd><p>Check if the multi-index set is downward-closed. This means that:</p>
+<blockquote>
+<div><div class="math notranslate nohighlight">
+\[\forall\nu\in\Lambda, \forall n\in\mathbb{N},\nu_n=0\text{ or }
+\nu-e_n\in\Lambda,\]</div>
+<p>where <span class="math notranslate nohighlight">\(e_n\)</span> is the n-th coordinate unit vector.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if the multi-index set is downward-closed, False otherwise.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sgmethods.utils.lexic_sort">
+<span class="sig-prename descclassname"><span class="pre">sgmethods.utils.</span></span><span class="sig-name descname"><span class="pre">lexic_sort</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mid_set</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.utils.lexic_sort" title="Permalink to this definition"></a></dt>
+<dd><p>Sort given multi-index set in lexicographic order. This means that one
+vector comes before another if the first non-equal entry (from the left) is
+smaller.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mid_set</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em>) – The multi-index set to test. Must be a 2D
+array, each row is a multi-index.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The sorted multi-index set.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sgmethods.utils.ls_fit_loglog">
+<span class="sig-prename descclassname"><span class="pre">sgmethods.utils.</span></span><span class="sig-name descname"><span class="pre">ls_fit_loglog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.utils.ls_fit_loglog" title="Permalink to this definition"></a></dt>
+<dd><p>Fit samples of a function <span class="math notranslate nohighlight">\(f:\mathbb{R}\rightarrow\mathbb{R}\)</span> to a
+linear function in the least-squares sense in the log-log scale.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em>) – Independent variable samples.</p></li>
+<li><p><strong>y</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em>) – Dependent variable samples.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The slope and offset of the linear fit in the log-
+log scale.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sgmethods.utils.mid_is_in_reduced_margin">
+<span class="sig-prename descclassname"><span class="pre">sgmethods.utils.</span></span><span class="sig-name descname"><span class="pre">mid_is_in_reduced_margin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mid_set</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.utils.mid_is_in_reduced_margin" title="Permalink to this definition"></a></dt>
+<dd><p>Check if <code class="docutils literal notranslate"><span class="pre">mid</span></code> belongs to the reduced margin of <code class="docutils literal notranslate"><span class="pre">mid_set</span></code>. This is the
+case if and only if</p>
+<div class="math notranslate nohighlight">
+\[\forall n = 1,...,N, \ \nu_n = 0
+\textrm{ or } \nu - e_n \in \Lambda,\]</div>
+<p>where we denoted <code class="docutils literal notranslate"><span class="pre">mid_set</span></code> and <code class="docutils literal notranslate"><span class="pre">mid</span></code> by <span class="math notranslate nohighlight">\(\Lambda\)</span> and <span class="math notranslate nohighlight">\(\nu\)</span>
+respectively. Here <span class="math notranslate nohighlight">\(e_n\)</span> is the n-th coordinate unit vector,
+<span class="math notranslate nohighlight">\(N\)</span> is the dimension of <code class="docutils literal notranslate"><span class="pre">mid_set</span></code> and <code class="docutils literal notranslate"><span class="pre">mid</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mid</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em>) – 1D array for the mutli-index.</p></li>
+<li><p><strong>mid_set</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em>) – A 2D numpy array for the multi-index
+set. Each wor is a multi-index.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if <code class="docutils literal notranslate"><span class="pre">mid</span></code> is in the reduced margin of <code class="docutils literal notranslate"><span class="pre">mid_set</span></code>, False
+otherwise.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sgmethods.utils.plot_2d_midset">
+<span class="sig-prename descclassname"><span class="pre">sgmethods.utils.</span></span><span class="sig-name descname"><span class="pre">plot_2d_midset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">midset</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.utils.plot_2d_midset" title="Permalink to this definition"></a></dt>
+<dd><p>Plot the 2D multi-index set in the plane.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sgmethods.utils.rate">
+<span class="sig-prename descclassname"><span class="pre">sgmethods.utils.</span></span><span class="sig-name descname"><span class="pre">rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">err</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_dofs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sgmethods.utils.rate" title="Permalink to this definition"></a></dt>
+<dd><p>Compute the rate of logarithmic convergence of a sequence.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>err</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em>) – 1D array of errors (positive).</p></li>
+<li><p><strong>n_nofs</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><em>numpy.ndarray</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em>) – Number of degrees of freedom that give
+the corresponding error in <code class="docutils literal notranslate"><span class="pre">err</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>1D array containing rates of convergence computed
+between subsequence pars of <code class="docutils literal notranslate"><span class="pre">n_dofs</span></code> and <code class="docutils literal notranslate"><span class="pre">err</span></code> as</p>
+<div class="math notranslate nohighlight">
+\[-\frac{\log(err_{i+1}/err_i)}
+{\log(n_{\text{dofs},i+1}/n_{\text{dofs},i})}.\]</div>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)">numpy.ndarray</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="theory.html" class="btn btn-neutral float-left" title="Theory of sparse grid interpolation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Andrea Scaglioni.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
