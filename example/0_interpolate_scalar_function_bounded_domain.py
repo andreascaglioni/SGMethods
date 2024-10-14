@@ -1,14 +1,10 @@
-""" Interpolate a function with an infinite-dimensional and non-compact domain
-with SGMthods and estimate the L2 error with the Monte Carlo method.
-Unlike the preivous example, it does not make sense to approximate the error in
-the uniform norm. Rather, we use the L^2_{mu} norm, i.e. a root intergral square
-norm where the integrla is weighted with a Gaussian measure. This makes the 
-error function (difference between exact function and interpolation) less and
-less important away from the origin.
-We interpolate using piecewise linear interpolation on a suitable nodes family.
+""" Interpolate a scalar function with an infinite-dimensional bounded domain
+using SGMthods and estimate the uniform (:math:`L^{\infty}`) error with the
+Monte Carlo method.
+We interpolate using Lagrange interpolation on Clenshaw-Curtis nodes.
 """
 
-from math import sin, sqrt
+from math import sin
 import numpy as np
 import sys, os
 
@@ -16,9 +12,9 @@ import sys, os
 # If the project is given as a package, this is not necessary.
 sys.path.insert(0, os.path.abspath('./'))
 
-from sgmethods.nodes_1d import unbounded_nodes_nested
+from sgmethods.nodes_1d import cc_nodes
 from sgmethods.multi_index_sets import aniso_smolyak_mid_set
-from sgmethods.tp_inteprolants import TPPwLinearInterpolator
+from sgmethods.tp_inteprolants import TPLagrangeInterpolator
 from sgmethods.sparse_grid_interpolant import SGInterpolant
 
 
@@ -33,27 +29,29 @@ weight_fun = lambda N : np.power(np.linspace(1, N, N), -2)
 f = lambda y : sin(np.dot(weight_fun(y.size), y))
 
 # 2 SPARSE GRID INTERPOLATION PARAMETERS
-p = 2  # Polynomial degree + 1
-lev2knots = lambda n: 2**(n+1)-1  # Level-to-knots function
+lev2knots = lambda n: np.where(0, 1, 2**n+1)  # Level-to-knots function
 # Anisotropic Smolyak multi-index set in 10 dimensions
 anisoVec = lambda N : 2**(np.linspace(0, N-1, N))  # to define multi-index set
-mid_set = aniso_smolyak_mid_set(w=5, N=10, a=anisoVec(10))
+N = 8  # Number approximated scalar parameters
+mid_set = aniso_smolyak_mid_set(w=4, N=N, a=anisoVec(N))
 
 # 3 PRE-PROCESSING FOR ERROR COMPUTATION
-# Measure the error in in the L2 norm, similar to the root mean square error.
-def compute_L2_error(exact_u, interpol_u):
+# Measure the error in in the uniform (i.e. L^{infty}) norm, similar to the
+# maximum differente between the exact and the interpolated function.
+def compute_uniform_error(exact_u, interpol_u):
     assert exact_u.shape[0] == interpol_u.shape[0]
-    return sqrt(np.mean(np.square(exact_u - interpol_u)))
+    return np.amax(np.abs(exact_u - interpol_u))
 # Generate random sample of (effectively) infinite parameter vector.
-yy_rnd = np.random.normal(0, 1, [256, 1000])
+yy_rnd = np.random.uniform(-1, 1, [256, 1000])
 # Take a random sample of the exact function
-uExa = np.array(list(map(f, yy_rnd)))
+u_exa = np.array(list(map(f, yy_rnd)))
 
 # 4 SPARSE GRID INTERPOLATION
 # Construct the sparse grid interpolant with the data defiend above. The
-# interpolation method is piecewise linear.
-interpolant = SGInterpolant(mid_set, unbounded_nodes_nested, lev2knots,\
-                            tp_interpolant=TPPwLinearInterpolator)
+# interpolation method is Lagernace, i.e. global polynomials. This means that
+# the polynomial degree increases with the number of nodes.
+interpolant = SGInterpolant(mid_set, cc_nodes, lev2knots,\
+                            tp_interpolant=TPLagrangeInterpolator)
 
 # Sample the function to approxiomate on the sparse grid.
 uOnSG = interpolant.sample_on_SG(f)
@@ -63,5 +61,5 @@ uOnSG = interpolant.sample_on_SG(f)
 u_interpol = interpolant.interpolate(yy_rnd, uOnSG)
 
 # Finally approximately compute the error.
-error = compute_L2_error(uExa, u_interpol)
+error = compute_uniform_error(u_exa, u_interpol)
 print(error)

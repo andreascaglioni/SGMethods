@@ -1,57 +1,96 @@
-import numpy as np 
-import matplotlib.pyplot as plt
-from math import pi, sqrt
+""" We consider a parametric Poisson problem where the parameter is introduced
+through the diffusion coefficient, a function of the space variable and an
+affine function of a parametric vector.
+We use SGMethods to approximate the parameter-to-solution map 
+:math:`y \mpasto u(y)`,
+where :math:`u(y)` is the solution of the Poisson problem for parameter 
+:math:`y`.
+We use the Fenics finite elements library to approximate the solution of the
+Poisson problem for fixed parameters and compute the approximation error of
+these sampels.
+"""
+
+from math import pi
+import numpy as np
 import sys, os
-sys.path.insert(1, os.path.join(os.path.expanduser("~"), 'workspace/SGMethods'))
-from SGMethods.nodes_1d import CCNodes
-from SGMethods.tp_lagrange import TPLagrangeInterpolator
-from SGMethods.multi_index_sets import anisoSmolyakMidSet
-from SGMethods.sparse_grid_interpolant import SGInterpolant
-from tutorials.parametric_affine_poisson import sampleParametricPoisson, computeErrorSamplesPoisson
 
-"""Tutorial on sparse grid interpolation with SGMethods. 
-We see how to use SGMethods to approximate the parametric affine diffusion Poisson problem."""
+# NB to import from sgmethods modules, we add the code directory to the path.
+# If the project is given as a package, this is not necessary.
+sys.path.insert(0, os.path.abspath('./'))
+
+from sgmethods.nodes_1d import cc_nodes
+from sgmethods.multi_index_sets import aniso_smolyak_mid_set
+from sgmethods.tp_inteprolants import TPLagrangeInterpolator
+from sgmethods.sparse_grid_interpolant import SGInterpolant
+
+# Import functions for sampleing the parameter-to-solution map and computing
+# the error.
+from parametric_affine_poisson import sample_parametric_poisson,\
+    compute_error_samples_poisson
 
 
-# Problem parameters
-np.random.seed(36157)
-N = 10  # number of parametric dimensions
+# 1 PROBLEM DEFINITION
+n_h = 16  # Mesh resolution
+
+order_decay_coeffs = 2
+def f(y):
+    sample_parametric_poisson(y, n_h, order_decay_coeffs)
+
+# 2 SPARSE GRID INTERPOLATION PARAMETERS
+lev2knots = lambda n: np.where(0, 1, 2**n+1)  # Level-to-knots function
+# Anisotropic Smolyak multi-index set in 10 dimensions
+anisoVec = lambda N : 2**(np.linspace(0, N-1, N))  # to define multi-index set
+# Define the anisotrpic multi-index set needed for good (i.e.
+# dimensiona-independent) approximation.
+N = 8  # Number approximated scalar parameters
 C = pi**2/6 * 1.1  # normalization diffusion coefficient
 a_min = 1 - -pi**2/(6*C)  # minimum diffusion coefficient
-nH = 16 # mesh resolution i.e. # edges per side of square domain mesh
-def F(y):  # target function sampler
-    return sampleParametricPoisson(y, nH=nH, orderDecayCoefficients=2)  # Sample the parametric Poisson problem
-
-# Error computation
-yyRnd = np.random.uniform(-1, 1, (128, 1000))  # Random parameters for MC error estimation
-uExa = np.squeeze(np.array(list(map(F, yyRnd))))  # Random sample of exact function
-
-# Sparse grid parameters
-TPInterpolant = lambda nodesTuple, fOnNodes : TPLagrangeInterpolator(nodesTuple, fOnNodes)
-lev2knots = lambda n: np.where(n==0, 1, 2**n+1)  # doubling rule:  1 if n==0 else 2**(n)-1
-knots = lambda n : CCNodes(n)  # Clenshaw-Curtis nodes
-
-# Anisotrpopy vector for parametric Poisson
-gamma = lambda N : 1/(C*a_min*np.linspace(1, N, N)**2)
+gamma = lambda N : 1/(C*a_min*np.linspace(1, N, N)**order_decay_coeffs)
 tau = lambda N : 1/(2*gamma(N))
 anisoVec = lambda N : 0.5* np.log(1+tau(N))  
-midSet = anisoSmolyakMidSet(w=2, N=N, a=anisoVec(N))  # Anisotropic Smolyak multi-index set
-interpolant = SGInterpolant(midSet, knots, lev2knots, TPInterpolant, NParallel=8)  # Spars grid interpolant
-uOnSG = interpolant.sampleOnSG(F)  # Sample the function on the sparse grid
-uInterp = interpolant.interpolate(yyRnd, uOnSG)  # Compute the interpolated value
-errSamples = computeErrorSamplesPoisson(uInterp, uExa, nH)  # Compute error samples in H^1_0(D)
-errorL2 = np.mean(errSamples)  # L^2 error in parameter space
-print("Error:", errorL2)
-print("Sparse grid:\n", interpolant.SG)
+mid_set = aniso_smolyak_mid_set(w=3, N=N, a=anisoVec(N))
 
-# refine SG and compute refinement
-midSet2 = anisoSmolyakMidSet(w=4, N=N, a=anisoVec(N))
-interpolant2 = SGInterpolant(midSet2, knots, lev2knots, TPInterpolant=TPInterpolant, NParallel=8)
-print("Number of collocation nodes:", interpolant.numNodes)
-# Sample on refined sparse grid and recycle old values
-uOnSG = interpolant.sampleOnSG(F, oldXx=interpolant.SG, oldSamples=uOnSG)
-uInterp = interpolant.interpolate(yyRnd, uOnSG,)
-errSamples = computeErrorSamplesPoisson(uInterp, uExa, nH)
-errorL2 = sqrt(np.mean(np.square(errSamples)))
-print("Error:", errorL2)
-print("Sparse grid:\n", interpolant2.SG)
+# 3 PRE-PROCESSING FOR ERROR COMPUTATION
+# Measure the error in in the uniform (i.e. L^{infty}) norm, similar to the
+# maximum differente between the exact and the interpolated function.
+def compute_uniform_error(exact_u, interpol_u):
+    assert exact_u.shape[0] == interpol_u.shape[0]
+    return np.amax(np.abs(exact_u - interpol_u))
+# Generate random sample of (effectively) infinite parameter vector.
+yy_rnd = np.random.uniform(-1, 1, [128, 1000])
+# Take a random sample of the exact function
+u_exa = np.array(list(map(f, yy_rnd)))
+
+# 4 SPARSE GRID INTERPOLATION
+# Construct the sparse grid interpolant with the data defiend above. The
+# interpolation method is Lagernace, i.e. global polynomials. This means that
+# the polynomial degree increases with the number of nodes.
+print("Sparse grid interpolation:")
+interpolant = SGInterpolant(mid_set, cc_nodes, lev2knots,\
+                            tp_interpolant=TPLagrangeInterpolator)
+
+# Sample the function to approxiomate on the sparse grid.
+uOnSG = interpolant.sample_on_SG(f)
+
+ # Interpolate the data on the random sample (the same used in 3) by sampling
+ # the interpolant on it.
+u_interpol = interpolant.interpolate(yy_rnd, uOnSG)
+
+# 5 ERROR COMPUTATION
+error_samples = compute_error_samples_poisson(u_interpol, u_exa, n_h)
+errr_uniform = np.amax(error_samples)
+print("Number of collocation nodes:", interpolant.num_nodes)
+print("Error:", errr_uniform)
+
+# 6 REFINED SPARSE GRID INTERPOLATION
+print("Refined sparse grid interpolation:")
+mid_set = aniso_smolyak_mid_set(w=4, N=N, a=anisoVec(N))
+interpolant = SGInterpolant(mid_set, cc_nodes, lev2knots,\
+                            tp_interpolant=TPLagrangeInterpolator)
+uOnSG = interpolant.sample_on_SG(f, old_xx=interpolant.SG, old_samples=uOnSG)
+
+# 7 REFINED ERROR COMPUTATION
+error_samples = compute_error_samples_poisson(u_interpol, u_exa, n_h)
+errr_uniform = np.amax(error_samples)
+print("Number of collocation nodes:", interpolant.num_nodes)
+print("Error:", errr_uniform)
