@@ -6,7 +6,7 @@ We interpolate using Lagrange interpolation on Clenshaw-Curtis nodes.
 
 from math import sin
 import numpy as np
-import sys, os
+import sys, os 
 
 # NB to import from sgmethods modules, we add the code directory to the path.
 # If the project is given as a package, this is not necessary.
