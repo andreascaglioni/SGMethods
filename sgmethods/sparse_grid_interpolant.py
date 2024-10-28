@@ -23,8 +23,8 @@ class SGInterpolant:
         """Initialize data, compute inclusion-exclusion coeff.s, sparse grid
 
         Args:
-            mid_set (numpy.ndarray[int]): Multi-index set 
-                NB downward closed!! 
+            mid_set (numpy.ndarray[int]): 2D array. Multi-index set. NB must be
+                downward closed.
             knots (Callable[[int], numpy.ndarray[double]]): Returns back the
                 nodes vector with the given number of nodes.
             lev2knots (Callable[[int], int]): Given a level >=0, returns the

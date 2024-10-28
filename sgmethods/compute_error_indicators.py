@@ -119,3 +119,52 @@ def compute_GG_indicators_RM(old_RM, old_estimators, mid_set, knots, lev2knots,\
         estimator_reduced_margin[i] = L2_err_param(u_interp_ext, u_interp)
         # TODO pass only more general norm
     return estimator_reduced_margin
+
+def _compute_indicator_function():
+    pass
+
+def compute_GN_indicators_estimator(interpolant, samples_u, mid_set,\
+                                    compute_norm, diffusion):
+    
+    """Compute error indicator for the sparse grid interpolant of the 
+    parameter-to-solution map of the affine diffusion Poisson problem, as in
+
+    *Guignard, D., Nobile, F. A-posteriori error estimation for the stocahstic
+    collocation finite element method. SIAM J. NUMER. ANAL.  56, No. 5, 
+    pp. 3121--3143 (2018). https://doi.org/10.1007/s00607-003-0015-5*
+
+    Additionally, compute an error estimator that slightly varies from the one
+    defined in the prebious publication: Rather than the sum of indicators 
+    (reliable but possibly not efficieint), compute the norm of the sum.
+
+    Args:
+        interpolant (:py:class:`~sgmethods`): The sparse grid interpolant.
+        samples_u (numpy.ndarray[float]): The values of the function to 
+            interpolate on the sparse grid. Each row is the value of the 
+            function on a sparse grid node.
+        mid_set (:py:class:`~sgmethods`): The multi-index set used to define
+            the sparse grid interpolant.
+        compute_norm (Callable[[numpy.ndarray[float]], float]): Compute the norm
+        diffusion (Callable[[numpy.ndarray[float]], numpy.ndarray[float]]): The
+            parametric affine diffusion operator. It takes a parameter vector
+            and a value of the space variable and returns a scalar.
+
+    Returns:
+        _type_: _description_
+    """
+    error_indicators = np.zeros(interpolant.mid_set.shape[1])
+    error_estimator = 0
+    estimator_fun = 0  # The error estimator is its norm
+    for i, nu in enumerate(mid_set.margin):  # nu is a multi-index in margin
+        # compute error indicator corresponding to nu
+        indicator_fun = 0
+        error_indicators[i] = compute_norm(indicator_fun)
+        
+        # add to estimator functio (NB Norm must be computed after the loop!)
+        estimator_fun = estimator_fun + indicator_fun
+
+    error_estimator = compute_norm(estimator_fun)
+    return error_indicators, error_estimator
+    
+
+

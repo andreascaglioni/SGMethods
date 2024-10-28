@@ -149,8 +149,6 @@ def mid_is_in_reduced_margin(mid, mid_set):
         condition[n] = ((mid[n] == 0) or (checkIfElement(mid-en, mid_set)))
     return np.all(condition)
 
-
-# TODO: implement
 def is_downward(mid_set):
     r"""Check if the multi-index set is downward-closed. This means that:
 
@@ -165,13 +163,29 @@ def is_downward(mid_set):
         bool: True if the multi-index set is downward-closed, False otherwise.
     """
 
-    Warning("Function is_downward not implemented yet! Returning False.")
-    condition = False
-    if condition:
-        return True
-    else:
-        return False
+    for mid in mid_set:
+        for i in range(mid.size):
+            if mid[i] != 0 and not\
+                find_mid(mid-coord_unit_vector(mid.size, i), mid_set)[0]:
+                return False
+    return True
 
+# TODO implement
+def add_multi_index(mids, mid_set):
+    """Add the multi-indices in ``mids`` to the multi-index set ``mid_set``.
+
+    Args:
+        mids (numpy.ndarray[float]): The multi-indices to add. Can be a float 
+            (1 multi-index of length 1), 1D array (1 multi-index), or 2D array
+            (each row is a multi-index).
+        mid_set (numpy.ndarray[float]): 2D array, where each row represents a 
+            multi-index. The multi-index set.
+
+    Returns:
+        numpy.ndarray[float]: The resulting multi-index set, lexicographically
+        sorted.
+    """
+    return None
 
 # Basic plotting functions for convergence plots, midsets
 
