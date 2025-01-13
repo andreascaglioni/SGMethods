@@ -72,7 +72,7 @@ sgmethods.sparse\_grid\_interpolant module
 sgmethods.tp\_inteprolants module
 ---------------------------------
 
-.. automodule:: sgmethods.tp_interpolant
+.. automodule:: sgmethods.tp_interpolants
    :members:
    :undoc-members:
    :show-inheritance:
