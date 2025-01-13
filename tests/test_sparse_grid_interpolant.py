@@ -4,7 +4,7 @@ from math import sqrt
 import numpy as np
 from sgmethods.nodes_1d import equispaced_nodes, cc_nodes,\
     optimal_gaussian_nodes
-from sgmethods.tp_inteprolants import TPPwLinearInterpolator,\
+from sgmethods.tp_interpolants import TPPwLinearInterpolator,\
     TPPwCubicInterpolator
 from sgmethods.sparse_grid_interpolant import SGInterpolant
 from sgmethods.multi_index_sets import smolyak_mid_set, compute_mid_set_fast

@@ -9,7 +9,7 @@ Coming soon: A-posteriori error estimator from *Guignard, Nobile, SIAM JNA
 import numpy as np
 from sgmethods.sparse_grid_interpolant import SGInterpolant
 from sgmethods.utils import find_mid, lexic_sort
-from sgmethods.tp_inteprolants import TPPwLinearInterpolator
+from sgmethods.tp_interpolants import TPPwLinearInterpolator
 
 
 # TODO: Write tests

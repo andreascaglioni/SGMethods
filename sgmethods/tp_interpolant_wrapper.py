@@ -31,7 +31,7 @@ class TPInterpolatorWrapper:
             (each data point may be vector of some lenght).
             tp_interpolant (Class): An appropriate class for tensor product 
                 itnerpolation. See e.g. those implemented in the module
-                tp_inteprolants.
+                tp_interpolants.
         """
 
         self.f_on_nodes = f_on_nodes

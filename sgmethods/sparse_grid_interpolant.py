@@ -5,7 +5,7 @@ interpolation in a class.
 
 from multiprocessing import Pool
 import numpy as np
-from sgmethods.tp_inteprolants import TPPwLinearInterpolator
+from sgmethods.tp_interpolants import TPPwLinearInterpolator
 from sgmethods.nodes_tp import tp_knots
 from sgmethods.tp_interpolant_wrapper import TPInterpolatorWrapper
 
@@ -30,7 +30,7 @@ class SGInterpolant:
             lev2knots (Callable[[int], int]): Given a level >=0, returns the
                 corresponding number of nodes >0. 
             tp_interpolant (Class, optional): One of the classes in the module 
-                tp_inteprolants. (e.g. TPPwLinearInterpolator). The
+                tp_interpolants. (e.g. TPPwLinearInterpolator). The
                 user can also define their own class following the instructions
                 in the same module. Defaults to a piecewise-linear inteprolant.
             n_parallel (int, optional): Number of parallel computations. 
@@ -272,9 +272,9 @@ class SGInterpolant:
             map_curr_tp_to_SG = self.map_tp_to_SG[n]
             # output is a matrix of shape = shape(mapCurrTPtoSG) + (dimF,)
             f_on_curr_tp_grid = f_on_SG[map_curr_tp_to_SG, :]
-            tp_inteprolant = TPInterpolatorWrapper(curr_active_nodes_tuple, \
+            tp_interpolant = TPInterpolatorWrapper(curr_active_nodes_tuple, \
                                       curr_active_dims, \
                                       f_on_curr_tp_grid, self.tp_interpolant)
-            out = out + self.combination_coeffs[n] * tp_inteprolant(x_new)
+            out = out + self.combination_coeffs[n] * tp_interpolant(x_new)
         return np.squeeze(out)  # remove dimensions of length 1
     

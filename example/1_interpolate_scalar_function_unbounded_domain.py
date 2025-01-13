@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.abspath('./'))
 
 from sgmethods.nodes_1d import unbounded_nodes_nested
 from sgmethods.multi_index_sets import aniso_smolyak_mid_set
-from sgmethods.tp_inteprolants import TPPwLinearInterpolator
+from sgmethods.tp_interpolants import TPPwLinearInterpolator
 from sgmethods.sparse_grid_interpolant import SGInterpolant
 
 
