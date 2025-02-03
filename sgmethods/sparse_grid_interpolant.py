@@ -26,8 +26,8 @@ class SGInterpolant:
         Args:
             mid_set (numpy.ndarray[int]): 2D array. Multi-index set. NB must be
                 downward closed.
-            knots (Callable[[int], numpy.ndarray[double]]): Returns back the
-                nodes vector with the given number of nodes.
+            knots (Callable[[int], numpy.ndarray[double]]): Get the nodes vector
+                with the given number of nodes.
             lev2knots (Callable[[int], int]): Given a level >=0, returns the
                 corresponding number of nodes >0. 
             tp_interpolant (Class, optional): One of the classes in the module 
@@ -239,16 +239,12 @@ class SGInterpolant:
                     f_on_SG[idx, :] = f(self.SG[idx])
             elif self.n_parallel > 1:
                 pool = Pool(self.n_parallel)
-                #############################################################
-                f_samples = pool.map(f, self.SG[idxs_nodes_to_compute, :])  # CHECK
-                #############################################################
-
-                ################################################
-                # tmp = np.array() 
-                # if len(tmp.shape) == 1:
-                #     tmp = tmp.reshape((-1, 1))
-                f_on_SG[idxs_nodes_to_compute, :] = f_samples  # CHECK
-                ################################################
+                tmp = np.array(pool.map(f, idxs_nodes_to_compute))
+                pool.close()
+                pool.join()
+                if len(tmp.shape) == 1:
+                    tmp = tmp.reshape((-1, 1))
+                f_on_SG[idxs_nodes_to_compute, :] = tmp
             else:
                 raise ValueError('self.NParallel not int >= 1"')
         if self.verbose:
