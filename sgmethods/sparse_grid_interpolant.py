@@ -5,6 +5,7 @@ interpolation in a class.
 
 from multiprocessing import Pool
 import numpy as np
+from numpy.linalg import norm as norm_l2
 from sgmethods.tp_interpolants import TPPwLinearInterpolator
 from sgmethods.nodes_tp import tp_knots
 from sgmethods.tp_interpolant_wrapper import TPInterpolatorWrapper
@@ -138,6 +139,7 @@ class SGInterpolant:
         self.SG = SG
         self.num_nodes = SG.shape[0]
 
+    # TODO remove dimF from signature; check all other scripts
     def sample_on_SG(self, f, dim_f=None, old_xx=None, old_samples=None):
         """Sample a given function on the sparse grid. 
         
@@ -168,85 +170,91 @@ class SGInterpolant:
             is the value of ``f`` on a sparse grid (``self.SG``) point.
         """
 
-        dim_f = -1  # TODO remove dimF from signature; check all other scripts
+        # Sanity checks: dimensions oldXx, oldSamples
+        if not(old_xx is None and old_samples is None):
+            assert old_xx.shape[0] == old_samples.shape[0]
 
-        # Find dimF (dimension of output of F). First try oldSamples; if empty,
-        # sample on first SG node and add to oldSamples and oldXx
-        assert  self.SG.shape[0] > 0
-        if not old_samples is None:
-            old_samples = np.atleast_1d(old_samples)
-            dim_f = old_samples.shape[1]
-            assert dim_f >= 1
-        else:  # Sample on first SG node
-            node0 = self.SG[0]
-            f_on_SG0 = np.atleast_1d(f(node0))  # turn in array if scalar
-            dim_f = f_on_SG0.size
-
-        f_on_SG = np.zeros((self.num_nodes, dim_f))  # the return array
-        # TODO change, if previou else needed, one sample is re-samples
-
-        # Sanity checks dimensions oldXx, oldSamples
+        # Sample first node to allocate output array
+        # NB cannot use old_xx becuase dimensioanlity may ahve changed and 
+        # old_xx will need to be either truncated or 0-extended in dimension 1
+        f_y0 = np.atleast_1d(f(self.SG[0]))  # turn in array if scalar
+        assert(len(f_y0.shape) == 1)
+        dim_f = f_y0.size
+        f_on_SG = np.zeros((self.num_nodes, dim_f))
+        f_on_SG[0, :] = f_y0
+        
+        # If old_xx not None, use it to find dimensions of f samples
+        # assert  self.SG.shape[0] > 0
+        # if not old_samples is None:
+        #     old_samples = np.atleast_1d(old_samples)
+        #     dim_f = old_samples.shape[1]
+        #     assert dim_f >= 1
+        # else:  # Sample on first SG node to determine dimension of f samples
+        #     node0 = self.SG[0]
+        #     f_on_SG0 = np.atleast_1d(f(node0))  # turn in array if scalar
+        #     dim_f = f_on_SG0.size
+        #     # Save the computed value!
+        #     old_xx = np.atleast_2d(node0)
+        #     old_samples = f_on_SG0
+        # f_on_SG = np.zeros((self.num_nodes, dim_f))  # the return array
+        
+        # Turn old_xx and old_samples into np arrays of size 0, if None
         if ((old_xx is None) or (old_samples is None)):
             old_xx = np.zeros((0, self.N))
             old_samples = np.zeros((0, dim_f))
-        assert old_xx.shape[0] == old_samples.shape[0]
-        assert old_samples.shape[1] == dim_f
-
-        # Case 1: Cuurrent parameter space has larger dimension that oldXx.
-        # Embed oldXx in space of self.SG by extending by 0
+        
+        # If old_xx has smaller dimension than the sparse grid: 0-extend it
         if old_xx.shape[1] < self.SG.shape[1]:
-            filler = np.zeros(\
-                (old_xx.shape[0], self.SG.shape[1]-old_xx.shape[1])\
-                    )
+            filler= np.zeros((old_xx.shape[0],self.SG.shape[1]-old_xx.shape[1]))
             old_xx = np.hstack((old_xx, filler))
 
-        # Case 2: Current parameter space is smaller than that of oldXx.
-        # Remove from oldXx parameters out of subspace, also adapt oldSamples
+        # If old_xx has larger dimension than the sparse grid: Truncate it
         elif old_xx.shape[1] > self.SG.shape[1]:
             curr_dim = self.N
-            tail_norm = np.linalg.norm(
-                old_xx[:, curr_dim::], ord=1, axis=1).astype(int)
-            # last [0] so the result is np array
-            valid_entries = np.where(tail_norm == 0)[0]
-            old_xx = old_xx[valid_entries, 0:self.N]
-            old_samples = old_samples[valid_entries]
+            tail_norm = norm_l2(old_xx[:, curr_dim::], ord=1,axis=1).astype(int)
+            # Can recycle old sample only if removed entries=0. Discart others.
+            idxs_valid_entries = np.where(tail_norm == 0)[0]
+            old_xx = old_xx[idxs_valid_entries, 0:self.N]
+            old_samples = old_samples[idxs_valid_entries]
 
-        # Find parametric points to sample now
+        # Find sparse grid points to either load from load_xx or to sample now
+        # Update n_recycle  every time a useful node found in old_xx
+        idxs_nodes_to_compute = []  # list indices SG nodes to compute on
         n_recycle = 0
-        to_compute = []
-        yy_to_compute = []
-        for n in range(self.num_nodes):
+        for n in range(1, self.num_nodes):  # NB 1 becuase node 0 sampled above!
             curr_node = self.SG[n, :]
-            check = np.where(np.linalg.norm(
-                old_xx-curr_node, 1, axis=1) < 1.e-10)[0]
-            if check.size > 1:
-                print(check)
-            assert check.size <= 1
-            found = len(check)
-            if found:
-                f_on_SG[n, :] = old_samples[check[0], :]
+            # Check if curr_node in old_xx
+            check = np.where(norm_l2(old_xx-curr_node, 1, axis=1) < 1.e-10)[0]
+            if check.size > 0:  # found
                 n_recycle += 1
             else:
-                to_compute.append(n)
-                yy_to_compute.append(curr_node)
-
-        # Sample (possibily in parallel) on points found just above
-        if len(to_compute) > 0:
+                idxs_nodes_to_compute.append(n)
+            
+        # Sample (possibily in parallel) on points where no value is recycled.
+        if len(idxs_nodes_to_compute) > 0:
+            # Split, even if could instead run with 1 Pool instance (solution if
+            # Pool not installed)
             if self.n_parallel == 1:
-                for i, idx in enumerate(to_compute):
-                    f_on_SG[idx, :] = f(yy_to_compute[i])
+                for idx in idxs_nodes_to_compute:
+                    f_on_SG[idx, :] = f(self.SG[idx])
             elif self.n_parallel > 1:
                 pool = Pool(self.n_parallel)
-                tmp = np.array(pool.map(f, yy_to_compute))
-                if len(tmp.shape) == 1:
-                    tmp = tmp.reshape((-1, 1))
-                f_on_SG[to_compute, :] = tmp
+                #############################################################
+                f_samples = pool.map(f, self.SG[idxs_nodes_to_compute, :])  # CHECK
+                #############################################################
+
+                ################################################
+                # tmp = np.array() 
+                # if len(tmp.shape) == 1:
+                #     tmp = tmp.reshape((-1, 1))
+                f_on_SG[idxs_nodes_to_compute, :] = f_samples  # CHECK
+                ################################################
             else:
                 raise ValueError('self.NParallel not int >= 1"')
         if self.verbose:
             print("Recycled", n_recycle, \
-                  "; Discarted", old_xx.shape[0]-n_recycle, \
-                    "; Sampled", self.SG.shape[0]-n_recycle)
+                "; Discarted", old_xx.shape[0]-n_recycle, \
+                "; Sampled", self.SG.shape[0]-n_recycle)
         return f_on_SG
 
     def interpolate(self, x_new, f_on_SG):
