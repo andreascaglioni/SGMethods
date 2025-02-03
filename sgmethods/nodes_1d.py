@@ -105,6 +105,7 @@ def optimal_gaussian_nodes(n, p=2):
     return c * erfinv(xx)
 
 
+# TODO change p to interpolation degree
 def unbounded_nodes_nested(n, p=2):
     """Use :py:func:`optimal_gaussian_nodes` to generated ``n`` *nested* nodes
     that are, in the limit, dense in :math:`\mathbb{R}` and give optimal degree
