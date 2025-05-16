@@ -241,7 +241,7 @@ class SGInterpolant:
                 pool = Pool(self.n_parallel)
                 tmp = np.array(pool.map(f, idxs_nodes_to_compute))
                 pool.close()
-                pool.join()
+                pool.join()  # TODO should not join before closing?
                 if len(tmp.shape) == 1:
                     tmp = tmp.reshape((-1, 1))
                 f_on_SG[idxs_nodes_to_compute, :] = tmp
