@@ -21,10 +21,6 @@ A Python object-oriented code for sparse grid interpolation (also called stochas
 ```sh
 git clone git@github.com:andreascaglioni/SGMethods.git
 ```
-or
-```sh
-git clone https://github.com/andreascaglioni/SGMethods.git
-```
 
 2. Install the dependencies
 ```sh
@@ -37,7 +33,7 @@ pytest tests/test_*.py
 ```
 
 ## Usage
-See the examples in the omonymous directory.
+See the examples in the homonymous directory.
 
 Read the documentation at: 
 https://andreascaglioni.github.io/SGMethods/
