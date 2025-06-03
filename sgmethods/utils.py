@@ -233,6 +233,12 @@ def plot_2d_midset(midset):
 
     assert midset.shape[1] <= 2
     if midset.shape[1] == 1:
-        plt.plot(midset, np.zeros(midset.shape[0]), 's')
+        plt.plot(midset, np.zeros(midset.shape[0]), 's', color='black')
     else:
-        plt.plot(midset[:,0], midset[:,1], 's')
+        plt.plot(midset[:,0], midset[:,1], 's', color='black')
+    plt.xticks(np.arange(int(midset[:,0].min()), int(midset[:,0].max())+1, 1))
+    plt.yticks(np.arange(int(midset[:,1].min()), int(midset[:,1].max())+1, 1))
+    plt.xlabel('Index 1')
+    plt.ylabel('Index 2')
+    plt.gca().set_aspect('equal', adjustable='box')
+    plt.tight_layout()
