@@ -50,7 +50,11 @@ class TPInterpolatorWrapper:
             array of double: output of f on xNew. One per row.
         """
 
-        # if xNew has len(shape)=1, reshape it
+        # Handle shape of x_new
+        if x_new.size == 1:  # n_new is made of 1 parametric point of dimension 1
+            x_new = x_new.reshape((1, -1))
+
+        # if xNew has len(shape)=1, reshape it to have 1 column ()
         if len(x_new.shape)==1:
             x_new = np.reshape(x_new, (-1,1))
         # Purge components of x in inactive dimensions (interpolant is constant
