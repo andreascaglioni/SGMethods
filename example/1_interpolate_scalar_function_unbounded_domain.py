@@ -16,7 +16,7 @@ import sys, os
 # If the project is given as a package, this is not necessary.
 sys.path.insert(0, os.path.abspath('./'))
 
-from sgmethods.nodes_1d import unbounded_nodes_nested
+from sgmethods.nodes_1d import opt_guass_nodes_nest
 from sgmethods.multi_index_sets import aniso_smolyak_mid_set
 from sgmethods.tp_interpolants import TPPwLinearInterpolator
 from sgmethods.sparse_grid_interpolant import SGInterpolant
@@ -52,7 +52,7 @@ uExa = np.array(list(map(f, yy_rnd)))
 # 4 SPARSE GRID INTERPOLATION
 # Construct the sparse grid interpolant with the data defiend above. The
 # interpolation method is piecewise linear.
-interpolant = SGInterpolant(mid_set, unbounded_nodes_nested, lev2knots,\
+interpolant = SGInterpolant(mid_set, opt_guass_nodes_nest, lev2knots,\
                             tp_interpolant=TPPwLinearInterpolator)
 
 # Sample the function to approxiomate on the sparse grid.

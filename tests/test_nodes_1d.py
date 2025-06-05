@@ -1,5 +1,5 @@
 import numpy as np
-from sgmethods.nodes_1d import equispaced_nodes, equispaced_interior_nodes, cc_nodes, hermite_nodes, optimal_gaussian_nodes, unbounded_nodes_nested
+from sgmethods.nodes_1d import equispaced_nodes, equispaced_interior_nodes, cc_nodes, hermite_nodes, opt_gauss_nodes, opt_guass_nodes_nest
 import pytest
 
 
@@ -37,9 +37,9 @@ def test_HermiteNodes(nNodesInt, nodesInt):
     (5, [-2.16322038, -0.96313552, 0., 0.96313552,   2.16322038])     
 ])
 def test_unboundedNodesOptimal(nNodesInt, nodesInt):
-    assert np.all(np.isclose(optimal_gaussian_nodes(nNodesInt), nodesInt, 
+    assert np.all(np.isclose(opt_gauss_nodes(nNodesInt), nodesInt, 
                              rtol=1.e-4))
 
 def test_unboundedNodesOptimal():
     with pytest.raises(AssertionError):
-        optimal_gaussian_nodes(6)   
+        opt_gauss_nodes(6)   
