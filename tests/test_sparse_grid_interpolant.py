@@ -3,7 +3,7 @@
 from math import sqrt
 import numpy as np
 from sgmethods.nodes_1d import equispaced_nodes, cc_nodes,\
-    optimal_gaussian_nodes
+    opt_gauss_nodes
 from sgmethods.tp_interpolants import TPPwLinearInterpolator,\
     TPPwCubicInterpolator
 from sgmethods.sparse_grid_interpolant import SGInterpolant
@@ -122,7 +122,7 @@ def test_SGinterpolant_Gaussian_RF():
     # Parameters interpolant
     lev2knots = lambda nu : 2**(nu+1)-1
     p = 2  # always equals inteprolant degree + 1
-    kk = lambda n : optimal_gaussian_nodes(n, p=p)
+    kk = lambda n : opt_gauss_nodes(n, p=p)
     TPInterpol = lambda nodes_tuple, f_on_nodes : \
         TPPwLinearInterpolator(nodes_tuple, f_on_nodes)
     ell = lambda nu: np.where(nu==0, 0, np.floor(np.log2(nu)).astype(int)+1) # level
