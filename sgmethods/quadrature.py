@@ -68,9 +68,11 @@ def profit_sllg(nu, p=2):
     return value / work
 
 
-def compute_quadrature_params(min_n_samples, dim_samples, distrbution="gauss"):
+def compute_quadrature_params(
+    min_n_samples, dim_samples, distrbution="gauss", eps=1.0e-2
+):
     # Check input
-    if not isinstance(min_n_samples, int) or min_n_samples <= 0:
+    if not isinstance(min_n_samples, np.number) or min_n_samples <= 0:
         raise ValueError("n_samples must be a positive integer.")
     if not isinstance(dim_samples, int) or dim_samples <= 0:
         raise ValueError("dim_samples must be a positive integer.")
@@ -79,14 +81,14 @@ def compute_quadrature_params(min_n_samples, dim_samples, distrbution="gauss"):
         raise ValueError("Only 'gauss' distribution is supported.")
 
     # Assuming Gaussian samples for SLLG
-    # TODO make function more flexible
+    # TODO add more options/make an input
 
     knots = lambda n: opt_guass_nodes_nest(n)  # noqa: E731
-    lev2knots = lambda i: np.where(i > 0, 2**(i + 1) - 1, 1)  # noqa: E731
-    P = lambda nu: profit_sllg(nu)
+    lev2knots = lambda i: np.where(i > 0, 2 ** (i + 1) - 1, 1)  # noqa: E731
+    P = profit_sllg
 
-    # At end of loop, # sparse grid > min_n_samples
-    min_p = P(np.zeros((1, 1), dtype=int))[0]
+    # At end of while loop, # SG > min_n_samples
+    min_p = P(np.zeros((1, 1), dtype=int))[0]  # include all mids: profit > min_p
     decrease_min_p = True
     while decrease_min_p:
         mid_set = compute_mid_set_fast(P, min_p, dim_samples)
@@ -101,17 +103,18 @@ def compute_quadrature_params(min_n_samples, dim_samples, distrbution="gauss"):
 
     # Quadrature weights[i] = \int_{\Gamma} L_{\by_i}text{d}\mu,
     # where L_{\by} denotes a Lagrange basis function of I
-    # I compute observing that 
+    # I compute observing that
     # L_{y_i} = I[delta_{y_i}], where delta_{y_i}(y_i) = 1., 0 oth.
-    # So I 
-    
+    # So I
+
     # 1. define a function with #SG components. Each is 1 in only 1 SG node.
     Delta_sg = np.eye(I.num_nodes)
-    
+
     # 2. Interpolate over a large Monte Carlo sample
-    zz_mc = np.random.standard_normal((10000, dim_samples))
+    n_mc_samples = int(1 / eps) ** 2  #  10000
+    zz_mc = np.random.standard_normal((n_mc_samples, dim_samples))
     ww_samples = I.interpolate(zz_mc, Delta_sg)
-    
+
     # 3. Compute the quadrature weights as the mean over the MC samples
     quad_weights = np.mean(ww_samples, axis=0)
 
