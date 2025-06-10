@@ -4,8 +4,10 @@ sgmethods/__pycache__
 tests/__pycache__
 tutorials/__pycache__
 .vscode
+
 docs/build
 docs/make.bat
 docs/Makefile
-free_example.py
 
+free_example.py
+tmp.py
