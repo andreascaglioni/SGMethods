@@ -2,6 +2,7 @@ import numpy as np
 from sgmethods.sparse_grid_interpolant import SGInterpolant
 from sgmethods.nodes_1d import opt_guass_nodes_nest
 from sgmethods.multi_index_sets import compute_mid_set_fast
+import numbers
 
 
 def profit_sllg(nu, p=2):
@@ -35,27 +36,24 @@ def profit_sllg(nu, p=2):
     w1 = np.asarray(nu == 1).nonzero()  # np.where(nu == 1)
     w2 = np.asarray(nu > 1).nonzero()  # np.where(nu > 1)
 
-    # Levels of the Levy-Ciesielski expansion.
+    # Levels Levy-Ciesielski expansion.
     nn = np.arange(1, D + 1, 1)  # linear indices mid in nu from (1)
-    # BUG nn = 1 + np.arange(0, D + 1, 1)
     ell = np.ceil(np.log2(nn))  # log-indices mid in nu (from 0)
 
-    # Reshape to make the same shape as nu. Each entry of ell denotes the log index of the correpsoding entry of nu
+    # Make the same shape as nu. Each entry of ell denotes the log index of the correpsoding entry of nu
     ell = np.reshape(ell, (1, ell.size))
     ell = np.repeat(ell, N_nu, axis=0)
 
     # The regularity weights (radious of domain of holomorphic extension);
-    # We use them to define the value.
-    # NB they depend on nu (even if the  regularity of the function does not)
-    # because a maximal domain of holomorphy is unknown.
+    # We use them to define value
+    # NB they depend on nu (even if the regularity of the function does not) because a maximal domain of holomorphy is unknown.
     rho = np.zeros_like(nu, dtype=float)
     if not (w1[0].size == 0):  # if 1 tuple element is empty, the other is too
         rho[w1] = 2.0 ** (3.0 / 2.0 * ell[w1])
     if not (w2[0].size == 0):
         rho[w2] = 2.0 ** (1.0 / 2.0 * ell[w2])
 
-    # Compute value of each component of each multi-index. Then multiply them to
-    # obtain the value of the whole multi-index
+    # Compute value of each component of each multi-index. Then multiply them to obtain the value of the whole multi-index
     V_comps = np.ones_like(rho)
     V_comps[w1] = C1 * np.power(rho[w1], -1.0)
     V_comps[w2] = C2 * np.power(2.0, -p * nu[w2] * rho[w2])
@@ -68,20 +66,37 @@ def profit_sllg(nu, p=2):
     return value / work
 
 
-def compute_quadrature_params(
-    min_n_samples, dim_samples, distrbution="gauss", eps=1.0e-2
-):
+# TODO Currently assuming Gaussian samples for SLLG. Add more options/make an input
+# TODO improve efficiency computation integral: instead of MC, do exact computation based on inclusion-exclsion and TP structure
+def compute_quadrature_params(min_n_samples, dim_samples, distrbution="gauss", eps=1.0e-2):
+    """
+    Computes quadrature nodes and weights for sparse grid quadrature using a Gaussian distribution.
+    Args:
+        min_n_samples (int): Minimum number of quadrature nodes requested.
+        dim_samples (int): Number of dimensions for the quadrature.
+        distrbution (str, optional): Integral measure. Only "gauss" is supported for now. Defaults to "gauss".
+        eps (float, optional): Accuracy integration basis functions. Defaults to 1.0e-4.
+    Returns:
+        tuple:
+            quad_nodes (np.ndarray): Array of quadrature nodes (sparse grid points).
+            quad_weights (np.ndarray): Array of quadrature weights corresponding to the nodes.
+    Raises:
+        ValueError: If `min_n_samples` is not a positive number.
+        ValueError: If `dim_samples` is not a positive integer.
+        ValueError: If `distrbution` is not "gauss".
+    Notes:
+        - The quadrature weights are computed as the mean of the interpolated Lagrange basis functions over a large Monte Carlo sample.
+        - The function relies on external functions/classes: `opt_guass_nodes_nest`, `profit_sllg`, `compute_mid_set_fast`, and `SGInterpolant`.
+    """
+
     # Check input
-    if not isinstance(min_n_samples, np.number) or min_n_samples <= 0:
+    if not isinstance(min_n_samples, numbers.Number) or min_n_samples <= 0:
         raise ValueError("n_samples must be a positive integer.")
     if not isinstance(dim_samples, int) or dim_samples <= 0:
         raise ValueError("dim_samples must be a positive integer.")
 
     if distrbution != "gauss":
         raise ValueError("Only 'gauss' distribution is supported.")
-
-    # Assuming Gaussian samples for SLLG
-    # TODO add more options/make an input
 
     knots = lambda n: opt_guass_nodes_nest(n)  # noqa: E731
     lev2knots = lambda i: np.where(i > 0, 2 ** (i + 1) - 1, 1)  # noqa: E731
