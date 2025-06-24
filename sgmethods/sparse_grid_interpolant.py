@@ -39,16 +39,17 @@ class SGInterpolant:
             verbose (bool, optional): Verbose output. Defaults to True.
         """
         self.verbose = verbose
-        self.mid_set = mid_set  # np array of shape (#mids, N)
-        self.card_mid_set = mid_set.shape[0]
-        self.N = mid_set.shape[1]
-        # NBB need knots[1] = 0 to increase number of dimensions
-        self.knots = knots
-        # NBB need lev2knots(0)=1 to increase number of dimensions
-        self.lev2knots = lev2knots
-        self.tp_interpolant = tp_interpolant
+        self.mid_set = mid_set  # The multi-index set. np.array (#mids, N)
+        self.card_mid_set = mid_set.shape[0]  # Number of multi-indices in the multi-index set. int
+        self.N = mid_set.shape[1]  # Dimensinality. int
+        
+        self.knots = knots  # Knot function. Callable[[int], np.array[float]]  NB need knots[1] = np.array([0.]) to increase number of dimensions
 
-        self.combination_coeffs = []  # list of int
+        self.lev2knots = lev2knots  # Level-to-knot function. Callable[[int], int]  NB need lev2knots(0)=1 to increase number of dimensions
+
+        self.tp_interpolant = tp_interpolant  # tensor-rpdocut interpolation method. Class TPInterpolant 
+
+        self.combination_coeffs = []  # Inclusio-exclusio coefficients. list(int)
         self.active_mids = []  # list of np arrays
         self.active_tp_nodes_list = []  # list of tuples
         # which dimensions of currcent TP interpolant (in inclusion-exclusion

@@ -3,6 +3,7 @@ from sgmethods.sparse_grid_interpolant import SGInterpolant
 from sgmethods.nodes_1d import opt_guass_nodes_nest
 from sgmethods.multi_index_sets import compute_mid_set_fast
 import numbers
+import warnings
 
 
 def profit_sllg(nu, p=2):
@@ -36,24 +37,20 @@ def profit_sllg(nu, p=2):
     w1 = np.asarray(nu == 1).nonzero()  # np.where(nu == 1)
     w2 = np.asarray(nu > 1).nonzero()  # np.where(nu > 1)
 
-    # Levels Levy-Ciesielski expansion.
+    # Levels Levy-Ciesielski expansion (same shape as nuwith np.repeat)
     nn = np.arange(1, D + 1, 1)  # linear indices mid in nu from (1)
     ell = np.ceil(np.log2(nn))  # log-indices mid in nu (from 0)
-
-    # Make the same shape as nu. Each entry of ell denotes the log index of the correpsoding entry of nu
     ell = np.reshape(ell, (1, ell.size))
     ell = np.repeat(ell, N_nu, axis=0)
 
-    # The regularity weights (radious of domain of holomorphic extension);
-    # We use them to define value
-    # NB they depend on nu (even if the regularity of the function does not) because a maximal domain of holomorphy is unknown.
+    # The regularity weights (radious of domain of holomorphic extension)
     rho = np.zeros_like(nu, dtype=float)
     if not (w1[0].size == 0):  # if 1 tuple element is empty, the other is too
         rho[w1] = 2.0 ** (3.0 / 2.0 * ell[w1])
     if not (w2[0].size == 0):
         rho[w2] = 2.0 ** (1.0 / 2.0 * ell[w2])
 
-    # Compute value of each component of each multi-index. Then multiply them to obtain the value of the whole multi-index
+    # Compute value of components of each multi-index (multiply -> value multi-index)
     V_comps = np.ones_like(rho)
     V_comps[w1] = C1 * np.power(rho[w1], -1.0)
     V_comps[w2] = C2 * np.power(2.0, -p * nu[w2] * rho[w2])
@@ -68,7 +65,9 @@ def profit_sllg(nu, p=2):
 
 # TODO Currently assuming Gaussian samples for SLLG. Add more options/make an input
 # TODO improve efficiency computation integral: instead of MC, do exact computation based on inclusion-exclsion and TP structure
-def compute_quadrature_params(min_n_samples, dim_samples, distrbution="gauss", eps=1.0e-2):
+def compute_quadrature_params(
+    min_n_samples, dim_samples, distrbution="gauss", eps=1.0e-2
+):
     """
     Computes quadrature nodes and weights for sparse grid quadrature using a Gaussian distribution.
     Args:
@@ -94,7 +93,6 @@ def compute_quadrature_params(min_n_samples, dim_samples, distrbution="gauss", e
         raise ValueError("n_samples must be a positive integer.")
     if not isinstance(dim_samples, int) or dim_samples <= 0:
         raise ValueError("dim_samples must be a positive integer.")
-
     if distrbution != "gauss":
         raise ValueError("Only 'gauss' distribution is supported.")
 
@@ -102,8 +100,8 @@ def compute_quadrature_params(min_n_samples, dim_samples, distrbution="gauss", e
     lev2knots = lambda i: np.where(i > 0, 2 ** (i + 1) - 1, 1)  # noqa: E731
     P = profit_sllg
 
-    # At end of while loop, # SG > min_n_samples
-    min_p = P(np.zeros((1, 1), dtype=int))[0]  # include all mids: profit > min_p
+    # Find mid_set such that: #SG > min_n_samples
+    min_p = P(np.zeros((1, 1), dtype=int))[0]  # include all mids : profit > min_p
     decrease_min_p = True
     while decrease_min_p:
         mid_set = compute_mid_set_fast(P, min_p, dim_samples)
@@ -116,21 +114,149 @@ def compute_quadrature_params(min_n_samples, dim_samples, distrbution="gauss", e
     # Quadarature samples = current sparse grid
     quad_nodes = I.SG
 
-    # Quadrature weights[i] = \int_{\Gamma} L_{\by_i}text{d}\mu,
-    # where L_{\by} denotes a Lagrange basis function of I
-    # I compute observing that
-    # L_{y_i} = I[delta_{y_i}], where delta_{y_i}(y_i) = 1., 0 oth.
-    # So I
-
-    # 1. define a function with #SG components. Each is 1 in only 1 SG node.
-    Delta_sg = np.eye(I.num_nodes)
-
-    # 2. Interpolate over a large Monte Carlo sample
-    n_mc_samples = int(1 / eps) ** 2  #  10000
-    zz_mc = np.random.standard_normal((n_mc_samples, dim_samples))
-    ww_samples = I.interpolate(zz_mc, Delta_sg)
-
-    # 3. Compute the quadrature weights as the mean over the MC samples
-    quad_weights = np.mean(ww_samples, axis=0)
+    quad_weights = compute_quadarture_wights_MC(dim_samples, eps, I)
 
     return quad_nodes, quad_weights
+
+
+def compute_quadrature_wights_incl_excl(dim_samples, eps, sg_interp):
+    """Compute quadrature weights for sparse grid quadrature using the
+    inclusion-exclusion formula.
+
+    Args:
+        dim_samples (int): Number of dimensions.
+        eps (float): Accuracy parameter (not used in this implementation).
+        sg_interp (SGInterpolant): Sparse grid interpolant object.
+
+    Returns:
+        np.ndarray: Quadrature weights for each sparse grid node.
+    """
+
+    # Fetch data
+    mid_set = sg_interp.mid_set
+    SG = sg_interp.SG
+    aalpha = sg_interp.combination_coeffs  # 1d array (#Lambda, ) incl-excl coeffs
+
+    ww = np.zeros(sg_interp.num_nodes)  # weights to return
+
+    # pre-compute indices of mids which give TP grid containing each SG node
+    idx_mids_y = tuple(ww)
+
+
+    # pe-compute scalar integrals \int_{R} l_y^{\nu} \text{d}\mu, where
+    # l_y^{\nu}: 1D Lagrange basis fun correposdnig to y \in \YY_{\nu}
+    # \mu Standard Gaussian measure
+    
+    yy_1d_unique = np.unique(SG.flatten())
+    ww_1d = np.zeros(np.amax(mid_set))
+
+    # Pre-compute whights tensor-product quadrature (only basis function corresponding to \by in SG)
+    # \by -> \bnu s.t. \by\in \YY_{\bnu} -> TP weight
+    
+    #  combine pre-computed data
+
+
+    # Find, for each $\by \in \HH_{\Lambda}$, the multi indices $\bnu\in\Lambda$ such that 
+    #   * \by \in \YY_{\bnu}
+    #   * \alpha_{\bnu} \neq 0
+    where_y_in_YY = np.array(np.array([], dtype=int), dtype=object)
+    for i in range(mid_set.shape[0]):
+        nu = mid_set[i]
+        
+
+        
+
+    # aalpha: (#SG, # {nu\in\Lambda : by \in YY_nu})
+    # ww_tp:  (#SG, # {nu\in\Lambda : by \in YY_nu}) 
+    nu_select_y = None
+    aalpha_rep = np.array(np.array([]), dtype=object)
+    for i in aalpha_rep.size:
+        aalpha_rep[i] = aalpha[nu_select_y]
+    
+    ww = np.sum(aalpha_rep * ww_tp, axis = 1)
+    return ww
+
+
+    # The inclusion-exclusion principle for sparse grid quadrature weights:
+    # For each node, sum the contributions from all multi-indices containing it,
+    # with alternating signs according to the inclusion-exclusion principle.
+
+    # Get the multi-index set and the corresponding levels
+    mid_set = sg_interp.mid_set
+    nodes = sg_interp.SG
+    num_nodes = sg_interp.num_nodes
+
+    # Get the hierarchical surpluses (coefficients) for each node
+    # For quadrature, the weight for each node is the sum of the weights
+    # of the tensor-product quadrature rules that include it, with the
+    # appropriate inclusion-exclusion sign.
+
+    # For Gaussian quadrature, the 1D weights for each level
+    # are given by the standard Gauss-Hermite quadrature weights.
+    # We need to compute the tensor-product weights for each multi-index,
+    # and then sum their contributions to each node.
+
+    # Precompute 1D nodes and weights for all levels used
+    max_level = np.max(mid_set)
+    one_d_weights = {}
+    one_d_nodes = {}
+    for l in range(max_level + 1):
+        n_knots = sg_interp.lev2knots(l)
+        x, w = np.polynomial.hermite.hermgauss(n_knots)
+        one_d_nodes[l] = x
+        one_d_weights[l] = w / np.sqrt(np.pi)  # normalize for standard normal
+
+    # Map each node to its multi-index and local index in the tensor grid
+    node_to_multi = sg_interp.node_to_multi  # (node_idx) -> (multi_idx, local_idx)
+
+    # For each node, sum the contributions from all multi-indices
+    quad_weights = np.zeros(num_nodes)
+    for node_idx in range(num_nodes):
+        # Find all multi-indices that include this node
+        multi_indices = node_to_multi[node_idx]
+        total_weight = 0.0
+        for multi_idx, local_idx in multi_indices:
+            # Inclusion-exclusion sign: (-1)^(sum of multi_idx - min_level)
+            sign = (-1) ** (np.sum(mid_set[multi_idx]) - np.min(mid_set[multi_idx]))
+            # Tensor-product weight for this node in this multi-index
+            w = 1.0
+            for d in range(dim_samples):
+                l = mid_set[multi_idx, d]
+                w *= one_d_weights[l][local_idx[d]]
+            total_weight += sign * w
+        quad_weights[node_idx] = total_weight
+
+    return quad_weights
+
+
+# DEPRECATED (inefficient)
+def compute_quadarture_wights_MC(dim_samples, eps, sg_interp):
+    """Compute quadrature weights of sparse grid quadrature as :
+        weights[i] = \int_{\Gamma} L_{y_i} d\mu,
+    where L_{y} denotes a Lagrange basis function of I.
+    Observe that:
+        L_{y_i} = I[delta_{y_i}],
+    where delta_{y_i}(y) = 1 if y = y_i, 0 otherwise.
+
+    Args:
+        dim_samples (int): Number of dimensions.
+        eps (float): Accuracy parameter for MC integration.
+        sg_interp (SGInterpolant): Sparse grid interpolant object.
+
+    Returns:
+        np.ndarray: Quadrature weights for each sparse grid node.
+    """
+
+    warnings.warn("compute_quadarture_wights_MC is deprecated.", DeprecationWarning)
+
+    # 1. Define a function with #SG components. Each is 1 in only 1 SG node.
+    Delta_sg = np.eye(sg_interp.num_nodes)
+
+    # 2. Interpolate over a large Monte Carlo sample.
+    n_mc_samples = int(1 / eps) ** 2  #  10000
+    zz_mc = np.random.standard_normal((n_mc_samples, dim_samples))
+    ww_samples = sg_interp.interpolate(zz_mc, Delta_sg)
+
+    # 3. Compute the quadrature weights as the mean over the MC samples.
+    quad_weights = np.mean(ww_samples, axis=0)
+    return quad_weights
