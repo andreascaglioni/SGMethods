@@ -11,13 +11,15 @@ from sgmethods.multi_index_sets import tensor_product_mid_set
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-
-
-def float_f(x):
-    return "{:.4e}".format(x)
+from sgmethods.utils import float_f
 
 
 def test_profit_definition():
+    """
+    - Check that the profit at the first index is close to 1.0.
+    - Check that the profit values are monotonically non-increasing.
+    - Visualizes the profit values as a 3D scatter plot with respect to Lambda parameters.
+    """
     N_params = 2
     Lambda = tensor_product_mid_set(w=4, N=N_params)
     pp = profit_sllg(Lambda)
@@ -41,6 +43,8 @@ def test_profit_definition():
 
 
 def test_quadrature_execution():
+    """Tests quadrature parameter computation and visualizes nodes and weights in 3D."""
+
     min_n = 10
     dim = 2
     n, w = compute_quadrature_params(min_n, dim)
@@ -57,6 +61,13 @@ def test_quadrature_execution():
 
 
 def test_quadrature_simple_f():
+    """
+    Test simple quadrature rules for 1D integrals using different functions:
+    - f(x) = 1
+    - f(x) = x
+    - f(x) = x**2
+    """
+
     n_samples = 40
     d = 1
 
@@ -69,15 +80,7 @@ def test_quadrature_simple_f():
 
     If_approx = np.dot(w, f(n.T))
     If = 1
-    print(
-        "If=",
-        If,
-        "; If approx =",
-        float_f(If_approx),
-        "; Error =",
-        float_f(np.abs(If - If_approx)),
-        end="\n\n",
-    )
+    print("If=", If, "; If approx =", If_approx, "; Error =", np.abs(If - If_approx))
 
     # -------------------------- f = x -> int f = 0 -------------------------- #
     print("f = x")
@@ -85,17 +88,10 @@ def test_quadrature_simple_f():
     n, w = compute_quadrature_params(min_n_samples=n_samples, dim_samples=d)
     If_approx = np.dot(w, f(n.T).squeeze())
     If = 0
-    print(
-        "If=",
-        If,
-        "; If approx =",
-        If_approx,
-        "; Error =",
-        np.abs(If - If_approx),
-        end="\n\n",
-    )
+    print("If=", If, "; If approx =", If_approx, "; Error =", np.abs(If - If_approx))
 
     # ------------------------- f = x**2 -> int f = 1 ------------------------ #
+    print("f = x**2")
     f = lambda x: x**2  # noqa: E731
     n, w = compute_quadrature_params(min_n_samples=n_samples, dim_samples=d)
     If_approx = np.dot(w, f(n.T).squeeze())
@@ -104,6 +100,10 @@ def test_quadrature_simple_f():
 
 
 def test_conv_quadr_simple_f():
+    """
+    Tests the convergence of a quadrature method for integrating f(x) = x^2 over varying sample sizes and tolerances.
+    """
+
     f = lambda x: x**2
     If = 1  # exact
     d = 1
@@ -115,8 +115,15 @@ def test_conv_quadr_simple_f():
             n, w = compute_quadrature_params(min_n_samples=ns, dim_samples=d, eps=eps)
             If_approx = np.dot(w, f(n.T).squeeze())
             err[i] = np.abs(If - If_approx)
-            print("    ns", ns, "If_approx", float_f(If_approx), "err", float_f(If - If_approx))
-        
+            print(
+                "    ns",
+                ns,
+                "If_approx",
+                float_f(If_approx),
+                "err",
+                float_f(If - If_approx),
+            )
+
         # plot line
         plt.loglog(nns, err, ".-", label=str(eps))
         plt.legend()
@@ -126,6 +133,6 @@ def test_conv_quadr_simple_f():
 
 
 # test_profit_definition()
-# test_quadrature_execution()
+test_quadrature_execution()
 # test_quadrature_simple_f()
-test_conv_quadr_simple_f()
+# test_conv_quadr_simple_f()

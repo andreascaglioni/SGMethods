@@ -7,6 +7,11 @@ from math import exp, floor, log2
 import numpy as np
 import matplotlib.pyplot as plt
 
+
+def float_f(x):
+    return "{:.4e}".format(x)
+
+
 # TODO move to module LC.
 def compute_level_lc(i):
     r"""Converts from linear to hierarchical indices for a wavelet expansion 
