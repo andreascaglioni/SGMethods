@@ -1,9 +1,11 @@
+from math import sqrt, pi, exp, erf
 import numpy as np
 from sgmethods.sparse_grid_interpolant import SGInterpolant
 from sgmethods.nodes_1d import opt_guass_nodes_nest
 from sgmethods.multi_index_sets import compute_mid_set_fast
 import numbers
 import warnings
+from scipy.stats import norm
 
 
 def profit_sllg(nu, p=2):
@@ -84,7 +86,7 @@ def compute_quadrature_params(
         ValueError: If `dim_samples` is not a positive integer.
         ValueError: If `distrbution` is not "gauss".
     Notes:
-        - The quadrature weights are computed as the mean of the interpolated Lagrange basis functions over a large Monte Carlo sample.
+        - The quadrature weights are with inclusion-exclusion formula
         - The function relies on external functions/classes: `opt_guass_nodes_nest`, `profit_sllg`, `compute_mid_set_fast`, and `SGInterpolant`.
     """
 
@@ -96,7 +98,7 @@ def compute_quadrature_params(
     if distrbution != "gauss":
         raise ValueError("Only 'gauss' distribution is supported.")
 
-    knots = lambda n: opt_guass_nodes_nest(n)  # noqa: E731
+    knots = opt_guass_nodes_nest
     lev2knots = lambda i: np.where(i > 0, 2 ** (i + 1) - 1, 1)  # noqa: E731
     P = profit_sllg
 
@@ -132,101 +134,96 @@ def compute_quadrature_wights_incl_excl(dim_samples, eps, sg_interp):
         np.ndarray: Quadrature weights for each sparse grid node.
     """
 
-    # Fetch data
-    mid_set = sg_interp.mid_set
-    SG = sg_interp.SG
-    aalpha = sg_interp.combination_coeffs  # 1d array (#Lambda, ) incl-excl coeffs
+    sg = sg_interp.SG
+    num_nodes = sg.interp.num_nodes
+    combi_coeffs = sg.combination_coeffs
+    num_mids, dim = sg_interp.mid_set.shape
+    lev2knots = sg_interp.lev2knots
 
-    ww = np.zeros(sg_interp.num_nodes)  # weights to return
-
-    # pre-compute indices of mids which give TP grid containing each SG node
-    idx_mids_y = tuple(ww)
-
-
-    # pe-compute scalar integrals \int_{R} l_y^{\nu} \text{d}\mu, where
-    # l_y^{\nu}: 1D Lagrange basis fun correposdnig to y \in \YY_{\nu}
-    # \mu Standard Gaussian measure
+    ww = np.zeros(num_nodes)  # quadrature weights, to return
     
-    yy_1d_unique = np.unique(SG.flatten())
-    ww_1d = np.zeros(np.amax(mid_set))
-
-    # Pre-compute whights tensor-product quadrature (only basis function corresponding to \by in SG)
-    # \by -> \bnu s.t. \by\in \YY_{\bnu} -> TP weight
+    # Change shape combi_coeffs to (1, -1) for breoadcasting
+    combi_coeffs = combi_coeffs.reshape(1, -1)
     
-    #  combine pre-computed data
-
-
-    # Find, for each $\by \in \HH_{\Lambda}$, the multi indices $\bnu\in\Lambda$ such that 
-    #   * \by \in \YY_{\bnu}
-    #   * \alpha_{\bnu} \neq 0
-    where_y_in_YY = np.array(np.array([], dtype=int), dtype=object)
-    for i in range(mid_set.shape[0]):
-        nu = mid_set[i]
-        
-
-        
-
-    # aalpha: (#SG, # {nu\in\Lambda : by \in YY_nu})
-    # ww_tp:  (#SG, # {nu\in\Lambda : by \in YY_nu}) 
-    nu_select_y = None
-    aalpha_rep = np.array(np.array([]), dtype=object)
-    for i in aalpha_rep.size:
-        aalpha_rep[i] = aalpha[nu_select_y]
+    # ------------------------------------------------------------------------ #
+    #                       Compute 1d quadrature weights                      #
+    # ------------------------------------------------------------------------ #
+    max_n = np.amax(sg_interp.mid_set.flatten())
+    W_1d = compute_1d_quadrature_weights(max_n, sg_interp)
     
-    ww = np.sum(aalpha_rep * ww_tp, axis = 1)
+    
+
+    # ------------------------------------------------------------------------ #
+    #                       Compute TP quadrature weights                      #
+    # ------------------------------------------------------------------------ #
+    # For each *actuve* multi-index in the multi-index set
+    # Compute a matrix W_tp_nu of shape (lev2knots(nu[0]), ..., lev2knots(nu[-1]))
+    # W_tp_nu[i[0], ..., i[-1]] = \int_{\Gamma} l^{\bnu}_{\by} d\mu
+    # where \by = [kk[0, i[0]], ..., k[-1, i[-1]]]
+    # and k[j, :] are the 1d nodes corresponding to nu[j]
+    # TODO how use 1d quadrature weights?
+    
+    W_tp = np.zeros(num_mids)
+    for i in range(W_tp):
+        W_1d = np.zeros(lev2knots())
+
+    # TODO convert to SG shape:
+    #     (W_tp)_ij = \int_{\Gamma} l_{\by_i}^{\bnu_j} d\mu
+    #     W_tp = np.zeros(num_nodes, num_mids)
+    W_tp = None
+    
+    #  Cmpute SG weights with inclusion-exclusion formula
+    ww = np.sum(combi_coeffs * W_tp, axis=1)  # bradcasting combi_coeffs
+
     return ww
 
+def compute_1d_quadrature_weights(max_n, lev2knots, knots, interpolant="pw_lin_extrapolated"):
+    """ Compute all 1D interpolation weights associated to a quadrature rule, up to a maximum number of quadrature nodes for all smaller admissible number of nodes.
 
-    # The inclusion-exclusion principle for sparse grid quadrature weights:
-    # For each node, sum the contributions from all multi-indices containing it,
-    # with alternating signs according to the inclusion-exclusion principle.
+    Args:
+        max_n (int): The maximum index (exclusive) for which to compute quadrature weights.
+        knots (callable[int, [np.ndarray[float]]]): Function that returns the 1D nodes for a given number of knots. Should be compatible with `lev2knots`.
+        lev2knots (callable[int, [int]]): Function mapping an index `n` to the number of knots/nodes to use.
+        interpolant (str, optional): The type of 1D interpolant to use. Currently only supports "pw_lin_extrapolated" (piecewise linear interpolant with extrapolation). Defaults to "pw_lin_extrapolated".
 
-    # Get the multi-index set and the corresponding levels
-    mid_set = sg_interp.mid_set
-    nodes = sg_interp.SG
-    num_nodes = sg_interp.num_nodes
+    Returns:
+        np.ndarray: 1D array of objects. Each entry corresponds to an index up to `max_n`. The j-th entry is an array of 1D quadrature weights corresponding to the 1D nodes for the j-th index.
 
-    # Get the hierarchical surpluses (coefficients) for each node
-    # For quadrature, the weight for each node is the sum of the weights
-    # of the tensor-product quadrature rules that include it, with the
-    # appropriate inclusion-exclusion sign.
+    Notes:
+        - The number of nodes for each index `n` is determined as `lev2knots(n)` for `n = 0, ..., max_n - 1`.
+        - `knots(m)` returns the 1D nodes (works only if `m` is generated by `lev2knots`).
+        - Currently implemented only for the piecewise linear interpolant with extrapolation ("pw_lin_extrapolated").
+        - integral (a*x+b)* exp**(-x**2/2)/sqrt(2*pi) = 
+            -a/sqrt(2*pi)*exp**(-x**2/2) + sqrt(pi/2)*b*erf(x/sqrt(2))
+    """
+    
+    
+    prim_integrand = lambda a, b, x : -a/sqrt(2*pi)*exp**(-x**2/2) + sqrt(pi/2)*b*erf(x/sqrt(2))
 
-    # For Gaussian quadrature, the 1D weights for each level
-    # are given by the standard Gauss-Hermite quadrature weights.
-    # We need to compute the tensor-product weights for each multi-index,
-    # and then sum their contributions to each node.
+    W_1d = np.empty(max_n, dtype=object)
+    for n in range(max_n):
+        num_knots = lev2knots(n)
+        nodes = knots(num_knots)
+        W_1d[n] = np.zeros(num_knots)
+        if interpolant == "pw_lin_extrapolated":
+            if num_knots == 0:
+                W_1d[0] = np.array([1.0])
+            else:
+                # Node 0
+                y, yn = nodes[0], nodes[1]
+                f = lambda x : prim_integrand(1/(y-yn), -yn/(y-yn), x)
+                int_y_yn = f[yn]-f[y]
+                W_1d[n][0] = norm.cdf(nodes[0]) + int_y_yn
 
-    # Precompute 1D nodes and weights for all levels used
-    max_level = np.max(mid_set)
-    one_d_weights = {}
-    one_d_nodes = {}
-    for l in range(max_level + 1):
-        n_knots = sg_interp.lev2knots(l)
-        x, w = np.polynomial.hermite.hermgauss(n_knots)
-        one_d_nodes[l] = x
-        one_d_weights[l] = w / np.sqrt(np.pi)  # normalize for standard normal
 
-    # Map each node to its multi-index and local index in the tensor grid
-    node_to_multi = sg_interp.node_to_multi  # (node_idx) -> (multi_idx, local_idx)
 
-    # For each node, sum the contributions from all multi-indices
-    quad_weights = np.zeros(num_nodes)
-    for node_idx in range(num_nodes):
-        # Find all multi-indices that include this node
-        multi_indices = node_to_multi[node_idx]
-        total_weight = 0.0
-        for multi_idx, local_idx in multi_indices:
-            # Inclusion-exclusion sign: (-1)^(sum of multi_idx - min_level)
-            sign = (-1) ** (np.sum(mid_set[multi_idx]) - np.min(mid_set[multi_idx]))
-            # Tensor-product weight for this node in this multi-index
-            w = 1.0
-            for d in range(dim_samples):
-                l = mid_set[multi_idx, d]
-                w *= one_d_weights[l][local_idx[d]]
-            total_weight += sign * w
-        quad_weights[node_idx] = total_weight
 
-    return quad_weights
+
+
+
+            raise NotImplementedError("Only 'pw_lin_extrapolated' interpolant is supported.")
+    return W_1d
+
 
 
 # DEPRECATED (inefficient)
