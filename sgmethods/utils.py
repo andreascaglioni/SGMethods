@@ -45,6 +45,18 @@ def compute_level_lc(i):
     return l, j
 
 
+def float_f(x):
+    """
+    Standart SGMethods formatting (scientific, with 4 decimals).
+    Args:
+        x (float): The number to format.
+    Returns:
+        str: The formatted string in scientific notation.
+    """
+
+    return "{:.4e}".format(x)
+
+
 # Functions for working with multi-indices.
 def coord_unit_vector(dim, entry):
     """Returns a coordinate unit vector, i.e. one with all zeros except for one
