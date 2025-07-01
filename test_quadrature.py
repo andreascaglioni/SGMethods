@@ -165,9 +165,9 @@ def test_convergence_mean_error():
 
 if __name__ == "main":
     # test_profit_definition()
-    # test_quadrature_execution()
+    test_quadrature_execution()
     # test_quadrature_constant_f()
     # test_quadrature_identity()
     # test_quadrature_square()
     # test_convergence()
-    test_convergence_mean_error()
+    # test_convergence_mean_error()

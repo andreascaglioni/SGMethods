@@ -25,7 +25,7 @@ class TPInterpolatorWrapper:
 
         Args:
             active_nodes_tuple (tuple[numpy.ndarray[float]]): Tuple of 1D nodes
-                in each direction for whihc there is more than 1 node.
+                in each direction for which there is more than 1 node.
             active_dims (numpy.ndarray[int]): Dimensions with more that 1 node.
             f_on_nodes (numpy.ndarray[double]): Values of data to interpolate
             (each data point may be vector of some lenght).
