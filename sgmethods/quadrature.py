@@ -66,7 +66,7 @@ def profit_sllg(nu, p=2):
 
 # TODO Currently assuming Gaussian samples for SLLG. Add more options/make an input
 # TODO improve efficiency computation integral: instead of MC, do exact computation based on inclusion-exclsion and TP structure
-def compute_quadrature_params(min_n_samples, dim, distrbution="gauss", eps=1.0e-2):
+def compute_quadrature_params(min_n_samples, dim, P, knots, lev2knots):
     """
     Computes quadrature nodes and weights for sparse grid quadrature using a Gaussian distribution.
     Args:
@@ -87,17 +87,12 @@ def compute_quadrature_params(min_n_samples, dim, distrbution="gauss", eps=1.0e-
         raise ValueError("n_samples must be a positive integer.")
     if not (isinstance(dim, numbers.Number) ) or dim <= 0:
         raise ValueError("dim_samples must be a positive integer.")
-    if distrbution != "gauss":
-        raise ValueError("Only 'gauss' distribution is supported.")
-
-    knots = opt_guass_nodes_nest
-    lev2knots = lambda i: np.where(i > 0, 2 ** (i + 1) - 1, 1)  # noqa: E731
-    P = profit_sllg
+    
 
     # Find mid_set such that: #SG > min_n_samples
     if min_n_samples == 1:
         mid_set = np.array([[0]])
-        I =SGInterpolant(mid_set, knots, lev2knots)
+        I = SGInterpolant(mid_set, knots, lev2knots)
     else:
         mid0 = np.zeros((1, 1), dtype=int)
         min_p = P(mid0)[0]
@@ -109,16 +104,16 @@ def compute_quadrature_params(min_n_samples, dim, distrbution="gauss", eps=1.0e-
                 break
             min_p *= 0.5
 
-    # Quadarature samples = current sparse grid
+    # Quadarature samples = current sparse grid + enforce dimensionality
     quad_nodes = np.zeros((I.num_nodes, dim))
     quad_nodes += I.SG
 
-    quad_weights = compute_quadrature_wights_incl_excl(dim, eps, I)
+    quad_weights = compute_quadrature_wights_incl_excl(dim, I)
 
     return quad_nodes, quad_weights
 
 
-def compute_quadrature_wights_incl_excl(dim, eps, sg_interp):
+def compute_quadrature_wights_incl_excl(dim, sg_interp):
     """Compute quadrature weights for sparse grid quadrature using the
     inclusion-exclusion formula.
 
