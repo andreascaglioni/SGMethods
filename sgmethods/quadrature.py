@@ -6,67 +6,15 @@ from sgmethods.multi_index_sets import compute_mid_set_fast
 import numbers
 import warnings
 from scipy.special import erf
+import sys
+sys.path.append("../stochllg")
+from stochllg.profits import profit_sllg_fast as profit_sllg
 
-
-def profit_sllg(nu, p=2):
-    """Compute the sparse grid profits of given multi-indices.
-    For piecewise-polynomials of degree p-1 and parametric SLLG.
-
-    Args:
-        nu (numpy.ndarray[float]): 2D array, each row is a multi-index.
-        p (int): Integer >= 2. Piecewise polynomial interpolation degree + 1.
-
-    Returns:
-        numpy.ndarray[float]: 1D array of (non-negative) profits. Length equals number of rows of nu.
-    """
-
-    #  Check input
-    if not (isinstance(p, int) and p > 1):
-        raise TypeError("p is not int >= 2")
-    if not isinstance(nu, np.ndarray):
-        raise TypeError("nu must be a numpy.ndarray.")
-    if nu.ndim != 2:
-        raise ValueError("nu must be a 2D array.")
-    if not np.issubdtype(nu.dtype, int):
-        raise TypeError("nu must be an array of int.")
-    if np.any(nu < 0):
-        raise ValueError("All entries of nu must be non-negative.")
-
-    N_nu, D = nu.shape
-    C1, C2 = 1, 1
-
-    w1 = np.asarray(nu == 1).nonzero()
-    w2 = np.asarray(nu > 1).nonzero()
-
-    # Levels Levy-Ciesielski expansion (same shape as nu)
-    nn = np.arange(1, D + 1, 1)  # linear indices mids
-    ell = np.ceil(np.log2(nn))  # log-indices mids
-    ell = np.reshape(ell, (1, ell.size))
-    ell = np.repeat(ell, N_nu, axis=0)
-
-    # The regularity weights (radii of C-disks of holomorphic extension)
-    rho = np.zeros_like(nu, dtype=float)
-    if not (w1[0].size == 0):  # if entry 0 is empty, the other is too
-        rho[w1] = 2.0 ** (3.0 / 2.0 * ell[w1])
-    if not (w2[0].size == 0):
-        rho[w2] = 2.0 ** (1.0 / 2.0 * ell[w2])
-
-    # Compute value
-    V_comps = np.ones_like(rho)
-    V_comps[w1] = C1 * np.power(rho[w1], -1.0)
-    V_comps[w2] = C2 * np.power(2.0, -p * nu[w2] * rho[w2])
-    value = np.prod(V_comps, axis=1)
-
-    # Compute work
-    W_comps = (2 ** (nu + 1) - 2) * (p - 1) + 1
-    work = np.prod(W_comps, axis=1)
-
-    return value / work
 
 
 # TODO Currently assuming Gaussian samples for SLLG. Add more options/make an input
 # TODO improve efficiency computation integral: instead of MC, do exact computation based on inclusion-exclsion and TP structure
-def compute_quadrature_params(min_n_samples, dim, distrbution="gauss", eps=1.0e-2):
+def compute_quadrature_params(min_n_samples, dim, P, knots, lev2knots):
     """
     Computes quadrature nodes and weights for sparse grid quadrature using a Gaussian distribution.
     Args:
@@ -87,17 +35,12 @@ def compute_quadrature_params(min_n_samples, dim, distrbution="gauss", eps=1.0e-
         raise ValueError("n_samples must be a positive integer.")
     if not (isinstance(dim, numbers.Number) ) or dim <= 0:
         raise ValueError("dim_samples must be a positive integer.")
-    if distrbution != "gauss":
-        raise ValueError("Only 'gauss' distribution is supported.")
-
-    knots = opt_guass_nodes_nest
-    lev2knots = lambda i: np.where(i > 0, 2 ** (i + 1) - 1, 1)  # noqa: E731
-    P = profit_sllg
+    
 
     # Find mid_set such that: #SG > min_n_samples
     if min_n_samples == 1:
         mid_set = np.array([[0]])
-        I =SGInterpolant(mid_set, knots, lev2knots)
+        I = SGInterpolant(mid_set, knots, lev2knots)
     else:
         mid0 = np.zeros((1, 1), dtype=int)
         min_p = P(mid0)[0]
@@ -109,16 +52,16 @@ def compute_quadrature_params(min_n_samples, dim, distrbution="gauss", eps=1.0e-
                 break
             min_p *= 0.5
 
-    # Quadarature samples = current sparse grid
+    # Quadarature samples = current sparse grid + enforce dimensionality
     quad_nodes = np.zeros((I.num_nodes, dim))
     quad_nodes += I.SG
 
-    quad_weights = compute_quadrature_wights_incl_excl(dim, eps, I)
+    quad_weights = compute_quadrature_wights_incl_excl(dim, I)
 
     return quad_nodes, quad_weights
 
 
-def compute_quadrature_wights_incl_excl(dim, eps, sg_interp):
+def compute_quadrature_wights_incl_excl(dim, sg_interp):
     """Compute quadrature weights for sparse grid quadrature using the
     inclusion-exclusion formula.
 

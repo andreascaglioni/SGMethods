@@ -45,7 +45,13 @@ def test_profit_definition():
 def test_quadrature():
     """Tests computation quadrature nodes and weights. Plot in 3D."""
 
-    n, w = compute_quadrature_params(min_n_samples=6, dim=2)
+    knots = opt_guass_nodes_nest
+    lev2knots = lambda i: np.where(i > 0, 2 ** (i + 1) - 1, 1)  # noqa: E731
+    P = profit_sllg
+    dim = 2
+    min_n_nodes = 6
+
+    n, w = compute_quadrature_params(min_n_nodes, dim, P, knots, lev2knots)
 
     print(f"{'Nodes':>11} | {'Weight':>8}")
     print("-" * 25)
@@ -63,43 +69,70 @@ def test_quadrature():
     plt.show()
 
 
-def _conv_test_quadr(f, If, dim, min_nn):
+def _conv_test_quadr(f, If, dim, min_nn, P, knots, lev2knots):
     nn = np.zeros_like(min_nn)
     Qf = np.zeros_like(nn, dtype=float)
     for i, n in enumerate(min_nn):
-        xx, ww = compute_quadrature_params(min_n_samples=n, dim=dim)
+        xx, ww = compute_quadrature_params(n, dim, P, knots, lev2knots)
+
+        # -------------------------------- TMP ------------------------------- #
+        # xx = np.random.normal(0, 1, (n, dim))
+        # ww = np.ones(n) / float(n)
+        # -------------------------------- TMP ------------------------------- #
+
         nn[i] = ww.size
         Qf[i] = np.dot(f(xx.T), ww)
-    err = np.abs(If-Qf)
+    err = np.abs(If - Qf)
     return nn, err
+
 
 def test_convergence_2d():
     f = lambda x: x[0] ** 2  # noqa: E731
-    If = 1.
-    min_nn = 2**np.arange(1,11)
-    nn, err = _conv_test_quadr(f, If, 5, min_nn)
+    If = 1.0
+    min_nn = 2 ** np.arange(1, 11)
+    knots = opt_guass_nodes_nest
+    lev2knots = lambda i: np.where(i > 0, 2 ** (i + 1) - 1, 1)  # noqa: E731
+    P = profit_sllg
+    nn, err = _conv_test_quadr(f, If, 5, min_nn, P, knots, lev2knots)
     r = rate(err, nn)
     print("n_xx", nn)
     print("err", err)
     print("Mean rate", np.mean(r))
-    plt.loglog(nn, err, '.-')
-    plt.loglog(nn, nn**(-np.mean(r)), 'k-')
+    plt.loglog(nn, err, ".-")
+    plt.loglog(nn, nn ** (-np.mean(r)), "k-")
     plt.show()
 
+
 def test_conv_wrt_dim():
-    f = lambda x: x[0] ** 2  # noqa: E731
-    If = 1.
-    min_nn = 2**np.arange(1, 11, dtype=int)
+    np.set_printoptions(
+        precision=4,
+        suppress=False,
+        floatmode="maxprec",
+        formatter={"float_kind": lambda x: f"{float(x):.4e}"},
+    )
+    f = lambda x: x[0] ** 2   # noqa: E731
+    If = 1.0
+    knots = opt_guass_nodes_nest
+    lev2knots = lambda i: np.where(i > 0, 2 ** (i + 1) - 1, 1)  # noqa: E731
+    # P = profit_sllg
+    P = lambda nu : np.power(2., -np.sum(nu, axis=1))  # noqa: E731
+    min_nn = 2 ** np.arange(10, dtype=int)
     dd = np.arange(1, 10, dtype=int)
-    rr = np.zeros_like(dd)
+    rr = np.zeros_like(dd, dtype=float)
     for i, dim in enumerate(dd):
-        nn, err = _conv_test_quadr(f, If, dim, min_nn)
+        print("\niter", i, "dim", dim)
+        nn, err = _conv_test_quadr(f, If, dim, min_nn, P, knots, lev2knots)
+        # remove repeated
+        nn, idx = np.unique(nn, return_index=True)
+        err = err[idx]
+
         r = rate(err, nn)
         rr[i] = np.mean(r)
-    print(rr)
-
-
-
+        print("nn", nn, "\nerr", err, "\nrate", r)
+        plt.loglog(nn, err, label=str(dim))
+    print("Rate wrt dim", rr)
+    plt.legend()
+    plt.show()
 
 
 def test_quadrature_simple_f():
@@ -168,42 +201,6 @@ def test_conv_quadr_simple_f():
     plt.legend()
     plt.loglog(nns, 1.0 / nns, "k-", label="n^(-1)")
     plt.loglog(nns, 1.0 / np.sqrt(nns), "k-", label="n^(-1/2)")
-    plt.show()
-
-
-def test_convergence_mean_error():
-    """
-    Test convergence of the mean absolute error of the quadrature rule
-    over multiple random runs, for f(x) = x^2 (mean = 1).
-    """
-    f = lambda x: x**2  # noqa: E731
-    If = 1  # exact mean for standard normal
-    N = 1
-    nns = 2 ** np.arange(1, 8)
-    n_trials = 30
-    mean_err = np.zeros_like(nns, dtype=float)
-    std_err = np.zeros_like(nns, dtype=float)
-    eps = 1e-3
-
-    for i, ns in enumerate(nns):
-        errs = []
-        for _ in range(n_trials):
-            n, w = compute_quadrature_params(min_n_samples=ns, dim=N, eps=eps)
-            If_approx = np.dot(w, f(n.T).squeeze())
-            errs.append(np.abs(If - If_approx))
-        mean_err[i] = np.mean(errs)
-        std_err[i] = np.std(errs)
-        print(
-            f"ns={ns}, mean_err={float_f(mean_err[i])}, std_err={float_f(std_err[i])}"
-        )
-
-    plt.errorbar(nns, mean_err, yerr=std_err, fmt="o-", label="Mean abs error")
-    plt.loglog(nns, 1.0 / nns, "k--", label="n^(-1)")
-    plt.loglog(nns, 1.0 / np.sqrt(nns), "k-.", label="n^(-1/2)")
-    plt.xlabel("Number of nodes")
-    plt.ylabel("Mean absolute error")
-    plt.legend()
-    plt.title("Convergence of mean quadrature error (f = x^2)")
     plt.show()
 
 
