@@ -139,7 +139,7 @@ def compute_quadrature_wights_incl_excl(dim, eps, sg_interp):
     ww = np.zeros(num_nodes)  # quadrature weights, to return
 
     # Compute 1d quadrature weights
-    W_1d = compute_1d_quadrature_weights(max_nu, lev2knots, knots)
+    W_1d = compute_1d_quadrature_weights_pw_lin_Gauss(max_nu, lev2knots, knots)
 
     # Inclusion-exclusion formula: Loop over active mids
     for i, nu in enumerate(sg_interp.active_mids):
@@ -156,7 +156,7 @@ def compute_quadrature_wights_incl_excl(dim, eps, sg_interp):
     return ww
 
 
-def compute_1d_quadrature_weights(
+def compute_1d_quadrature_weights_pw_lin_Gauss(
     max_nu, lev2knots, knots, interpolant="pw_lin_extr"
 ):
     if interpolant != "pw_lin_extr":
@@ -199,7 +199,7 @@ def compute_1d_quadrature_weights(
 
 
 # ------------------------- DEPRECATED (inefficient) ------------------------ #
-def compute_quadarture_wights_MC(dim_samples, eps, sg_interp):
+def compute_quadarture_weights_MC(dim_samples, eps, sg_interp):
     """Compute quadrature weights of sparse grid quadrature as :
         weights[i] = int_{Gamma} L_{y_i} d mu,
     where L_{y} denotes a Lagrange basis function of I.

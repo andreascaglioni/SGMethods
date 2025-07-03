@@ -9,7 +9,7 @@ from sgmethods.quadrature import profit_sllg, compute_quadrature_params
 from sgmethods.multi_index_sets import tensor_product_mid_set
 from sgmethods.utils import float_f
 
-from sgmethods.quadrature import compute_1d_quadrature_weights
+from sgmethods.quadrature import compute_1d_quadrature_weights_pw_lin_Gauss
 from sgmethods.nodes_1d import opt_guass_nodes_nest
 from sgmethods.sparse_grid_interpolant import SGInterpolant
 from sgmethods.utils import rate
@@ -214,7 +214,7 @@ def test_1d_weights():
     lev2knots = lambda nu: 2 ** (nu + 1) - 1  # noqa: E731
     knots = lambda m: opt_guass_nodes_nest(m)  # noqa: E731
     max_nu = 10
-    ww = compute_1d_quadrature_weights(max_nu, lev2knots, knots)
+    ww = compute_1d_quadrature_weights_pw_lin_Gauss(max_nu, lev2knots, knots)
     Q_f = np.zeros(max_nu)
     for nu in range(max_nu):
         ww_curr = ww[nu]
