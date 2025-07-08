@@ -343,4 +343,4 @@ class SGInterpolant:
                 self.tp_interpolant,
             )
             out = out + self.combination_coeffs[n] * tp_interpolant(x_new)
-        return np.squeeze(out)  # remove dimensions of length 1
+        return out
