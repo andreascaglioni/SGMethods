@@ -8,6 +8,23 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
+def compute_effective_dim_mid_set(mid_set):
+    """Find max dimension with non-zero indices.
+
+    Args:
+        mid_set (numpy.ndarray[float]): The multi-index set. Each row is a multi-index.
+
+    Returns:
+        int: The maximum dimension with at least 1 non-zero index.
+    """
+    s = np.linalg.norm(mid_set, axis=0)
+    w = np.asarray(s>0).nonzero()[0]
+    if w.size == 0:
+        return 0
+    else:
+        return np.amax(w)+1  # +1 to go from array idx to number
+
+
 def float_f(x):
     return "{:.4e}".format(x)
 
