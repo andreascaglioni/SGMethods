@@ -225,92 +225,87 @@ class SGInterpolant:
             is the value of ``f`` on a sparse grid (``self.SG``) point.
         """
 
-        # Sanity checks: dimensions oldXx, oldSamples
-        if not (old_xx is None and old_samples is None):
-            assert old_xx.shape[0] == old_samples.shape[0]
 
-        # Sample first node to allocate output array
-        # NB cannot use old_xx becuase dimensioanlity may ahve changed and
-        # old_xx will need to be either truncated or 0-extended in dimension 1
-        f_y0 = np.atleast_1d(f(self.SG[0]))  # turn in array if scalar
-        assert len(f_y0.shape) == 1
-        dim_f = f_y0.size
+        # Input check: old_xx is None iff old_sampels is None
+        assert (old_xx is None and old_samples is None) or (old_xx is not None and old_samples is not None), f"Old xx and samples don't match: \nold_xx: {old_xx} \nold_samples: {old_samples}"
+        
+        # Find dimension values of f form old_samples (if available) or sampling a new f
+        if old_samples is not None:  # If old samples provided, just use that
+            dim_f = old_samples.shape[1]
+        else:  # No recycling will happen. Compute f on 1st SG node
+            f_y0 = np.atleast_1d(f(self.SG[0]))
+            assert len(f_y0.shape) == 1, "Only 1D function values are supported."
+            dim_f = f_y0.size
+
+        # Initialize output array: each row is 1 samples
         f_on_SG = np.zeros((self.num_nodes, dim_f))
-        f_on_SG[0, :] = f_y0
 
-        # If old_xx not None, use it to find dimensions of f samples
-        # assert  self.SG.shape[0] > 0
-        # if not old_samples is None:
-        #     old_samples = np.atleast_1d(old_samples)
-        #     dim_f = old_samples.shape[1]
-        #     assert dim_f >= 1
-        # else:  # Sample on first SG node to determine dimension of f samples
-        #     node0 = self.SG[0]
-        #     f_on_SG0 = np.atleast_1d(f(node0))  # turn in array if scalar
-        #     dim_f = f_on_SG0.size
-        #     # Save the computed value!
-        #     old_xx = np.atleast_2d(node0)
-        #     old_samples = f_on_SG0
-        # f_on_SG = np.zeros((self.num_nodes, dim_f))  # the return array
-
-        # Turn old_xx and old_samples into np arrays of size 0, if None
-        if (old_xx is None) or (old_samples is None):
+        # If None, turn old_xx and old_samples into np arrays with 0 rows
+        if old_xx is None:
             old_xx = np.zeros((0, self.N))
             old_samples = np.zeros((0, dim_f))
 
+        assert old_xx.shape[0] == old_samples.shape[0], "old_xx and old_samples must have same number of rows"
+
         # If old_xx has smaller dimension than the sparse grid: 0-extend it
-        if old_xx.shape[1] < self.SG.shape[1]:
+        if old_xx.shape[1] < self.N:
             filler = np.zeros((old_xx.shape[0], self.SG.shape[1] - old_xx.shape[1]))
             old_xx = np.hstack((old_xx, filler))
 
         # If old_xx has larger dimension than the sparse grid: Truncate it
-        elif old_xx.shape[1] > self.SG.shape[1]:
+        elif old_xx.shape[1] > self.N:
             curr_dim = self.N
             tail_norm = norm_l2(old_xx[:, curr_dim::], ord=1, axis=1).astype(int)
             # Can recycle old sample only if removed entries=0. Discart others.
             idxs_valid_entries = np.where(tail_norm == 0)[0]
             old_xx = old_xx[idxs_valid_entries, 0 : self.N]
             old_samples = old_samples[idxs_valid_entries]
-
-        # Find sparse grid points to either load from load_xx or to sample now
-        # Update n_recycle  every time a useful node found in old_xx
-        idxs_nodes_to_compute = []  # list indices SG nodes to compute on
+      
+        # Fill f_on_SG
+        
+        # Find samples to load from old_samples. Store the other nodes to compute later
         n_recycle = 0
-        for n in range(1, self.num_nodes):  # NB 1 becuase node 0 sampled above!
-            curr_node = self.SG[n, :]
-            # Check if curr_node in old_xx
-            check = np.where(norm_l2(old_xx - curr_node, 1, axis=1) < 1.0e-10)[0]
-            if check.size > 0:  # found
+        idxs_nodes_to_compute = []
+        for idx in range(self.num_nodes):
+            curr_node = self.SG[idx, :]
+            # found = np.where(norm_l2(old_xx - curr_node, 1, axis=1) < 1.0e-10)[0]
+            node_in_old_xx = norm_l2(old_xx - curr_node, 1, axis=1) < 1.0e-10
+            found = np.asarray(node_in_old_xx).nonzero()[0]
+            
+            assert found.size < 2, f"Found curr_node {curr_node} in positions {found} of old_samples. old_samples should not have repetitions."
+            
+            if found.size > 0:
                 n_recycle += 1
+                f_on_SG[idx] = old_samples[found, :]
             else:
-                idxs_nodes_to_compute.append(n)
+                idxs_nodes_to_compute.append(idx)
 
-        # Sample (possibily in parallel) on points where no value is recycled.
+        if self.verbose:
+            n_dis = old_xx.shape[0] - n_recycle
+            n_sam = self.SG.shape[0] - n_recycle
+            print(f"Recycled {n_recycle}; Discarted {n_dis}; Sampled {n_sam}", flush=True)
+
+        # If old_samples is None, add to f_on_SG the f_y0 computed above
+        if old_samples is None and len(idxs_nodes_to_compute) > 0:
+            f_on_SG[idxs_nodes_to_compute[0]] = f_y0
+            idxs_nodes_to_compute.pop(0)
+        
         if len(idxs_nodes_to_compute) > 0:
-            # Split, even if could instead run with 1 Pool instance (solution if
-            # Pool not installed)
             if self.n_parallel == 1:
                 for idx in idxs_nodes_to_compute:
                     f_on_SG[idx, :] = f(self.SG[idx])
             elif self.n_parallel > 1:
                 pool = Pool(self.n_parallel)
                 tmp = np.array(pool.map(f, idxs_nodes_to_compute))
+                pool.join()
                 pool.close()
-                pool.join()  # TODO should not join before closing?
                 if len(tmp.shape) == 1:
                     tmp = tmp.reshape((-1, 1))
                 f_on_SG[idxs_nodes_to_compute, :] = tmp
             else:
                 raise ValueError('self.NParallel not int >= 1"')
-        if self.verbose:
-            print(
-                "Recycled",
-                n_recycle,
-                "; Discarted",
-                old_xx.shape[0] - n_recycle,
-                "; Sampled",
-                self.SG.shape[0] - n_recycle,
-            )
+        
+        
         return f_on_SG
 
     def interpolate(self, x_new, f_on_SG):
