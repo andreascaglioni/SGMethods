@@ -3,9 +3,24 @@ needed in the core functions or that may come in handy when using SGMethods in
 numerical aexperiments and applications.
 """
 
-from math import exp, floor, log2
+from math import exp, floor, log2, sqrt
 import numpy as np
 import matplotlib.pyplot as plt
+
+from sgmethods.multi_index_sets import compute_mid_set_fast
+from sgmethods.sparse_grid_interpolant import SGInterpolant
+
+
+def build_interpolant_n_nodes(profit, dim_y, nodes, lev2knots, n_sg, f=sqrt(2.0)):
+    reduce_p = True
+    min_profit = 0.99 * profit(np.array([[0]]))
+    while reduce_p:
+        mid_set = compute_mid_set_fast(profit, min_profit, dim_y)
+        Interp = SGInterpolant(mid_set, nodes, lev2knots)
+        if Interp.SG.shape[0] >= n_sg:
+            break
+        min_profit /= f
+    return Interp
 
 
 def compute_effective_dim_mid_set(mid_set):
@@ -18,11 +33,11 @@ def compute_effective_dim_mid_set(mid_set):
         int: The maximum dimension with at least 1 non-zero index.
     """
     s = np.linalg.norm(mid_set, axis=0)
-    w = np.asarray(s>0).nonzero()[0]
+    w = np.asarray(s > 0).nonzero()[0]
     if w.size == 0:
         return 0
     else:
-        return np.amax(w)+1  # +1 to go from array idx to number
+        return np.amax(w) + 1  # +1 to go from array idx to number
 
 
 def float_f(x):
@@ -51,14 +66,14 @@ def compute_level_lc(i):
     """
 
     if i == 0:
-        l=0
-        j=1
+        l = 0
+        j = 1
     elif i == 1:
-        l=1
-        j=1
+        l = 1
+        j = 1
     else:
-        l = floor(log2(i))+1
-        j = i - 2**(l-1)
+        l = floor(log2(i)) + 1
+        j = i - 2 ** (l - 1)
     return l, j
 
 
@@ -88,8 +103,9 @@ def coord_unit_vector(dim, entry):
     """
 
     en = np.zeros(dim, dtype=int)
-    en[entry]=1
+    en[entry] = 1
     return en
+
 
 def lexic_sort(mid_set):
     """Sort given multi-index set in lexicographic order. This means that one
@@ -105,11 +121,12 @@ def lexic_sort(mid_set):
     """
     return mid_set[np.lexsort(np.rot90(mid_set))]
 
+
 # TODO make one version that exploits lexicographic order for afster search in
 # O(log(number mids)*dim) by useing binary search for each component
 # TODO make findMid independent of trailing 0s in either margin or midSet
 def find_mid(mid, mid_set):
-    """Find out whether a given multi-index appears in a multi index set and 
+    """Find out whether a given multi-index appears in a multi index set and
     determine the position of its first occurrence.
 
     Args:
@@ -118,48 +135,51 @@ def find_mid(mid, mid_set):
             is a multi-index.
 
     Returns:
-        tuple(bool,int): First value tells whether ``mid`` was found inside 
+        tuple(bool,int): First value tells whether ``mid`` was found inside
         ``mid_set``. Second value is the position (-1 if not found).
     """
 
     # TODO make faster exploiting lexicographic order
-    if mid_set.size==0:
+    if mid_set.size == 0:
         return False, -1
     assert mid_set.shape[1] == mid.size
-    bool_vec = np.all(mid_set==mid, axis=1)
+    bool_vec = np.all(mid_set == mid, axis=1)
     pos = np.where(bool_vec)[0]
-    assert pos.size<2
-    if len(pos)==0:
+    assert pos.size < 2
+    if len(pos) == 0:
         return False, -1
     else:
         return True, pos[0]
 
+
 def find_idx_in_margin(margin, mid):
-    """DEPRECATED. To be removed soon and substitute with 
+    """DEPRECATED. To be removed soon and substitute with
     :py:func:`find_mid`."""
     idx = np.all(margin == mid, axis=1)
     idx = np.where(idx == True)
     idx = idx[0][0]
     return idx
 
+
 def checkIfElement(mid, mid_set):
-    """DEPRECATED. To be removed soon and substitute with 
+    """DEPRECATED. To be removed soon and substitute with
     :py:func:`find_mid`."""
 
-    assert (mid.size == mid_set.shape[1])
-    assert (len(mid.shape) == 1)
-    assert (len(mid_set.shape) == 2)
+    assert mid.size == mid_set.shape[1]
+    assert len(mid.shape) == 1
+    assert len(mid_set.shape) == 2
     return (mid_set == mid).all(axis=1).any()
+
 
 # TODO substittue checkIfElement with findMid
 def mid_is_in_reduced_margin(mid, mid_set):
     r"""
-    Check if ``mid`` belongs to the reduced margin of ``mid_set``. This is the 
-    case if and only if 
-    
+    Check if ``mid`` belongs to the reduced margin of ``mid_set``. This is the
+    case if and only if
+
     .. math::
-        
-        \forall n = 1,...,N, \ \nu_n = 0 
+
+        \forall n = 1,...,N, \ \nu_n = 0
         \textrm{ or } \nu - e_n \in \Lambda,
 
     where we denoted ``mid_set`` and ``mid`` by :math:`\Lambda` and :math:`\nu`
@@ -169,9 +189,9 @@ def mid_is_in_reduced_margin(mid, mid_set):
     Args:
         mid (numpy.ndarray[float]): 1D array for the mutli-index.
         mid_set (numpy.ndarray[float]): A 2D numpy array for the multi-index
-            set. Each wor is a multi-index. 
+            set. Each wor is a multi-index.
     Returns:
-        bool: True if ``mid`` is in the reduced margin of ``mid_set``, False 
+        bool: True if ``mid`` is in the reduced margin of ``mid_set``, False
         otherwise.
     """
 
@@ -180,8 +200,9 @@ def mid_is_in_reduced_margin(mid, mid_set):
     condition = np.zeros(dim_mids, dtype=bool)
     for n in range(dim_mids):
         en = coord_unit_vector(dim_mids, n)
-        condition[n] = ((mid[n] == 0) or (checkIfElement(mid-en, mid_set)))
+        condition[n] = (mid[n] == 0) or (checkIfElement(mid - en, mid_set))
     return np.all(condition)
+
 
 def is_downward(mid_set):
     r"""Check if the multi-index set is downward-closed. This means that:
@@ -199,20 +220,23 @@ def is_downward(mid_set):
 
     for mid in mid_set:
         for i in range(mid.size):
-            if mid[i] != 0 and not\
-                find_mid(mid-coord_unit_vector(mid.size, i), mid_set)[0]:
+            if (
+                mid[i] != 0
+                and not find_mid(mid - coord_unit_vector(mid.size, i), mid_set)[0]
+            ):
                 return False
     return True
+
 
 # TODO implement
 def add_multi_index(mids, mid_set):
     """Add the multi-indices in ``mids`` to the multi-index set ``mid_set``.
 
     Args:
-        mids (numpy.ndarray[float]): The multi-indices to add. Can be a float 
+        mids (numpy.ndarray[float]): The multi-indices to add. Can be a float
             (1 multi-index of length 1), 1D array (1 multi-index), or 2D array
             (each row is a multi-index).
-        mid_set (numpy.ndarray[float]): 2D array, where each row represents a 
+        mid_set (numpy.ndarray[float]): 2D array, where each row represents a
             multi-index. The multi-index set.
 
     Returns:
@@ -221,14 +245,16 @@ def add_multi_index(mids, mid_set):
     """
     return None
 
+
 # Basic plotting functions for convergence plots, midsets
+
 
 def rate(err, n_dofs):
     r"""Compute the rate of logarithmic convergence of a sequence.
 
     Args:
         err (numpy.ndarray[float]): 1D array of errors (positive).
-        n_nofs (numpy.ndarray[int]): Number of degrees of freedom that give 
+        n_nofs (numpy.ndarray[int]): Number of degrees of freedom that give
             the corresponding error in ``err``.
 
     Returns:
@@ -242,7 +268,8 @@ def rate(err, n_dofs):
     """
     err = np.array(err)
     n_dofs = np.array(n_dofs)
-    return -np.log(err[1::]/err[:-1:])/np.log(n_dofs[1::]/n_dofs[:-1:])
+    return -np.log(err[1::] / err[:-1:]) / np.log(n_dofs[1::] / n_dofs[:-1:])
+
 
 def ls_fit_loglog(x, y):
     r"""Fit samples of a function :math:`f:\mathbb{R}\rightarrow\mathbb{R}` to a
@@ -262,17 +289,18 @@ def ls_fit_loglog(x, y):
     alpha, gamma = np.linalg.lstsq(A, Y, rcond=None)[0]
     return alpha, exp(gamma)
 
+
 def plot_2d_midset(midset):
     """Plot the 2D multi-index set in the plane."""
 
     assert midset.shape[1] <= 2
     if midset.shape[1] == 1:
-        plt.plot(midset, np.zeros(midset.shape[0]), 's', color='black')
+        plt.plot(midset, np.zeros(midset.shape[0]), "s", color="black")
     else:
-        plt.plot(midset[:,0], midset[:,1], 's', color='black')
-    plt.xticks(np.arange(int(midset[:,0].min()), int(midset[:,0].max())+1, 1))
-    plt.yticks(np.arange(int(midset[:,1].min()), int(midset[:,1].max())+1, 1))
-    plt.xlabel('Index 1')
-    plt.ylabel('Index 2')
-    plt.gca().set_aspect('equal', adjustable='box')
+        plt.plot(midset[:, 0], midset[:, 1], "s", color="black")
+    plt.xticks(np.arange(int(midset[:, 0].min()), int(midset[:, 0].max()) + 1, 1))
+    plt.yticks(np.arange(int(midset[:, 1].min()), int(midset[:, 1].max()) + 1, 1))
+    plt.xlabel("Index 1")
+    plt.ylabel("Index 2")
+    plt.gca().set_aspect("equal", adjustable="box")
     plt.tight_layout()
