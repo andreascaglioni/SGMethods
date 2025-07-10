@@ -3,24 +3,10 @@ needed in the core functions or that may come in handy when using SGMethods in
 numerical aexperiments and applications.
 """
 
-from math import exp, floor, log2, sqrt
+from math import exp, floor, log2
 import numpy as np
 import matplotlib.pyplot as plt
 
-from sgmethods.multi_index_sets import compute_mid_set_fast
-from sgmethods.sparse_grid_interpolant import SGInterpolant
-
-
-def build_interpolant_n_nodes(profit, dim_y, nodes, lev2knots, n_sg, f=sqrt(2.0)):
-    reduce_p = True
-    min_profit = 0.99 * profit(np.array([[0]]))
-    while reduce_p:
-        mid_set = compute_mid_set_fast(profit, min_profit, dim_y)
-        Interp = SGInterpolant(mid_set, nodes, lev2knots)
-        if Interp.SG.shape[0] >= n_sg:
-            break
-        min_profit /= f
-    return Interp
 
 
 def compute_effective_dim_mid_set(mid_set):
