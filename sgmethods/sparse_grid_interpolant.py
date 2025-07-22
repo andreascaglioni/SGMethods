@@ -312,7 +312,7 @@ class SGInterpolant:
         if self.verbose:
             n_dis = old_xx.shape[0] - n_recycle
             n_sam = self.SG.shape[0] - n_recycle
-            print(f"Recycled {n_recycle}; Discarted {n_dis}; Sampled {n_sam}", flush=True)
+            print(f"Recycle {n_recycle}; Discart {n_dis}; Sample {n_sam}", flush=True)
 
         # If old_samples is None, add to f_on_SG the f_y0 computed above
         if old_samples is None and len(idxs_nodes_to_compute) > 0:
@@ -321,9 +321,13 @@ class SGInterpolant:
         
         if len(idxs_nodes_to_compute) > 0:
             if self.n_parallel == 1:
+                print("Sample serially", len(idxs_nodes_to_compute), "snapshots")
                 for idx in idxs_nodes_to_compute:
+                    print(idx, "| ", end="")
                     f_on_SG[idx, :] = f(self.SG[idx])
+                print("")
             elif self.n_parallel > 1:
+                print("Sample in parallel with", self.n_parallel, "processes")
                 pool = Pool(self.n_parallel)
                 tmp = np.array(pool.map(f, idxs_nodes_to_compute))
                 pool.join()
@@ -333,7 +337,7 @@ class SGInterpolant:
                 f_on_SG[idxs_nodes_to_compute, :] = tmp
             else:
                 raise ValueError('self.NParallel not int >= 1"')
-        
+
         
         return f_on_SG
 
