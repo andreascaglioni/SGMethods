@@ -13,7 +13,7 @@ from sgmethods.tp_interpolant_wrapper import TPInterpolatorWrapper
 from sgmethods.multi_index_sets import compute_mid_set_fast
 
 
-def build_interpolant_n_nodes(profit, dim_y, nodes, lev2knots, n_sg, f=sqrt(2.0)):
+def build_interpolant_n_nodes(profit, dim_y, nodes, lev2knots, n_sg, f=sqrt(2.0), verbose=True):
     """
     Builds a sparse grid interpolant with at least n_sg nodes for a given profit function.
     Args:
@@ -23,6 +23,7 @@ def build_interpolant_n_nodes(profit, dim_y, nodes, lev2knots, n_sg, f=sqrt(2.0)
         lev2knots (callable): Function mapping levels to knots.
         n_sg (int): Minimum number of sparse grid nodes required.
         f (float, optional): Reduction factor for profit threshold. Default sqrt(2.).
+        verbose (float, optional): Same as in construction SGInterpolant
     Returns:
         SGInterpolant: Interpolant object with at least n_sg nodes.
     """
@@ -31,7 +32,7 @@ def build_interpolant_n_nodes(profit, dim_y, nodes, lev2knots, n_sg, f=sqrt(2.0)
     min_profit = 0.99 * profit(np.array([[0]]))
     while reduce_p:
         mid_set = compute_mid_set_fast(profit, min_profit, dim_y)
-        Interp = SGInterpolant(mid_set, nodes, lev2knots)
+        Interp = SGInterpolant(mid_set, nodes, lev2knots, verbose=verbose)
         if Interp.SG.shape[0] >= n_sg:
             break
         min_profit /= f
